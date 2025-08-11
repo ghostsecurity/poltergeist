@@ -9,12 +9,6 @@ on:
       - 'cmd/rules/**'
       - 'docs/rules.md'
   pull_request:
-    branches:
-      - main
-    paths:
-      - 'rules/**'
-      - 'cmd/rules/**'
-      - 'docs/rules.md'
 
 jobs:
   check-rules-docs:

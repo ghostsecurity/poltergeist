@@ -76,13 +76,13 @@ Use word boundaries (`\b`) when possible to reduce false positives. Word boundar
 
 Use entropy to filter out false positives. True secrets, keys, and cryptographic material should have high entropy. Specifying the `entropy` field forces the rule to only match secrets with an entropy greater than or equal to the specified value.
 
-**Partially implemented**: we aren't yet checking the entropy of the match.
+⚠️ **Partially implemented**: we aren't yet checking the entropy of the match.
 
 ### Stop Words
 
 Stop words are words that are common in the English language and should not appear in most valid secrets.
 
-**Not implemented**: we aren't yet checking for stop words in the match.
+⚠️ **Not implemented**: we aren't yet checking for stop words in the match.
 
 ## Redaction
 
