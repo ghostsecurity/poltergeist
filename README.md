@@ -160,7 +160,7 @@ The current resource configuration is:
 - **Worker Count**: `2 × CPU cores`
 - **Max File Size**: 100MB (files larger than this are skipped)
 - **Buffer Size**: 128KB read buffer, 10MB max line length
-- **Pattern Matching**: Case-insensitive regex by default
+- **Pattern Matching**: Case-sensitive regex by default, enable `(?i)` in pattern for case-insensitive matching
 
 Further benchmarking is required to determine the optimal configuration.
 
