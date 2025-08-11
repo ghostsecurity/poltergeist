@@ -1,4 +1,4 @@
-name: Trufflehog
+name: Secrets
 on:
   push:
     branches:
