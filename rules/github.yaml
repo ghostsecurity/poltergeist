@@ -1,0 +1,142 @@
+rules:
+  - name: GitHub PAT (classic)
+    id: ghost.github.1
+    description: GitHub Personal Access Token (classic)
+    tags:
+      - api
+      - github
+      - pat
+    pattern: |
+      (?x)
+        \b
+          (ghp_(?i:[A-Z0-9]{36}))
+        \b
+    redact: [8, 4]
+    entropy: 3.5
+    tests:
+      assert:
+        - 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
+        - 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
+      assert_not:
+        - ghx_JDrzFMHPrT9YBcgydx57kDwvrJiUCg206kAM
+        - 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x
+        - ghp_JDrzFMHPrT9YBcgydx57kDwvrJiUCg206kA
+    history:
+      - 2025-08-08 initial version
+    refs:
+      - https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
+  - name: GitHub OAuth Access Token
+    id: ghost.github.2
+    description: GitHub OAuth Access Token
+    tags:
+      - api
+      - github
+      - oauth
+    pattern: |
+      (?x)
+        \b
+          (gho_(?i:[A-Z0-9]{36}))
+        \b
+    redact: [8, 4]
+    entropy: 3.5
+    tests:
+      assert:
+        - gho_16C7e42F292c6912E7710c838347Ae178B4a
+        - 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
+      assert_not:
+        - ghx_JDrzFMHPrT9YBcgydx57kDwvrJiUCg206kAM
+        - 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x
+        - ghp_JDrzFMHPrT9YBcgydx57kDwvrJiUCg206kA
+    history:
+      - 2025-08-08 initial version
+    refs:
+      - https://github.blog/engineering/behind-githubs-new-authentication-token-formats/
+  - name: GitHub App Token
+    id: ghost.github.3
+    description: GitHub App Token (user, server, or refresh token)
+    tags:
+      - api
+      - github
+      - ghu
+      - ghs
+      - ghr
+    pattern: |
+      (?x)
+        \b
+          ((?:ghu|ghs|ghr)_(?i:[A-Z0-9]{36}))
+        \b
+    redact: [8, 4]
+    entropy: 3.5
+    tests:
+      assert:
+        - ghu_JDrzFMHPrT9YBcgydx57kDwvrJiUCg206kAM
+        - ghs_JDrzFMHPrT9YBcgydx57kDwvrJiUCg206kAM
+        - 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
+      assert_not:
+        - ghx_JDrzFMHPrT9YBcgydx57kDwvrJiUCg206kAM
+        - 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x
+        - ghp_JDrzFMHPrT9YBcgydx57kDwvrJiUCg206kA
+    history:
+      - 2025-08-08 initial version
+    refs:
+      - https://github.blog/engineering/behind-githubs-new-authentication-token-formats/
+    notes:
+      - The `ghu` prefix indicates a user-to-server token.
+      - The `ghs` prefix indicates a server-to-server token.
+      - The `ghr` prefix indicates a refresh token.
+  - name: GitHub OAuth Client Secret
+    id: ghost.github.4
+    description: GitHub OAuth Client Secret
+    tags:
+      - api
+      - github
+      - oauth
+    pattern: |
+      (?x)
+        \b
+          (?i)(?:GITHUB.*SECRET)
+          [\W]{0,10}?
+          ([A-Z0-9]{40})
+        \b
+    redact: [4, 4]
+    entropy: 3.1
+    tests:
+      assert:
+        - 'GITHUB_CLIENT_SECRET="c11b57493996861fe8e6b1d8cb8103aec9ebb431"'
+        - 'GITHUB_OAUTH_CLIENT_SECRET="2642c33aac30f054967ab7c9a1cd185fad1897dd"'
+        - 'GITHUB_APP_CLIENT_SECRET="13f38597a7bfbd77155656b29073638c5c3aaedb"'
+      assert_not:
+        - 'GITHUB_CLIENT_ID="c11b57493996861fe8e6b1d8cb8103aec9ebb431"'
+        - 'GITHUB_OAUTH_CLIENT="2642c33aac30f054967ab7c9a1cd185fad1897dd"'
+        - 'GITHUB_APP_CLIENT="13f38597a7bfbd77155656b29073638c5c3aaedb"'
+    history:
+      - 2025-08-08 initial version
+    refs:
+      - https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#creating-multiple-tokens-for-oauth-apps
+  - name: GitHub PAT (fine-grained)
+    id: ghost.github.5
+    description: GitHub Personal Access Token (fine-grained)
+    tags:
+      - api
+      - github
+      - pat
+    pattern: |
+      (?x)
+        \b
+          (github_pat_(?i)[A-Z0-9]{22}_[A-Z0-9]{59})
+        \b
+    redact: [15, 4]
+    entropy: 4.5
+    tests:
+      assert:
+        - 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
+        - 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
+      assert_not:
+        - github_pat_11AATSKBQ0lTjO3FcoXVhc_0TEL1k5TYq3yqHD3uoHnqyCsyhSAanxii5ljQKbGKRkHXM26NTJ517oSiu
+        - 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x
+        - github_token_11AATSKBQ0lTjO3FcoXVhc_0TEL1k5TYq3yqHD3uoHnqyCsyhSAanxii5ljQKbGKRkHXM26NTJ517oSiuQ
+    history:
+      - 2025-08-08 initial version
+      - 2025-08-08 changed the pattern to match two segements instead of one; the first is 22 characters, the second is 59 characters
+    refs:
+      - https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token

@@ -1,0 +1,35 @@
+rules:
+  - name: File 2 Rule A
+    id: file2.rule.a
+    tags:
+      - file2
+    pattern: |
+      (?x)
+        file2-[a-z]+-a
+    entropy: 2.0
+    tests:
+      assert:
+        - file2-test-a
+        - file2-match-a
+      assert_not:
+        - file2-123-a
+        - file3-test-a
+    history:
+      - 2025-01-02 file2 created
+  - name: File 2 Rule B
+    id: file2.rule.b
+    tags:
+      - file2
+    pattern: |
+      (?x)
+        file2-[a-z]+-b
+    entropy: 3.0
+    tests:
+      assert:
+        - file2-test-b
+        - file2-match-b
+      assert_not:
+        - file2-123-b
+        - file3-test-b
+    history:
+      - 2025-01-02 file2 created

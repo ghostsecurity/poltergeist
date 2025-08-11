@@ -1,0 +1,48 @@
+rules:
+  - name: Anthropic API Key
+    id: ghost.anthropic.1
+    description: Anthropic API key.
+    tags:
+      - api
+      - anthropic
+    pattern: |
+      (?x)
+        \b
+          (sk-ant-api\d{2}-(?i)[A-Z0-9_-]{86}-(?i)[A-Z0-9_]{6}AA)
+        \b
+    entropy: 5.1
+    redact: [16, 4]
+    tests:
+      assert:
+        - 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
+        - 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
+        - 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
+        - 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
+      assert_not:
+        - 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
+    history:
+      - 2025-08-02 initial version
+  - name: Anthropic Admin API Key
+    id: ghost.anthropic.2
+    description: Anthropic admin API key.
+    tags:
+      - api
+      - anthropic
+      - admin
+    pattern: |
+      (?x)
+        \b
+          (sk-ant-admin\d{2}-(?i)[A-Z0-9_-]{86}-(?i)[A-Z0-9_]{6}AA)
+        \b
+    redact: [18, 4]
+    entropy: 5.1
+    tests:
+      assert:
+        - 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
+        - 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
+        - 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
+        - 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
+      assert_not:
+        - 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
+    history:
+      - 2025-08-02 initial version

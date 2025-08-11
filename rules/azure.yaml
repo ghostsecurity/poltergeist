@@ -1,0 +1,137 @@
+rules:
+  - name: Azure Storage Account Key
+    id: ghost.azure.1
+    description: Matches an Azure storage account key variable declaration.
+    tags:
+      - api
+      - azure
+      - storage
+    pattern: |
+      (?x)
+        \b
+          (?i)AZURE\w*
+          [\W]{0,10}?
+          ((?i)[A-Z0-9+/-]{86,88}={0,2})
+        \b
+    redact: [4, 4]
+    entropy: 4.4
+    tests:
+      assert:
+        - 'export AZURE_API_KEY="xuedih/6muLHnTZnQh2dFui2negXtl2dYAG4B81vavDlC7SzOPPENBqOQpQ3Szm+0zRIxapeyDMc+AStqwRYog=="'
+        - 'export AZURE_API_KEY="sxXhDHyLFvDhNx7iClzCPpLefT4E4INJaSCtQohkdjgs80sLltV1hkwsVJplTZgA2XUa3Tq0sfPq+AStql6/Mw=="'
+        - 'export AZURE_API_KEY="tTq/fVMtipDbzqDv1AM8fNH4ylSo7Vd2mw80xd1Ptqh6KUwK/bh1UUZRvIiXRpPj4OQz423CWyri+AStSaVUeQ=="'
+      assert_not:
+        - 'export AZURE_API_KEY="1234567890123456"'
+    history:
+      - 2025-08-07 initial version
+    refs:
+      - https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/view-resource-data
+  - name: Azure OpenAI API Key
+    id: ghost.azure.2
+    description: Matches an Azure OpenAI API key variable declaration.
+    tags:
+      - api
+      - azure
+      - openai
+    pattern: |
+      (?x)
+        \b
+          (?i:(?:AZURE|OPENAI)\w*)
+          [\W]{0,10}?
+          ((?i:[A-Z0-9]{84}))
+        \b
+    redact: [4, 4]
+    entropy: 4.1
+    tests:
+      assert:
+        - 'export AZURE_OPENAI="3IfsqmqTQEnBrECDdOYqLROcsZJCSyoH6bUdM8OOXSQ3bN69XXg0JQQJ99BHACHYHv6XJ3w3AAAAACOGofTr"'
+      assert_not:
+        - 'export AZURE_API_KEY="1234567890123456"'
+    history:
+      - 2025-08-07 initial version
+    refs:
+      - https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/view-resource-data
+  - name: Azure DevOps Personal Access Token
+    id: ghost.azure.3
+    description: Matches an Azure DevOps personal access token variable declaration.
+    tags:
+      - api
+      - azure
+      - devops
+      - pat
+    pattern: |
+      (?x)
+        \b
+          (?i:(?:TOKEN|PAT|PERSONAL_?ACCESS_?TOKEN)\w*)
+          [\W]{0,10}?
+          ((?i:[A-Z0-9]{75,}(?-i:AZDO)[A-Z0-9]{4,}))
+        \b
+    redact: [4, 4]
+    entropy: 4.1
+    tests:
+      assert:
+        - 'export TOKEN="58qqGEDD1m7lS6ilSU4XvqWZxYu8o75aIKl6GS4TqXReWiqP36wWJQQJ99BHACAAAAAntG7TAAASAZDO4VWk"'
+        - 'PAT=1GQmb8Aoqq1pNqeAmRt9oo9nSMqy3fPHejHjM7cvC1yJZK9L2irlJQQJ99BHACAAAAAntG7TAAASAZDOCjDk'
+        - 'const personalAccessToken = "9UJ30J9AwNCxa8WBLhOEuK1ZjFMPdIxB6anzGxgXPfE5jzgq0HwsJQQJ99BHACAAAAAntG7TAAASAZDO3f3s"'
+      assert_not:
+        - 'export AZURE_API_KEY="1234567890123456"'
+    history:
+      - 2025-08-07 initial version
+    refs:
+      - https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate
+    notes:
+      - Magic string "AZDO"
+  - name: Azure Entra ID Token v1
+    id: ghost.azure.4
+    description: Azure Entra ID token v1 variable declaration.
+    tags:
+      - api
+      - azure
+      - entra
+    pattern: |
+      (?x)
+        \b
+          (?i:(?:AZURE|ENTRA|ENTRA_?TOKEN)\w*)
+          [\W]{0,10}?
+          ((?i:eyJ[A-Z0-9_-]{100,})\.eyJ(?i:[A-Z0-9_-]{100,})\.(?i:[A-Z0-9_-]{3,}))
+        \b
+    redact: [8, 4]
+    entropy: 5.1
+    tests:
+      assert:
+        - 'ENTRA_TOKEN=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6Imk2bEdrM0ZaenhSY1ViMkMzbkVRN3N5SEpsWSIsImtpZCI6Imk2bEdrM0ZaenhSY1ViMkMzbkVRN3N5SEpsWSJ9.eyJhdWQiOiJlZjFkYTlkNC1mZjc3LTRjM2UtYTAwNS04NDBjM2Y4MzA3NDUiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC9mYTE1ZDY5Mi1lOWM3LTQ0NjAtYTc0My0yOWYyOTUyMjIyOS8iLCJpYXQiOjE1MzcyMzMxMDYsIm5iZiI6MTUzNzIzMzEwNiwiZXhwIjoxNTM3MjM3MDA2LCJhY3IiOiIxIiwiYWlvIjoiQVhRQWkvOElBQUFBRm0rRS9RVEcrZ0ZuVnhMaldkdzhLKzYxQUdyU091TU1GNmViYU1qN1hPM0libUQzZkdtck95RCtOdlp5R24yVmFUL2tES1h3NE1JaHJnR1ZxNkJuOHdMWG9UMUxrSVorRnpRVmtKUFBMUU9WNEtjWHFTbENWUERTL0RpQ0RnRTIyMlRJbU12V05hRU1hVU9Uc0lHdlRRPT0iLCJhbXIiOlsid2lhIl0sImFwcGlkIjoiNzVkYmU3N2YtMTBhMy00ZTU5LTg1ZmQtOGMxMjc1NDRmMTdjIiwiYXBwaWRhY3IiOiIwIiwiZW1haWwiOiJBYmVMaUBtaWNyb3NvZnQuY29tIiwiZmFtaWx5X25hbWUiOiJMaW5jb2xuIiwiZ2l2ZW5fbmFtZSI6IkFiZSAoTVNGVCkiLCJpZHAiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC83MmY5ODhiZi04NmYxLTQxYWYtOTFhYi0yZDdjZDAxMjIyNDcvIiwiaXBhZGRyIjoiMjIyLjIyMi4yMjIuMjIiLCJuYW1lIjoiYWJlbGkiLCJvaWQiOiIwMjIyM2I2Yi1hYTFkLTQyZDQtOWVjMC0xYjJiYjkxOTQ0MzgiLCJyaCI6IkkiLCJzY3AiOiJ1c2VyX2ltcGVyc29uYXRpb24iLCJzdWIiOiJsM19yb0lTUVUyMjJiVUxTOXlpMmswWHBxcE9pTXo1SDNaQUNvMUdlWEEiLCJ0aWQiOiJmYTE1ZDY5Mi1lOWM3LTQ0NjAtYTc0My0yOWYyOTU2ZmQ0MjkiLCJ1bmlxdWVfbmFtZSI6ImFiZWxpQG1pY3Jvc29mdC5jb20iLCJ1dGkiOiJGVnNHeFlYSTMwLVR1aWt1dVVvRkFBIiwidmVyIjoiMS4wIn0.D3H6pMUtQnoJAGq6AHd'
+      assert_not:
+        - 'export AZURE_API_KEY="1234567890123456"'
+    history:
+      - 2025-08-07 initial version
+    refs:
+      - https://learn.microsoft.com/en-us/azure/devops/integrate/get-started/authentication/entra
+    notes:
+      - Entra ID tokens have a 1 hour lifetime, unlikely to discover an active token
+  - name: Azure Entra ID Token v2
+    id: ghost.azure.5
+    description: Azure Entra ID token v2 variable declaration.
+    tags:
+      - api
+      - azure
+      - entra
+    pattern: |
+      (?x)
+        \b
+          (?i:(?:AZURE|ENTRA|ENTRA_?TOKEN)\w*)
+          [\W]{0,10}?
+          ((?i:eyJ[A-Z0-9_-]{50,})\.eyJ(?i:[A-Z0-9_-]{100,})\.(?i:[A-Z0-9_-]{3,}))
+        \b
+    redact: [8, 4]
+    entropy: 5.1
+    tests:
+      assert:
+        - 'ENTRA_TOKEN=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Imk2bEdrM0ZaenhSY1ViMkMzbkVRN3N5SEpsWSJ9.eyJhdWQiOiI2ZTc0MTcyYi1iZTU2LTQ4NDMtOWZmNC1lNjZhMzliYjEyZTMiLCJpc3MiOiJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vNzJmOTg4YmYtODZmMS00MWFmLTkxYWItMmQ3Y2QwMTFkYjQ3L3YyLjAiLCJpYXQiOjE1MzcyMzEwNDgsIm5iZiI6MTUzNzIzMTA0OCwiZXhwIjoxNTM3MjM0OTQ4LCJhaW8iOiJBWFFBaS84SUFBQUF0QWFaTG8zQ2hNaWY2S09udHRSQjdlQnE0L0RjY1F6amNKR3hQWXkvQzNqRGFOR3hYZDZ3TklJVkdSZ2hOUm53SjFsT2NBbk5aY2p2a295ckZ4Q3R0djMzMTQwUmlvT0ZKNGJDQ0dWdW9DYWcxdU9UVDIyMjIyZ0h3TFBZUS91Zjc5UVgrMEtJaWpkcm1wNjlSY3R6bVE9PSIsImF6cCI6IjZlNzQxNzJiLWJlNTYtNDg0My05ZmY0LWU2NmEzOWJiMTJlMyIsImF6cGFjciI6IjAiLCJuYW1lIjoiQWJlIExpbmNvbG4iLCJvaWQiOiI2OTAyMjJiZS1mZjFhLTRkNTYtYWJkMS03ZTRmN2QzOGU0NzQiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJhYmVsaUBtaWNyb3NvZnQuY29tIiwicmgiOiJJIiwic2NwIjoiYWNjZXNzX2FzX3VzZXIiLCJzdWIiOiJIS1pwZmFIeVdhZGVPb3VZbGl0anJJLUtmZlRtMjIyWDVyclYzeERxZktRIiwidGlkIjoiNzJmOTg4YmYtODZmMS00MWFmLTkxYWItMmQ3Y2QwMTFkYjQ3IiwidXRpIjoiZnFpQnFYTFBqMGVRYTgyUy1JWUZBQSIsInZlciI6IjIuMCJ9.pj4N-w_3Us9DrBLfpCt'
+      assert_not:
+        - 'export AZURE_API_KEY="1234567890123456"'
+    history:
+      - 2025-08-07 initial version
+    refs:
+      - https://learn.microsoft.com/en-us/azure/devops/integrate/get-started/authentication/entra
+    notes:
+      - Entra ID tokens have a 1 hour lifetime, unlikely to discover an active token

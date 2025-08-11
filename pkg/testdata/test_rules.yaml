@@ -1,0 +1,36 @@
+rules:
+  - name: Test Rule 1
+    id: test.rule.1
+    tags:
+      - test
+      - api
+    pattern: |
+      (?x)
+        test-example-[0-9]+
+    entropy: 2.5
+    tests:
+      assert:
+        - test-example-1
+        - test-example-42
+      assert_not:
+        - not-a-match
+        - test-example-abc
+    history:
+      - 2025-01-02 initial version
+  - name: Test Rule 2
+    id: test.rule.2
+    tags:
+      - test
+    pattern: |
+      (?x)
+        test-example-[0-9]+
+    entropy: 3.0
+    tests:
+      assert:
+        - test-example-2
+        - test-example-999
+      assert_not:
+        - another-non-match
+        - example-2
+    history:
+      - 2025-01-02 created for testing

@@ -1,0 +1,72 @@
+rules:
+  - name: OpenAI API Key
+    id: ghost.openai.1
+    description: Matches an OpenAI API key.
+    tags:
+      - api
+      - openai
+    pattern: |
+      (?x)
+        \b
+          (sk-(?:proj|svcacct|None)-(?i)[A-Z0-9_-]{74}T3BlbkFJ[A-Z0-9_-]{74})
+        \b
+    redact: [13, 4]
+    entropy: 5.1
+    tests:
+      assert:
+        - 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
+        - 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
+        - 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
+        - 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
+      assert_not:
+        - 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
+        - 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
+    history:
+      - 2025-08-02 initial version; high precision support for current OpenAI API key format with magic string
+  - name: OpenAI Admin API Key
+    id: ghost.openai.2
+    description: Matches an OpenAI admin API key.
+    tags:
+      - api
+      - openai
+      - admin
+    pattern: |
+      (?x)
+        \b
+          (sk-admin-(?i)[A-Z0-9_-]{58}T3BlbkFJ[A-Z0-9_-]{58})
+        \b
+    redact: [13, 4]
+    entropy: 5.1
+    tests:
+      assert:
+        - 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
+        - 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
+      assert_not:
+        - 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
+        - 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
+        - sk-admin-Mwt-6shr18-ayWRZM_VNnEzOHCn5BvkMjILRbFt0i-7TWjAcw-YEkgxC7qT3BlbkFJhAlpgiZqWpsizIcNF4zIth3t5E2KR2SyKHWrhK9iruVO0tsaWfw6WkXLUAXXX
+    history:
+      - 2025-08-02 initial version; high precision support for current OpenAI API admin key format with magic string
+  - name: OpenAI Legacy API Key
+    id: ghost.openai.3
+    description: Matches an OpenAI legacy API key.
+    tags:
+      - api
+      - openai
+      - legacy
+    pattern: |
+      (?x)
+        \b
+          (sk-(?i)[A-Z0-9]{20}T3BlbkFJ[A-Z0-9]{20})
+        \b
+    redact: [6, 4]
+    entropy: 5.1
+    tests:
+      assert:
+        - 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
+        - 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
+      assert_not:
+        - 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
+        - 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
+    history:
+      - 2025-08-02 initial version; high precision support for both legacy OpenAI API key format with magic string

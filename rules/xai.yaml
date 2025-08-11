@@ -1,0 +1,29 @@
+rules:
+  - name: xAI API Key
+    id: ghost.xai.1
+    description: xAI API key.
+    tags:
+      - xai
+      - api
+    pattern: |
+      (?x)
+        \b
+          (xai-(?i)[A-Z0-9]{80})
+        \b
+    entropy: 4.75
+    redact: [7, 4]
+    tests:
+      assert:
+        - xai-8VHYMaYuEZLsQSA42Qw1rXq7D2i1AXscAKlGJinQrNNjD9GYTkjhwfxSGUJVyvvEfGBwP9EM2XyKRScU
+        - xai-cHeT1XWdubSmqYKUhrnfNmZy06ggpkcHSy7SdXBWWOPDCItaT458RzNXlYRoW6EZK48cMzdLpXozK8Qm
+        - xai-LsELSavakq8qgWRDfajpy6UFT8ltZMyLeaHkHTupNs8FVYhQ65pa5QeKNB2oB8XWSFFTCdkTv7uHE95v
+      assert_not:
+        - xai-8VHYMaYuEZLsQSA42Qw1rXq7D2i1AXscAKlGJinQrNNjD9GYTkjhwfxSGUJVyvvEfGBwP9EM2XyKRScUx
+        - xai-8VHYMaYuEZLsQSA42Qw1rXq7D2i1AXscAKlGJinQrNNjD9GYTkjhwfxSGUJVyvvEfGBwP9EM2XyKRSc
+        - xai-key-8VHYMaYuEZLsQSA42Qw1rXq7D2i1AXscAKlGJinQrNNjD9GYTkjhwfxSGUJVyvvEfGBwP9EM2XyKRScU
+    history:
+      - 2025-08-09 initial version
+    refs:
+      - https://docs.x.ai/docs/management-api#create-an-api-key
+    notes:
+      - As of 2025-08-09, xAI API keys never expire.

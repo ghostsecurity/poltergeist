@@ -1,0 +1,29 @@
+rules:
+  - name: Docker Hub PAT
+    id: ghost.docker.1
+    description: Docker Hub Personal Access Token.
+    tags:
+      - docker
+      - api
+    pattern: |
+      (?x)
+        \b
+          (dckr_pat_(?i)[A-Z0-9_-]{27})
+        \b
+    entropy: 4.1
+    redact: [4, 4]
+    tests:
+      assert:
+        - dckr_pat_R0p0YJetqtjdS6hhxRx-XDdPOpg
+        - dckr_pat__kKOYKtqvU6Dmqporh6O1fVAMvg
+        - dckr_pat_AbRyv9TCeXEAlqAnvD7KYTjThLI
+      assert_not:
+        - dckr_pat_R0p0YJetqtjdS6hhxRx-XDdPOpgX
+        - dckr_pat_R0p0YJetqtjdS6hhxRx-XDdPOp
+        - 'docker_pat: w9piJHtWe0p01rRO420M6PTJmCTerjuHOH0wZsgB'
+    history:
+      - 2025-08-09 initial version
+    refs:
+      - https://docs.docker.com/security/access-tokens/
+    notes:
+      - As of 2025-08-09, Docker Hub permits tokens with no expiration.
