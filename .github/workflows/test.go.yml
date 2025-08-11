@@ -1,0 +1,21 @@
+name: Test
+on:
+  pull_request:
+jobs:
+  test-x86:
+    name: Go Test (x86)
+    runs-on: ubuntu-latest
+    steps:
+      - name: apt-get update
+        run: |
+          sudo apt-get update
+      - name: install hyperscan library
+        run: |
+          sudo apt-get install -y libhyperscan-dev
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Run Go tests
+        run: make test

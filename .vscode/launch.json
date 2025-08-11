@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Go engine",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/cmd/poltergeist",
+      "args": ["-engine", "go", "-rules", "${workspaceFolder}/rules", "${workspaceFolder}/pkg/testdata/benchmark/"]
+    },
+    {
+      "name": "Debug Hyperscan engine",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/cmd/poltergeist",
+      "args": [
+        "-engine",
+        "hyperscan",
+        "-rules",
+        "${workspaceFolder}/rules",
+        "${workspaceFolder}/pkg/testdata/benchmark/"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+name: Lint
+on:
+  pull_request:
+jobs:
+  lint:
+    name: Go Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: apt-get update
+        run: |
+          sudo apt-get update
+      - name: install hyperscan library
+        run: |
+          sudo apt-get install -y libhyperscan-dev
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Build poltergeist
+        run: make build
+      - name: Run Go golangci-lint
+        run: make lint

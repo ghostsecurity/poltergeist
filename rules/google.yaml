@@ -1,0 +1,59 @@
+rules:
+  - name: Google Cloud API Key
+    id: ghost.google.1
+    description: Google Cloud API key.
+    tags:
+      - api
+      - google
+    pattern: |
+      (?x)
+        \b
+          (AIza(?i)[A-Z0-9_-]{35})
+        \b
+    entropy: 4.5
+    redact: [8, 4]
+    tests:
+      assert:
+        - AIzaSyDc6sjd0UMoitpjiwH96g3OvH02bcaKKqA
+        - AIzaSyBXwNpsQxla6GohXlJJfwQ2YLQx7OdCx0c
+        - AIzaSyANMYavqKUaBhgSrQ4Qf9fEBu7Z6J8Cxhc
+      assert_not:
+        - AIsaSyDAJ-GTBq8-JMsQ_xAr9jROpmWikrqeuRE
+        - AIzaSyDAJ-GTBq8-JMsQ_xAr9jROpmWikrqeuREX
+        - AIzaSyDAJ-GTBq8-JMsQ_xAr9jROpmWikrqeuR
+    history:
+      - 2025-08-09 initial version
+    refs:
+      - https://cloud.google.com/docs/authentication/api-keys
+    notes:
+      - |
+        Google has stated [publicly](https://bughunters.google.com/learn/invalid-reports/google-products/5222475159961600/understanding-api-key-leaks)
+        that keys starting with `AIza` are public, but this is clearly not true. The test keys above were generated from the Google Cloud Console and 
+        are definitely not public. They have since been deleted.
+  - name: Google Cloud OAuth Client Secret
+    id: ghost.google.2
+    description: Google Cloud OAuth Client Secret.
+    tags:
+      - api
+      - google
+      - oauth
+    pattern: |
+      (?x)
+        \b
+          (GOCSPX-(?i)[A-Z0-9_-]{28})
+        \b
+    entropy: 4.3
+    redact: [8, 4]
+    tests:
+      assert:
+        - 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
+        - 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
+        - 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
+      assert_not:
+        - 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X
+        - GOCSPX-LN_NQ5_A16rERtMTcPxAmM9uhDN
+        - GOOOGL-LN_NQ5_A16rERtMTcPxAmM9uhDN8
+    history:
+      - 2025-08-09 initial version
+    refs:
+      - https://cloud.google.com/docs/authentication/api-keys

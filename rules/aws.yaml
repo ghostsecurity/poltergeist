@@ -1,0 +1,62 @@
+rules:
+  - name: AWS Secret Access Key
+    id: ghost.aws.1
+    description: AWS secret access key variable declaration.
+    tags:
+      - api
+      - aws
+    pattern: |
+      (?x)
+        \b
+          (?i)AWS_SECRET_ACCESS_KEY
+          [\W]{0,10}?
+          ((?i)[A-Z0-9+/=]{40})
+        \b
+    redact: [4, 4]
+    entropy: 4.1
+    tests:
+      assert:
+        - 'export AWS_SECRET_ACCESS_KEY="Bu/9qrIw9+rocEIxAssiTudEqV6k+qbB3VIhKBBJ"'
+        - 'export AWS_SECRET_ACCESS_KEY="grN0OHkmFAbmrs2EuJICo4GbnuigBAz9DgZB11oC"'
+        - 'export AWS_SECRET_ACCESS_KEY="qDhThtrkeMhCoOZA+vm4ykuE4AdyZpbGhL1QYwvl"'
+        - 'export AWS_SECRET_ACCESS_KEY="1GTdO8YGWxwngbmy6ayrPZ/pIlWV+0sE65Ikxyvu"'
+        - 'const AWS_SECRET_ACCESS_KEY = "Mss7b8mKOD2inkntQg75H6FClnj+xAYKvO9HflVj"'
+        - 'export AWS_SECRET_ACCESS_KEY=Mss7b8mKOD2inkntQg75H6FClnj+xAYKvO9HflVj'
+      assert_not:
+        - aws_secret_access_key_id=abc123
+        - 'export AWS_SECRET_ACCESS_KEY="Mss7b8mKOD2inkntQg75H6FClnj+xAYKvO9HflVjxx"'
+        - 'export AWS_SECRET_ACCESS_KEY="Mss7b8mKOD2inkntQg75H6FClnj+xAYKvO9HflV"'
+        - 'AWS_SESSION_TOKEN="AQoDYXdzEHoaCXVzLWVhc3CIQCzOfn2RRDrFYRNqc9wWbvfIPwz"'
+        - 'AWS_SESSION_TOKEN=AQoDYXdzEHoaCXVzLWVhc3CIQCzOfn2RRDrFYRNqc9wWbvfIPwz'
+    history:
+      - 2025-08-07 initial version
+    refs:
+      - https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html#identifiers-unique-ids
+  - name: AWS Session Token
+    id: ghost.aws.2
+    description: AWS session token variable declaration.
+    tags:
+      - api
+      - aws
+    pattern: |
+      (?x)
+        \b
+          ((?:AQoDYXdz|AgoJb3JpZ2luX2Vj|FQoDYXdz|FwoGZXIvYXdz|IQoJb3JpZ2luX2Vj)(?i)[A-Z0-9+/=]{100,})
+        \b
+    redact: [4, 4]
+    entropy: 5.5
+    tests:
+      assert:
+        - 'AWS_SESSION_TOKEN="AQoDYXdzEHoaCXVzLWVhc3QtMiJIMEYCIQCzOfn2RRDrFYRNql/c9wWbvfIPwzs3QzRDq8S/2O9TwgIhAJNdQr8PtdJSezO5NlLiEOfsTo0EF3a0K4xPEIAMS1CnKqcDCLP//////////wEQABoMMDY1NjAzMDIwNTY0IgxYP1iS+mucK+yAdrwq+wJ2U4T8ax2WFmk5dbBfCQC7YxOjJ5VyX8de9dQdmZAa3ktrwzA7xIUZR1IADJX508IWozw0D+gkuGijmmQtJkWai70IC9rDaG8SOjn3MMcW8Mue3CWuLMxoQN89/0PUIJKbj4znyv3+L+bwUWiRlP+KdVt/R1nQjrU7CzEoVfpbJLbpuWGISXRSAIYnzP3169gcdf59fn39x792QUI2PB7TolixKmD+KwitI67Inz5Ndnn/ZATc3/2UrNQUwpx6+sYEjmgDlOrvK79BPUkG93MWsU1XLHzcA4cgR17t0dg08Kjjg/oZSxjwvsrdwEyW8Pzh++3WEWdA4XQbAJ5BGnpDEQUTov46VQ3xn+oP4yG6J11m5GmOMtWXSaAhgWdw1/4GowIjadrf+zhsqem/CaoOBHf/NDwNqmOo+qh2V3Y2PK7V/F1jGls8pKNiAjy9CZVNQyjiRYsZYQqQ2PAIIo4bZ3uRbhh60gadz+tgfTPS8wX38eKVtbN9EXK+MK/036MGOqUBgXrOGk6R0pD+w90GB6yMX8+dD6ya7TXS856zOJJV/IOH2/ApwRXzO0UsAXv4Sp8fqaLPlEhUxEkJAjSH0QA73AsYBpA481Z8rQSi776LZRTT7YEP5m9q9tVIaUkBF7wxrjNrJY9vk+DHclzPyRvqQ0SpNBF/GdoK+hytOB4hMwvfKHPEM4mDzlc7zyw9oW+WOnSeS+qBQsbjXPe6isxxxxxxxxAZOMUpt1Ql"'
+        - 'AWS_SESSION_TOKEN="AgoJb3JpZ2luX2VjEHoaCXVzLWVhc3QtMiJIMEYCIQCzOfn2RRDrFYRNql/c9wWbvfIPwzs3QzRDq8S/2O9TwgIhAJNdQr8PtdJSezO5NlLiEOfsTo0EF3a0K4xPEIAMS1CnKqcDCLP//////////wEQABoMMDY1NjAzMDIwNTY0IgxYP1iS+mucK+yAdrwq+wJ2U4T8ax2WFmk5dbBfCQC7YxOjJ5VyX8de9dQdmZAa3ktrwzA7xIUZR1IADJX508IWozw0D+gkuGijmmQtJkWai70IC9rDaG8SOjn3MMcW8Mue3CWuLMxoQN89/0PUIJKbj4znyv3+L+bwUWiRlP+KdVt/R1nQjrU7CzEoVfpbJLbpuWGISXRSAIYnzP3169gcdf59fn39x792QUI2PB7TolixKmD+KwitI67Inz5Ndnn/ZATc3/2UrNQUwpx6+sYEjmgDlOrvK79BPUkG93MWsU1XLHzcA4cgR17t0dg08Kjjg/oZSxjwvsrdwEyW8Pzh++3WEWdA4XQbAJ5BGnpDEQUTov46VQ3xn+oP4yG6J11m5GmOMtWXSaAhgWdw1/4GowIjadrf+zhsqem/CaoOBHf/NDwNqmOo+qh2V3Y2PK7V/F1jGls8pKNiAjy9CZVNQyjiRYsZYQqQ2PAIIo4bZ3uRbhh60gadz+tgfTPS8wX38eKVtbN9EXK+MK/036MGOqUBgXrOGk6R0pD+w90GB6yMX8+dD6ya7TXS856zOJJV/IOH2/ApwRXzO0UsAXv4Sp8fqaLPlEhUxEkJAjSH0QA73AsYBpA481Z8rQSi776LZRTT7YEP5m9q9tVIaUkBF7wxrjNrJY9vk+DHclzPyRvqQ0SpNBF/GdoK+hytOB4hMwvfKHPEM4mDzlc7zyw9oW+WOnSeS+qBQsbjXPe6isAZOMUpt1Ql"'
+        - 'aws_session_token="FQoDYXdzEHoaCXVzLWVhc3QtMiJIMEYCIQCzOfn2RRDrFYRNql/c9wWbvfIPwzs3QzRDq8S/2O9TwgIhAJNdQr8PtdJSezO5NlLiEOfsTo0EF3a0K4xPEIAMS1CnKqcDCLP//////////wEQABoMMDY1NjAzMDIwNTY0IgxYP1iS+mucK+yAdrwq+wJ2U4T8ax2WFmk5dbBfCQC7YxOjJ5VyX8de9dQdmZAa3ktrwzA7xIUZR1IADJX508IWozw0D+gkuGijmmQtJkWai70IC9rDaG8SOjn3MMcW8Mue3CWuLMxoQN89/0PUIJKbj4znyv3+L+bwUWiRlP+KdVt/R1nQjrU7CzEoVfpbJLbpuWGISXRSAIYnzP3169gcdf59fn39x792QUI2PB7TolixKmD+KwitI67Inz5Ndnn/ZATc3/2UrNQUwpx6+sYEjmgDlOrvK79BPUkG93MWsU1XLHzcA4cgR17t0dg08Kjjg/oZSxjwvsrdwEyW8Pzh++3WEWdA4XQbAJ5BGnpDEQUTov46VQ3xn+oP4yG6J11m5GmOMtWXSaAhgWdw1/4GowIjadrf+zhsqem/CaoOBHf/NDwNqmOo+qh2V3Y2PK7V/F1jGls8pKNiAjy9CZVNQyjiRYsZYQqQ2PAIIo4bZ3uRbhh60gadz+tgfTPS8wX38eKVtbN9EXK+MK/036MGOqUBgXrOGk6R0pD+w90GB6yMX8+dD6ya7TXS856zOJJV/IOH2/ApwRXzO0UsAXv4Sp8fqaLPlEhUxEkJAjSH0QA73AsYBpA481Z8rQSi776LZRTT7YEP5m9q9tVIaUkBF7wxrjNrJY9vk+DHclzPyRvqQ0SpNBF/GdoK+hytOB4hMwvfKHPEM4mDzlc7zyw9oW+WOnSeS+qBQsbjXPxxxxxxxxe6isAZOMUpt1Ql"'
+        - 'AWS_SESSION_TOKEN="FwoGZXIvYXdzEFsaCXVzLWVhc3QtMiJIMEYCIQCKfz3W1bnlkmBqmeWtoUG9rNRuaVINh/elTVMPYlDVnQIhAKq6Rcvs6CTBkbi5xIYk6FKbYSo0JqJtX/vArAPHzi+eKqcDCJT//////////wEQABoMMjY0MzE5OTk5NDg1Igx+Fw8OOSRs4fSP29Uq+wJo8e0mcHnP4fPPYvne7qUx6UnW5UGP93gOTnon5Scngbq124908aYUI7d5DEHsBtW69pEcKwIVj+3t+hIWBPChFiN76ieBpwffm6NSQx71Gezdv356h/EvXUeU3uV8+cWOt3+FvbxIpznZtl55gFpENqQ9AcvinT1ZITWkavGscZh6PB1xgg39UpBOJbhyLaSt0B3YI3xcX69juXW0ojM6KFXF2rp/8mZhGvM1BBLeufjpN3tTbB6AwojitcAqHVOJxIQ4QCP8fNantAF8wf3HEuQVqnd3CXeKEn8h/ujpdN3TSOVqrQXRJLAEylP19ZlqvdBTqelId6/y/4nFL5HfkaXNBV5rDlp+VuCS/zUai++M3xc6LsPmgEvE04C72zueDjlnCkysOrKn8s+5RzWKahkgOAyvgbGeevYLrJB7IUFTMIWS2itEfji3xS1ebSyhuyxoLEuwnDOjiTpV1gcqoXj33FlHkpoamnJPloWDbuQ6wNtJVdqLWlu8MNn308QGOqUBZ5FFZHvN36iLbT+p6z+z3w+AQccWFBfrCYe32gtkDmlksdVm2DyqXPWReXNQU7fwjafHwfz081qAhOfHfEfVDgDpSCwqH5AKNSh+p7L5VWkKMLjPAj6S+PySCuakGToAxKpPFHCtF2pLLcnrZF+U3mKZCyArUzKWam9mOBhqqc7yGC5LA3Wy28BfqYIDU0t9mxN0VIraxxxxx9jCPbva3YkUanTZ9O8X"'
+        - 'AWS_SESSION_TOKEN="IQoJb3JpZ2luX2VjEFsaCXVzLWVhc3QtMiJHMEUCIQCcO2RHGZGI5w7nLSHeZwQgGgPXuuQdcxELHcZzfSmooAIgC6AWckHirEtS8ikQUo9pxpYdAPB1ukbMQkbW4fTafgkqpwMIlP//////////ARABGgwxMzcxMjEwNzY1MjUiDCls8pQaeGtgZJlfnyr7AuiYza4HyhxnmNZYwVZeFRyVjgZ8w5dertJEWqgJBcTp4fHJjx3E7zsQ5v6hQ123yJcukaEAj/hOcGbah4XzSCFCSktrGAITrrLdwTILHYZ0t1lIpgjoP0VZyZQuq4soUMOx/4x3FqZKfE82Oy6xfgDqSuUySueYLYjWt15HLnMsDbQihuMLN5NS0EvQD8/St1AHsXL5d1OQxfe8cqIAcGzA1YhIpmbdLrY65TcGkUSkhpaUaDZ5EsB6TYLWxQdN6o4XrvLE8eqBSKizGV91nHz2mwxAAM7MQVWWPnII1i5lDIEGtlBGJCKKNTgAcbH4vOBiRjPeIW30gSfY8xU3XaJdZv1CBUdQBi5Inmcp1E5FRzMtqaDh+L8Ew4SR64gywJnQMgNyzzXYwEPHKoFw8JUh6VZNjYCQ3Ef8+lD6w05t/2ulwCmadkaiRMKs1Vf5uionxqhhGtEwo6vAyzUOFvP2NVqxM4CWGsVeSq2IqSpTVisAZyTSj+KswugwovnTxAY6pgFvMknvDoy5kLeHfJM6XRd3lcnxgdNWe2D3t3jMQw5jos3KhoHQfqU+wByO9K6CYnFic2kzlm8m4YzkR0ElsOxsFCWiskOcFFKDmTo6x0+uZqqbEpvdF6MMDmwjXOtHmvXLfeh38pyYMOQ9eP5heIbamkSNYaBhQxNmtFkXNBDsKgiHs2vIgL/SYAAwLcK18sysyfNJpbuS6j2/O1B5qw81ljhY2vjD"'
+      assert_not:
+        - aws_session_token=abc123
+        - aws_access_key_id=AKIA1234567890123456
+        - 'AWS_SESSION_TOKEN="xxxxxxIQoJb3JpZ2luX2VjEFsaCXVzLWVhc3QtMiJHMEUCIQCcO2RHGZGI5w7nLSHeZwQgGgPXuuQdcxELHcZzfSmooAIgC6AWckHirEtS8ikQUo9pxpYdAPB1ukbMQkbW4fTafgkqpwMIlP//////////ARABGgwxMzcxMjEwNzY1MjUiDCls8pQaeGtgZJlfnyr7AuiYza4HyhxnmNZYwVZeFRyVjgZ8w5dertJEWqgJBcTp4fHJjx3E7zsQ5v6hQ123yJcukaEAj/hOcGbah4XzSCFCSktrGAITrrLdwTILHYZ0t1lIpgjoP0VZyZQuq4soUMOx/4x3FqZKfE82Oy6xfgDqSuUySueYLYjWt15HLnMsDbQihuMLN5NS0EvQD8/St1AHsXL5d1OQxfe8cqIAcGzA1YhIpmbdLrY65TcGkUSkhpaUaDZ5EsB6TYLWxQdN6o4XrvLE8eqBSKizGV91nHz2mwxAAM7MQVWWPnII1i5lDIEGtlBGJCKKNTgAcbH4vOBiRjPeIW30gSfY8xU3XaJdZv1CBUdQBi5Inmcp1E5FRzMtqaDh+L8Ew4SR64gywJnQMgNyzzXYwEPHKoFw8JUh6VZNjYCQ3Ef8+lD6w05t/2ulwCmadkaiRMKs1Vf5uionxqhhGtEwo6vAyzUOFvP2NVqxM4CWGsVeSq2IqSpTVisAZyTSj+KswugwovnTxAY6pgFvMknvDoy5kLeHfJM6XRd3lcnxgdNWe2D3t3jMQw5jos3KhoHQfqU+wByO9K6CYnFic2kzlm8m4YzkR0ElsOxsFCWiskOcFFKDmTo6x0+uZqqbEpvdF6MMDmwjXOtHmvXLfeh38pyYMOQ9eP5heIbamkSNYaBhQxNmtFkXNBDsKgiHs2vIgL/SYAAsysyfNJpbuS6j2/O1B5qw81ljhY2vjD"'
+    history:
+      - 2025-08-07 initial version
+    refs:
+      - https://medium.com/@TalBeerySec/revealing-the-inner-structure-of-aws-session-tokens-a6c76469cba7

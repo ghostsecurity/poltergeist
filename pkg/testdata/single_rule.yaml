@@ -1,0 +1,18 @@
+rules:
+  - name: Single Rule
+    id: single.rule.1
+    tags:
+      - single
+    pattern: |
+      (?x)
+        single-[a-z]+
+    entropy: 1.5
+    tests:
+      assert:
+        - single-test
+        - single-match
+      assert_not:
+        - single-123
+        - no match
+    history:
+      - 2025-01-02 single rule

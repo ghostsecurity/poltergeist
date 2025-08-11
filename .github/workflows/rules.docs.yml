@@ -1,0 +1,35 @@
+name: Docs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'rules/**'
+      - 'cmd/rules/**'
+      - 'docs/rules.md'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'rules/**'
+      - 'cmd/rules/**'
+      - 'docs/rules.md'
+
+jobs:
+  check-rules-docs:
+    name: Rules
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Generate current rules documentation
+        run: |
+          make docs
+      - name: Check docs are up to date
+        run: |
+          git diff --exit-code docs/rules.md || (echo "❌ docs/rules.md is out of date, run 'make docs' to update it" && exit 1)

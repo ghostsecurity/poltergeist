@@ -1,0 +1,73 @@
+rules:
+  - name: Certificate Private Key
+    id: ghost.cert.1
+    description: >
+      Matches a full private key on a single line.
+    tags:
+      - cert
+      - private
+      - key
+    pattern: (-----BEGIN (?:RSA |DSA |EC )?PRIVATE KEY-----[^\r\n]*?-----END (?:RSA |DSA |EC )?PRIVATE KEY-----)
+    redact: [27, 25]
+    entropy: 5.1
+    tests:
+      assert:
+        - ' -----BEGIN PRIVATE KEY-----MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCdGNx1IlROmxdFhESgbW5U3v0FQft1M8sT811evPC4F0+B73qMbQNvBohRuivMNpj6s9teIVU7IdUSANOaX2oHZWgVoWD5+6EGPogsHYRKhLk3qPInjsdl/W5y3gq2NR3R9Zu+++8fflkaYan+x1Fm0F3ABdfB0KN/IfL4Nv1xa5AIvut4KifzBvygzJME1bUvERentlatRE22ALr/vnJ1VdY9XR0Aq1+mByeFavcp5FsT97PE8IY6oy8CjonK+UwuGZ+ycJIs49VVRzY4pqE/Z/N9ze5DA557cV9vqlbWn/msGzZ9sJseE4mna66+nozBQtaXNOOLzUAnqOnDGTffAgMBAAECggEAD0lBAmDRxUhQDmKdbuLXDokYI6/U8QWWKB3RIwvNfIxAH0uXKBzfbak8EH/GDTvuzM49dT5XFcbn/bV44ZeRMKEMbLZkQk7az0m8ZFaG7d1WTHUzAuhgvKrZWXIDptEqUqjMe9v126Gmt+ty6Ciq4g86YBnxcZmEnzVFeCOZq7R9kmb82vcSF4TU0Qtp6wJy/fE3+5uvHetNdyxExBnonLNCoP8d1iwmaGQowAeM6BwXV35peZWgGjTWEVtODMzoilclG8rdv4nTyUSJmB391sSDTxDBsT951QEJtn/Fa5Aw8EqcCHE5duqrCxGxghiO0IJ+SRh6iCs3WVLXO2zecQKBgQDXO/FfCqUw4rUGD5gPpQ9BZsm7CL6xNiwdKSwD448u0VOx89D4amULOSuIpK8CK9uMtpuy/b2xv6LN94564h8662CDt/sCedF+jZIqBpEnAaV/8smPynMH+Pki5xtT3pVnbiBCNb/5UBow/5UMGwNPfbsrc4/EHjWFj1zKWd+9xwKBgQC62gcvdKC+HZIj72obdrkVjEt1o0azkmAxaglYy953Hw5Aid5nvJzwFT2G3TB/lX+x/9VHtpMmD3Ubi6XML4HlnSP+1gykhKRKXyiWoH9Mr+pulQKnDTZXJImMzOenRBcTfL5xm/3iJnJXvitRCMRuUT83YTIVkRcgQjhuALmVKQKBgG/KI4DAr7HnXixqtwkRKw5GC+sIDLtQLrNqqgDPFZQ0hur7fwM3h4m/xNuw5XEURHEee1oJLph+t1mRBcDPZ3cbv8JKMaZEjUnU0CDhzkxbL5F4EbaMaRiv+P5m2KvEBQd2jGy3LCGauC/Q36Is+Zg07p0P5ZDwO85F+uTirzILAoGAHlsDZdNFtf0p28qua03LXdPQAomHF+9Ez2JRqGpedu3Fq/h5+FJtEJfyyfEvStrnxuwwIxlnKHzEYrg6NETXjo0L5v+xSB0Ab9Cr0GS8qaG+rT5qEueTl26pJgW38LWgJhtS+TQFd/MVCmorsVuCRgXPBlk1AMn0ftojPsPBYpkCgYAtvFX22VUBBLLkIc70tUaHRf7qmfiQBry81RTyXphMdJkRtlkloy1dLG1bWWQeSi9YE6PVD0zHveyuHJRuzoy0g6jDyIzNSvUb77knRL2oCtDFfSvysJYzV/ZJvyM3aB+Dc/Teg5+EMvt1ZWQ3Zm622+lQpZXBmXT8oPQFZJm2Uw==-----END PRIVATE KEY-----'
+        - ' -----BEGIN RSA PRIVATE KEY-----MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCdGNx1IlROmxdFhESgbW5U3v0FQft1M8sT811evPC4F0+B73qMbQNvBohRuivMNpj6s9teIVU7IdUSANOaX2oHZWgVoWD5+6EGPogsHYRKhLk3qPInjsdl/W5y3gq2NR3R9Zu+++8fflkaYan+x1Fm0F3ABdfB0KN/IfL4Nv1xa5AIvut4KifzBvygzJME1bUvERentlatRE22ALr/vnJ1VdY9XR0Aq1+mByeFavcp5FsT97PE8IY6oy8CjonK+UwuGZ+ycJIs49VVRzY4pqE/Z/N9ze5DA557cV9vqlbWn/msGzZ9sJseE4mna66+nozBQtaXNOOLzUAnqOnDGTffAgMBAAECggEAD0lBAmDRxUhQDmKdbuLXDokYI6/U8QWWKB3RIwvNfIxAH0uXKBzfbak8EH/GDTvuzM49dT5XFcbn/bV44ZeRMKEMbLZkQk7az0m8ZFaG7d1WTHUzAuhgvKrZWXIDptEqUqjMe9v126Gmt+ty6Ciq4g86YBnxcZmEnzVFeCOZq7R9kmb82vcSF4TU0Qtp6wJy/fE3+5uvHetNdyxExBnonLNCoP8d1iwmaGQowAeM6BwXV35peZWgGjTWEVtODMzoilclG8rdv4nTyUSJmB391sSDTxDBsT951QEJtn/Fa5Aw8EqcCHE5duqrCxGxghiO0IJ+SRh6iCs3WVLXO2zecQKBgQDXO/FfCqUw4rUGD5gPpQ9BZsm7CL6xNiwdKSwD448u0VOx89D4amULOSuIpK8CK9uMtpuy/b2xv6LN94564h8662CDt/sCedF+jZIqBpEnAaV/8smPynMH+Pki5xtT3pVnbiBCNb/5UBow/5UMGwNPfbsrc4/EHjWFj1zKWd+9xwKBgQC62gcvdKC+HZIj72obdrkVjEt1o0azkmAxaglYy953Hw5Aid5nvJzwFT2G3TB/lX+x/9VHtpMmD3Ubi6XML4HlnSP+1gykhKRKXyiWoH9Mr+pulQKnDTZXJImMzOenRBcTfL5xm/3iJnJXvitRCMRuUT83YTIVkRcgQjhuALmVKQKBgG/KI4DAr7HnXixqtwkRKw5GC+sIDLtQLrNqqgDPFZQ0hur7fwM3h4m/xNuw5XEURHEee1oJLph+t1mRBcDPZ3cbv8JKMaZEjUnU0CDhzkxbL5F4EbaMaRiv+P5m2KvEBQd2jGy3LCGauC/Q36Is+Zg07p0P5ZDwO85F+uTirzILAoGAHlsDZdNFtf0p28qua03LXdPQAomHF+9Ez2JRqGpedu3Fq/h5+FJtEJfyyfEvStrnxuwwIxlnKHzEYrg6NETXjo0L5v+xSB0Ab9Cr0GS8qaG+rT5qEueTl26pJgW38LWgJhtS+TQFd/MVCmorsVuCRgXPBlk1AMn0ftojPsPBYpkCgYAtvFX22VUBBLLkIc70tUaHRf7qmfiQBry81RTyXphMdJkRtlkloy1dLG1bWWQeSi9YE6PVD0zHveyuHJRuzoy0g6jDyIzNSvUb77knRL2oCtDFfSvysJYzV/ZJvyM3aB+Dc/Teg5+EMvt1ZWQ3Zm622+lQpZXBmXT8oPQFZJm2Uw==-----END RSA PRIVATE KEY-----'
+      assert_not:
+        - '-----BEGIN KEY-----'
+        - '-----END KEY-----'
+        - |
+          -----BEGIN PRIVATE KEY-----
+          MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCdGNx1IlROmxdF
+          hESgbW5U3v0FQft1M8sT811evPC4F0+B73qMbQNvBohRuivMNpj6s9teIVU7IdUS
+          ANOaX2oHZWgVoWD5+6EGPogsHYRKhLk3qPInjsdl/W5y3gq2NR3R9Zu+++8fflka
+          Yan+x1Fm0F3ABdfB0KN/IfL4Nv1xa5AIvut4KifzBvygzJME1bUvERentlatRE22
+          ALr/vnJ1VdY9XR0Aq1+mByeFavcp5FsT97PE8IY6oy8CjonK+UwuGZ+ycJIs49VV
+          RzY4pqE/Z/N9ze5DA557cV9vqlbWn/msGzZ9sJseE4mna66+nozBQtaXNOOLzUAn
+          qOnDGTffAgMBAAECggEAD0lBAmDRxUhQDmKdbuLXDokYI6/U8QWWKB3RIwvNfIxA
+          H0uXKBzfbak8EH/GDTvuzM49dT5XFcbn/bV44ZeRMKEMbLZkQk7az0m8ZFaG7d1W
+          THUzAuhgvKrZWXIDptEqUqjMe9v126Gmt+ty6Ciq4g86YBnxcZmEnzVFeCOZq7R9
+          kmb82vcSF4TU0Qtp6wJy/fE3+5uvHetNdyxExBnonLNCoP8d1iwmaGQowAeM6BwX
+          V35peZWgGjTWEVtODMzoilclG8rdv4nTyUSJmB391sSDTxDBsT951QEJtn/Fa5Aw
+          8EqcCHE5duqrCxGxghiO0IJ+SRh6iCs3WVLXO2zecQKBgQDXO/FfCqUw4rUGD5gP
+          pQ9BZsm7CL6xNiwdKSwD448u0VOx89D4amULOSuIpK8CK9uMtpuy/b2xv6LN9456
+          4h8662CDt/sCedF+jZIqBpEnAaV/8smPynMH+Pki5xtT3pVnbiBCNb/5UBow/5UM
+          GwNPfbsrc4/EHjWFj1zKWd+9xwKBgQC62gcvdKC+HZIj72obdrkVjEt1o0azkmAx
+          aglYy953Hw5Aid5nvJzwFT2G3TB/lX+x/9VHtpMmD3Ubi6XML4HlnSP+1gykhKRK
+          XyiWoH9Mr+pulQKnDTZXJImMzOenRBcTfL5xm/3iJnJXvitRCMRuUT83YTIVkRcg
+          QjhuALmVKQKBgG/KI4DAr7HnXixqtwkRKw5GC+sIDLtQLrNqqgDPFZQ0hur7fwM3
+          h4m/xNuw5XEURHEee1oJLph+t1mRBcDPZ3cbv8JKMaZEjUnU0CDhzkxbL5F4EbaM
+          aRiv+P5m2KvEBQd2jGy3LCGauC/Q36Is+Zg07p0P5ZDwO85F+uTirzILAoGAHlsD
+          ZdNFtf0p28qua03LXdPQAomHF+9Ez2JRqGpedu3Fq/h5+FJtEJfyyfEvStrnxuww
+          IxlnKHzEYrg6NETXjo0L5v+xSB0Ab9Cr0GS8qaG+rT5qEueTl26pJgW38LWgJhtS
+          +TQFd/MVCmorsVuCRgXPBlk1AMn0ftojPsPBYpkCgYAtvFX22VUBBLLkIc70tUaH
+          Rf7qmfiQBry81RTyXphMdJkRtlkloy1dLG1bWWQeSi9YE6PVD0zHveyuHJRuzoy0
+          g6jDyIzNSvUb77knRL2oCtDFfSvysJYzV/ZJvyM3aB+Dc/Teg5+EMvt1ZWQ3Zm62
+          2+lQpZXBmXT8oPQFZJm2Uw==
+          -----END PRIVATE KEY-----
+    history:
+      - 2025-08-07 initial version
+  - name: Certificate Private Key
+    id: ghost.cert.2
+    description: >
+      Matches the beginning of a multi-line private key.
+    tags:
+      - cert
+      - private
+      - key
+    pattern: (-----BEGIN (?:RSA |DSA |EC )?PRIVATE KEY-----\r?\n?$)
+    redact: [10, 8]
+    entropy: 2.1
+    tests:
+      assert:
+        - |
+          -----BEGIN PRIVATE KEY-----
+        - |
+          -----BEGIN EC PRIVATE KEY-----
+      assert_not:
+        - '-----BEGIN KEY-----'
+        - '-----END KEY-----'
+        - '-----BEGIN PRIVATE KEY-----MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCdGNx1IlROmxdF'
+    history:
+      - 2025-08-07 initial version
