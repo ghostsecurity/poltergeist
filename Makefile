@@ -41,4 +41,16 @@ lint: ## Run linter
 
 .PHONY: docs
 docs: ## Generate rules documentation
-	go run cmd/rules/main.go > docs/rules.md
+	go run cmd/docs/main.go > docs/rules.md
+
+.PHONY: benchmarks
+benchmarks: ## Run full benchmarks with both engines
+	go run cmd/benchmark/main.go
+
+.PHONY: benchmarks-go
+benchmarks-go: ## Run benchmarks with Go engine
+	go run cmd/benchmark/main.go -engine go
+
+.PHONY: benchmarks-hyperscan
+benchmarks-hyperscan: ## Run benchmarks with Hyperscan engine
+	go run cmd/benchmark/main.go -engine hyperscan

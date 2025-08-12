@@ -1,0 +1,192 @@
+rules:
+  - name: Slack Bot Token
+    id: ghost.slack.1
+    description: Slack bot token.
+    tags:
+      - api
+      - slack
+      - bot
+    pattern: |
+      (?x)
+        \b
+          (xoxb-[0-9]{10,13}-[0-9]{10,13}(?i)[A-Z0-9-]*)
+        \b
+    entropy: 3.5
+    redact: [4, 4]
+    tests:
+      assert:
+        - xoxb-6926421451563-8765143612891-MQojyuGvZl4ab4YGpGe77PfM
+        - xoxb-9451966907364-5878291546593-MQojyuGvZl4ab4YGpGe77PfM
+        - 'export SLACK_BOT_TOKEN="xoxb-9451966907364-5878291546593-MQojyuGvZl4ab4YGpGe77PfM"'
+      assert_not:
+        - xoxz-9451966907364-5878291546593-MQojyuGvZl4ab4YGpGe77PfM
+        - 'export SLACK_BOT_TOKEN="1234567890123456"'
+    history:
+      - 2025-08-12 initial version
+    refs:
+      - https://docs.slack.dev/authentication/tokens
+  - name: Slack User Token
+    id: ghost.slack.2
+    description: Slack user token.
+    tags:
+      - api
+      - slack
+    pattern: |
+      (?x)
+        \b
+          (xoxp-[0-9]{10,13}-[0-9]{10,13}(?i)[A-Z0-9-]*)
+        \b
+    entropy: 3.5
+    redact: [4, 4]
+    tests:
+      assert:
+        - xoxp-6926421451563-8765143612891-MQojyuGvZl4ab4YGpGe77PfM
+        - xoxp-9451966907364-5878291546593-MQojyuGvZl4ab4YGpGe77PfM
+        - 'export SLACK_USER_TOKEN="xoxp-9451966907364-5878291546593-MQojyuGvZl4ab4YGpGe77PfM"'
+      assert_not:
+        - 'export SLACK_USER_TOKEN="1234567890123456"'
+    history:
+      - 2025-08-12 initial version
+    refs:
+      - https://docs.slack.dev/authentication/tokens
+  - name: Slack App Token
+    id: ghost.slack.3
+    description: Slack app-level token.
+    tags:
+      - api
+      - slack
+    pattern: |
+      (?x)
+        \b
+          (
+            xapp-
+            [0-9]{1,3}-
+            [A-Z0-9]{10,15}-
+            [A-Z0-9]{10,15}-
+            (?i)[A-Z0-9]{10,}
+          )
+        \b
+    entropy: 4.1
+    redact: [4, 4]
+    tests:
+      assert:
+        - xapp-1-A07V1DV6UG5-9329809384135-9c219263c782f8e2ef2e692aa674582ee15644d7da5760609ece026cbf644ba5
+        - xapp-1-A07V1DV6UG5-9345693412580-41503f489e2a12f71e9faea390f92d535aa7b3ded6f2e2371a94cc58954dec31
+        - 'export SLACK_APP_TOKEN="xapp-1-A07V1DV6UG5-9336091004931-96b8fcccccfe4fa3dbb8c857032eae4a4f832ad11f2f40945635e515757c403e"'
+        - xapp-1-IEMF8IMY1OQ-4037076220459-85c370b433e366de369c4ef5abdf41253519266982439a75af74a3d68d543fb6
+      assert_not:
+        - xapp-1234-A07V1DV6UG5-9329809384135-9c219263c782f8e2ef2e692aa674582ee15644d7da5760609ece026cbf644ba
+        - xapp-A-A07V1DV6UG5-9329809384135-9c219263c782f8e2ef2e692aa674582ee15644d7da5760609ece026cbf644ba5
+        - xapp-A07V1DV6UG5-9329809384135-9c219263c782f8e2ef2e692aa674582ee15644d7da5760609ece026cbf644ba5
+    history:
+      - 2025-08-12 initial version
+    refs:
+      - https://docs.slack.dev/authentication/tokens
+  - name: Slack Config Token
+    id: ghost.slack.4
+    description: Slack config token.
+    tags:
+      - api
+      - slack
+    pattern: |
+      (?x)
+        \b
+          (xoxe\.xox[bp]-[0-9]{1,3}-(?i)[\w-]{50,})
+        \b
+    entropy: 4.1
+    redact: [4, 4]
+    tests:
+      assert:
+        - xoxe.xoxb-1-Mi0yLTM0MTQwNDE0MDE3Ni0zNjU5NDY0Njg4MTctNTE4MjA3NTQ5NjA4MC01NDEyOTYyODY5NzUxLThhMTBjZmI1ZWIzMGIwNTg0ZDdmMDI5Y2UxNzVlZWVhYzU2ZWQyZTZiODNjNDZiMGUxMzRlNmNjN1111111111
+        - xoxe.xoxp-1-Mi0yLTM0MTQwNDE0MDE3Ni0zNjU5NDY0Njg4MTctNTE4MjA3NTQ5NjA4MC01NDEyOTYyODY5NzUxLThhMTBjZmI1ZWIzMGIwNTg0ZDdmMDI5Y2UxNzVlZWVhYzU2ZWQyZTZiODNjNDZiMGUxMzRlNmNjN1111111111
+      assert_not:
+        - xoxe.xoxb-1-Mi0yLTM0MTQwNDE0MDE3Ni0zNjU5NDY0
+        - xoxe.xoxp-1-Mi0yLTM0MTQwNDE0MDE3Ni0zNjU5NDY0
+        - 'export SLACK_BOT_TOKEN="1234567890123456"'
+    history:
+      - 2025-08-12 initial version
+    refs:
+      - https://docs.slack.dev/authentication/tokens
+  - name: Slack Refresh Token
+    id: ghost.slack.5
+    description: Slack refresh token.
+    tags:
+      - api
+      - slack
+    pattern: |
+      (?x)
+        \b
+          (xoxe-[0-9]{0,3}-[\w-]{50,})
+        \b
+    entropy: 4.1
+    redact: [4, 4]
+    tests:
+      assert:
+        - xoxe-1-My0xLTMxNzcwMjQ0MTcxMy01MTU4MTUyNjkxNzE0LTUxODE4NDI0MDY3MzYtMjA5MGFkOTFlZThkZWE2OGFlZDYwYWJjODNhYzAxYjA5ZjVmODBhYjgzN2QyNDdjOTNlOGY5NTg21111111111
+      assert_not:
+        - xoxe-1-My0xLTMxNzcwMjQ0MTcxMy01MTU4MTUyNjkxNz
+    history:
+      - 2025-08-12 initial version
+    refs:
+      - https://docs.slack.dev/authentication/tokens
+  - name: Slack Service Webhook Secret
+    id: ghost.slack.6
+    description: Slack service webhook secret.
+    tags:
+      - api
+      - slack
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i:https://hooks\.slack\.com/services/)
+            T[A-Z0-9]{8,12}/
+            B[A-Z0-9]{8,12}/
+            (?i)[a-z0-9]{22,25}
+          )
+        \b
+    entropy: 4.1
+    redact: [4, 4]
+    tests:
+      assert:
+        - https://hooks.slack.com/services/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
+        - https://hooks.slack.com/services/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
+        - 'export SLACK_WEBHOOK_URL="https://hooks.slack.com/services/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"'
+      assert_not:
+        - https://hooks.slack.com/services/X0364HD4814/B09A36BLS06/U4IB6BWdz5bVxotnsOcyemFc
+        - https://hooks.slack.com/services/T0364HD4814/X09A36BLS06/U4IB6BWdz5bVxotnsOcyemFc
+        - https://hooks.slack.com/services/T0364HD4814/B09A36BLS06/U4IB6B
+    history:
+      - 2025-08-12 initial version
+    refs:
+      - https://docs.slack.dev/authentication/tokens
+  - name: Slack Workflow Webhook Secret
+    id: ghost.slack.7
+    description: Slack workflow webhook secret.
+    tags:
+      - api
+      - slack
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i:https://hooks\.slack\.com/workflows/)
+            T[A-Z0-9]{8,12}/
+            A[A-Z0-9]{8,12}/
+            (?i)[a-z0-9]{22,25}
+          )
+        \b
+    entropy: 4.1
+    redact: [4, 4]
+    tests:
+      assert:
+        - https://hooks.slack.com/workflows/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
+        - https://hooks.slack.com/workflows/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
+      assert_not:
+        - https://hooks.slack.com/services/X0364HD4814/B09A36BLS06/U4IB6BWdz5bVxotnsOcyemFc
+        - https://hooks.slack.com/services/T0364HD4814/X09A36BLS06/U4IB6BWdz5bVxotnsOcyemFc
+        - https://hooks.slack.com/services/T0364HD4814/B09A36BLS06/U4IB6BWdz5bVxotnsOcyemF
+    history:
+      - 2025-08-12 initial version
+    refs:
+      - https://docs.slack.dev/authentication/tokens
