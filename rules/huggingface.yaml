@@ -11,7 +11,7 @@ rules:
           (hf_(?i)[A-Z0-9]{34})
         \b
     entropy: 4.2
-    redact: [4, 4]
+    redact: [6, 4]
     tests:
       assert:
         - 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
