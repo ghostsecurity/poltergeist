@@ -1,14 +1,14 @@
 rules:
   - name: Cohere API Key
     id: ghost.cohere.1
-    description: Matches a Cohere API key variable declaration.
+    description: Cohere API key variable declaration.
     tags:
       - api
       - cohere
     pattern: |
       (?x)
         \b
-          (?i)cohere\w*
+          (?i)(?:cohere|co_api)\w*
           [\W]{0,10}?
           ((?i)[A-Z0-9]{40})
         \b
@@ -21,34 +21,9 @@ rules:
         - 'cohere = fVst85KDGHJxfjrXtSJGjwQ27W92ORERq4bV6Ais'
         - 'let cohere = "s8Cuh6T6Tz4ZP5Xg7HTxsX0JZY3J92KGX0p1yt47"'
         - 'export COHERE_KEY="s8Cuh6T6Tz4ZP5Xg7HTxsX0JZY3J92KGX0p1yt47"'
-      assert_not:
-        - 9MbXxamGfTkx2cfasR7oUUzylk14gqTAK9GMlSDuX
-        - 9MbXxamGfTkx2cfasR7oUUzylk14gqTAK9GMlSD
-        - 9MbXxamGfTkx2cfasR7o-Uzylk14gqTAK9GMlSD
-    history:
-      - 2025-08-06 initial version
-      - 2025-08-07 simplify pattern with fewer capture groups
-  - name: Cohere API Key
-    id: ghost.cohere.2
-    description: Matches a Cohere API key variable declaration.
-    tags:
-      - api
-      - cohere
-    pattern: |
-      (?x)
-        \b
-          (?i)co_api\w*
-          [\W]{0,10}?
-          ((?i)[A-Z0-9]{40})
-        \b
-    redact: [4, 4]
-    entropy: 4.1
-    tests:
-      assert:
         - 'CO_API_KEY=w9piJHtWe0p01rRO420M6PTJmCTerjuHOH0wZsgB'
         - 'const CO_API_KEY = "szJiK1fy6FaEedPWSw8e41kAXTbtArCX5ks7wQP3"'
         - 'CO_API_KEY=fVst85KDGHJxfjrXtSJGjwQ27W92ORERq4bV6Ais'
-        - 'CO_API_KEY=s8Cuh6T6Tz4ZP5Xg7HTxsX0JZY3J92KGX0p1yt47'
       assert_not:
         - 9MbXxamGfTkx2cfasR7oUUzylk14gqTAK9GMlSDuX
         - 9MbXxamGfTkx2cfasR7oUUzylk14gqTAK9GMlSD
@@ -56,3 +31,4 @@ rules:
     history:
       - 2025-08-06 initial version
       - 2025-08-07 simplify pattern with fewer capture groups
+      - 2025-08-12 combined into one pattern to match when either "COHERE" or "CO_API" are used in the variable name

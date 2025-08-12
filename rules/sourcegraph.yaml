@@ -1,0 +1,49 @@
+rules:
+  - name: Sourcegraph Legacy Token
+    id: ghost.sourcegraph.1
+    description: Sourcegraph legacy token.
+    tags:
+      - api
+      - sourcegraph
+    pattern: |
+      (?x)
+        \b
+          (?:sgp_(?:[a-f0-9]{16}_local_)?[a-f0-9]{40}|[a-f0-9]{40})
+        \b
+    entropy: 4.1
+    redact: [10, 4]
+    tests:
+      assert:
+        - sgp_abcdef1234567890_local_0123456789abcdef0123456789abcdef01234567
+      assert_not:
+        - sgp_12345678901234567890123456789012345678901
+    history:
+      - 2025-08-12 initial version
+    refs:
+      - https://docs.sourcegraph.com/api/authentication
+    notes:
+      - Borrowed from TH, NP, and KF as we can't create legacy tokens anymore.
+  - name: Sourcegraph Workspace Token
+    id: ghost.sourcegraph.2
+    description: Sourcegraph workspace token.
+    tags:
+      - api
+      - sourcegraph
+    pattern: |
+      (?x)
+        \b
+          (sgp_ws(?i)[A-F0-9]{32}_[A-F0-9]{40})
+        \b
+    entropy: 3.5
+    redact: [10, 4]
+    tests:
+      assert:
+        - sgp_ws0163a06c9020516db336c6f0fcd4497b_45339d5088cdcfdb13919e59e31aa104c97a40ee
+        - sgp_ws0163a06c9020516db336c6f0fcd4497b_3c10ba4562720fd1fbe4326ed708fea393ae98aa
+        - sgp_ws0163a06c9020516db336c6f0fcd4497b_0b90338cea7e1cc8c962093b4aaa83d4fcecffef
+      assert_not:
+        - sgp_12345678901234567890123456789012345678901
+    history:
+      - 2025-08-12 initial version
+    refs:
+      - https://docs.sourcegraph.com/api/authentication
