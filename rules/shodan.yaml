@@ -1,0 +1,28 @@
+rules:
+  - name: Shodan API Key
+    id: ghost.shodan.1
+    description: Shodan API key.
+    tags:
+      - api
+      - shodan
+    pattern: |
+      (?x)
+        \b
+          (?i)shodan\w*
+          [\W]{0,10}?
+          ((?i)[A-Z0-9]{32})
+        \b
+    entropy: 3.1
+    redact: [4, 4]
+    tests:
+      assert:
+        - 'SHODAN_API_KEY=lkczm6v31USfV1i5HJ6yjbjcDW3nlmAS'
+        - 'shodan_api_key=lkczm6v31USfV1i5HJ6yjbjcDW3nlmAS'
+        - 'var shodan_key=lkczm6v31USfV1i5HJ6yjbjcDW3nlmAS'
+        - 'export SHODAN_API_KEY=lkczm6v31USfV1i5HJ6yjbjcDW3nlmAS'
+      assert_not:
+        - 'SHODAN_API_KEY=1234567890123456789012345'
+    history:
+      - 2025-08-12 initial version
+    refs:
+      - https://developer.shodan.io/api/requirements
