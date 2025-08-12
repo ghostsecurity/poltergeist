@@ -1,15 +1,6 @@
 name: Docs
-
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'rules/**'
-      - 'cmd/docs/**'
-      - 'docs/rules.md'
   pull_request:
-
 jobs:
   check-rules-docs:
     name: Rules
