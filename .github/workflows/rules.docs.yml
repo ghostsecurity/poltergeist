@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - 'rules/**'
-      - 'cmd/rules/**'
+      - 'cmd/docs/**'
       - 'docs/rules.md'
   pull_request:
 
