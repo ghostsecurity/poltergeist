@@ -354,7 +354,7 @@ Total rules: 41
 **Min entropy:** 4.1
 
 **Tests:**
-- assert: 5 cases
+- assert: 8 cases
 - assert_not: 3 cases
 
 
