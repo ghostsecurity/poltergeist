@@ -28,3 +28,4 @@ rules:
     history:
       - 2025-08-06 initial version
       - 2025-08-07 simplify pattern with fewer capture groups
+      - 2025-08-12 combined into one pattern to match when either "COHERE" or "CO_API" are used in the variable name
