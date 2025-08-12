@@ -1,0 +1,26 @@
+rules:
+  - name: Perplexity API Key
+    id: ghost.perplexity.1
+    description: Perplexity API key.
+    tags:
+      - api
+      - perplexity
+    pattern: |
+      (?x)
+        \b
+          (pplx-(?i)[A-Z0-9]{48})
+        \b
+    entropy: 4.3
+    redact: [8, 4]
+    tests:
+      assert:
+        - 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
+        - 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
+        - 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
+      assert_not:
+        - pplx-QaYrMqeq8AVE00IyUCrArE0vKQMSSfgxaw5QHESn21pdvnh
+        - pp_1234567890123456789012345
+    history:
+      - 2025-08-12 initial version
+    refs:
+      - https://docs.perplexity.ai/getting-started/api-groups#creating-an-api-key
