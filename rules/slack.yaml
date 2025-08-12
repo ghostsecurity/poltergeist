@@ -12,7 +12,7 @@ rules:
           (xoxb-[0-9]{10,13}-[0-9]{10,13}(?i)[A-Z0-9-]*)
         \b
     entropy: 3.5
-    redact: [4, 4]
+    redact: [8, 4]
     tests:
       assert:
         - xoxb-6926421451563-8765143612891-MQojyuGvZl4ab4YGpGe77PfM
@@ -37,7 +37,7 @@ rules:
           (xoxp-[0-9]{10,13}-[0-9]{10,13}(?i)[A-Z0-9-]*)
         \b
     entropy: 3.5
-    redact: [4, 4]
+    redact: [8, 4]
     tests:
       assert:
         - xoxp-6926421451563-8765143612891-MQojyuGvZl4ab4YGpGe77PfM
@@ -67,7 +67,7 @@ rules:
           )
         \b
     entropy: 4.1
-    redact: [4, 4]
+    redact: [10, 4]
     tests:
       assert:
         - xapp-1-A07V1DV6UG5-9329809384135-9c219263c782f8e2ef2e692aa674582ee15644d7da5760609ece026cbf644ba5
@@ -94,7 +94,7 @@ rules:
           (xoxe\.xox[bp]-[0-9]{1,3}-(?i)[\w-]{50,})
         \b
     entropy: 4.1
-    redact: [4, 4]
+    redact: [15, 4]
     tests:
       assert:
         - xoxe.xoxb-1-Mi0yLTM0MTQwNDE0MDE3Ni0zNjU5NDY0Njg4MTctNTE4MjA3NTQ5NjA4MC01NDEyOTYyODY5NzUxLThhMTBjZmI1ZWIzMGIwNTg0ZDdmMDI5Y2UxNzVlZWVhYzU2ZWQyZTZiODNjNDZiMGUxMzRlNmNjN1111111111
@@ -119,7 +119,7 @@ rules:
           (xoxe-[0-9]{0,3}-[\w-]{50,})
         \b
     entropy: 4.1
-    redact: [4, 4]
+    redact: [10, 4]
     tests:
       assert:
         - xoxe-1-My0xLTMxNzcwMjQ0MTcxMy01MTU4MTUyNjkxNzE0LTUxODE4NDI0MDY3MzYtMjA5MGFkOTFlZThkZWE2OGFlZDYwYWJjODNhYzAxYjA5ZjVmODBhYjgzN2QyNDdjOTNlOGY5NTg21111111111
@@ -146,7 +146,7 @@ rules:
           )
         \b
     entropy: 4.1
-    redact: [4, 4]
+    redact: [36, 4]
     tests:
       assert:
         - https://hooks.slack.com/services/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
@@ -177,7 +177,7 @@ rules:
           )
         \b
     entropy: 4.1
-    redact: [4, 4]
+    redact: [37, 4]
     tests:
       assert:
         - https://hooks.slack.com/workflows/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
