@@ -1,0 +1,27 @@
+rules:
+  - name: Firecrawl API Key
+    id: ghost.firecrawl.1
+    description: Firecrawl API key.
+    tags:
+      - api
+      - firecrawl
+    pattern: |
+      (?x)
+        \b
+          (fc-[a-f0-9]{32})
+        \b
+    redact: [6, 4]
+    entropy: 3.1
+    tests:
+      assert:
+        - fc-40ee25cf33c143e3822805e5516ee855
+        - fc-162c367ad191489e9e7deb7e078577e7
+      assert_not:
+        - fc-162c367ag191489e9e7deb7e078577e7
+        - fc-b1852d1e99034ed7acb2e0ec72b6b0569
+        - fc-b1852d1e99034ed7acb2e0ec72b6b0
+        - fx-b1852d1e99034ed7acb2e0ec72b6b056
+    history:
+      - 2025-08-12 initial version
+    refs:
+      - https://docs.firecrawl.dev/introduction#api-key
