@@ -1,0 +1,52 @@
+rules:
+  - name: Stripe Legacy API Key
+    id: ghost.stripe.1
+    description: Stripe legacy API key.
+    tags:
+      - api
+      - stripe
+    pattern: |
+      (?x)
+        \b
+          ((?:sk|rk)_live_(?i)[A-Z0-9]{24})
+        \b
+    entropy: 4.1
+    redact: [11, 4]
+    tests:
+      assert:
+        - sk_live_ypKsXkS5dFBTvkVJ2UiIS5lW
+        - sk_live_5Oewp2nDVhPJMypKsXkS5dFB
+        - rk_live_p2ntrRrHBlfmVO88dDSAJ7Ev
+      assert_not:
+        - sk_test_123456789012345
+        - sk_live_123456789012345
+    history:
+      - 2025-08-12 initial version
+    refs:
+      - https://docs.stripe.com/api/authentication
+  - name: Stripe API Key
+    id: ghost.stripe.2
+    description: Stripe API key.
+    tags:
+      - api
+      - stripe
+    pattern: |
+      (?x)
+        \b
+          ((?:sk|rk)_live_[a-zA-Z0-9]{25,250})
+        \b
+    entropy: 5.1
+    redact: [11, 4]
+    tests:
+      assert:
+        - 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
+        - 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
+        - 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
+      assert_not:
+        - sk_test_72RvGUVS325Oewp2nDVhPJMypKsXkS5dFBTvkVJ%UiIS5lWDDPraPDLvFTLMg8qFXhGfhJWM9AUYeUNdQrpGYGOea003ehXt3Po
+        - sk_test_72RvGUVS325Oewp2nbBr9Wq7aaq6HwDZvWDj56FT95FXvVBaajXixoHvh8b0Gwa55ApghsuNFnqIVHhz1PZiC7nU000cYFb1kfW
+        - sk_live_123456789012345678901234
+    history:
+      - 2025-08-12 initial version
+    refs:
+      - https://stripe.com/docs/api/authentication
