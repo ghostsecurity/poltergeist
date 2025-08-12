@@ -42,3 +42,7 @@ lint: ## Run linter
 .PHONY: docs
 docs: ## Generate rules documentation
 	go run cmd/docs/main.go > docs/rules.md
+
+.PHONY: benchmarks
+benchmarks: ## Run benchmarks
+	go run cmd/benchmark/main.go
