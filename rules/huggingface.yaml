@@ -1,0 +1,27 @@
+rules:
+  - name: Hugging Face API Key
+    id: ghost.huggingface.1
+    description: Hugging Face API key.
+    tags:
+      - api
+      - huggingface
+    pattern: |
+      (?x)
+        \b
+          (hf_(?i)[A-Z0-9]{34})
+        \b
+    entropy: 4.2
+    redact: [4, 4]
+    tests:
+      assert:
+        - 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
+        - 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
+        - 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
+      assert_not:
+        - hb_ADwXYNopfqFghVzYyEWrFElwraEQxrKwHO
+        - hb_ADwXYNopfqFg-VzYyEWrFElwraEQxrKwHO
+        - hf_12
+    history:
+      - 2025-08-12 initial version
+    refs:
+      - https://huggingface.co/docs/hub/security-tokens
