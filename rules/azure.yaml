@@ -36,7 +36,7 @@ rules:
     pattern: |
       (?x)
         \b
-          (?i:(?:AZURE|OPENAI)\w*)
+          (?i:(?:\w*azure\w*openai\w*))
           [\W]{0,10}?
           ((?i:[A-Z0-9]{84}))
         \b
@@ -45,10 +45,13 @@ rules:
     tests:
       assert:
         - 'export AZURE_OPENAI="3IfsqmqTQEnBrECDdOYqLROcsZJCSyoH6bUdM8OOXSQ3bN69XXg0JQQJ99BHACHYHv6XJ3w3AAAAACOGofTr"'
+        - 'export AZURE_OPENAI_TOKEN="3IfsqmqTQEnBrECDdOYqLROcsZJCSyoH6bUdM8OOXSQ3bN69XXg0JQQJ99BHACHYHv6XJ3w3AAAAACOGofTr"'
+        - 'export AZURE_OPENAI_KEY="3IfsqmqTQEnBrECDdOYqLROcsZJCSyoH6bUdM8OOXSQ3bN69XXg0JQQJ99BHACHYHv6XJ3w3AAAAACOGofTr"'
       assert_not:
         - 'export AZURE_API_KEY="1234567890123456"'
     history:
       - 2025-08-07 initial version
+      - 2025-08-12 updated pattern to match when both "AZURE" and "OPENAI" are present
     refs:
       - https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/view-resource-data
   - name: Azure DevOps Personal Access Token
