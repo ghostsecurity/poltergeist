@@ -957,7 +957,7 @@ Total rules: 38
 ```
 (?x)
   \b
-    ((?:sk|rk)_live_(?i)[A-Z0-9]{24})
+    ([sr]k_live_(?i)[A-Z0-9]{24})
   \b
 
 ```
@@ -982,7 +982,7 @@ Total rules: 38
 ```
 (?x)
   \b
-    ((?:sk|rk)_live_[a-zA-Z0-9]{25,250})
+    ([sr]k_live_[a-zA-Z0-9]{25,250})
   \b
 
 ```
