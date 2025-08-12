@@ -185,7 +185,7 @@ Total rules: 34
 ```
 (?x)
   \b
-    (?i:(?:AZURE|OPENAI)\w*)
+    (?i:(?:\w*azure\w*openai\w*))
     [\W]{0,10}?
     ((?i:[A-Z0-9]{84}))
   \b
@@ -195,7 +195,7 @@ Total rules: 34
 **Min entropy:** 4.1
 
 **Tests:**
-- assert: 1 cases
+- assert: 3 cases
 - assert_not: 1 cases
 
 
