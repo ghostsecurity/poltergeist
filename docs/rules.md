@@ -185,7 +185,7 @@ Total rules: 34
 ```
 (?x)
   \b
-    (?i:(?:\w*azure\w*openai\w*))
+    (?i:(?:\w*AZURE\w*OPENAI\w*))
     [\W]{0,10}?
     ((?i:[A-Z0-9]{84}))
   \b
