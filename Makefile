@@ -41,4 +41,4 @@ lint: ## Run linter
 
 .PHONY: docs
 docs: ## Generate rules documentation
-	go run cmd/rules/main.go > docs/rules.md
+	go run cmd/docs/main.go > docs/rules.md
