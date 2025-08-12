@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -23,6 +24,24 @@ type BenchmarkResult struct {
 }
 
 func main() {
+	// Define command line flags
+	engine := flag.String("engine", "all", "Engine to benchmark: go, hyperscan, or all")
+	maxRules := flag.Int("max-rules", 0, "Maximum number of rules to test (0 = no limit)")
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage: %s [options]\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "\nBenchmark the Poltergeist secret scanning engine\n\n")
+		fmt.Fprintf(os.Stderr, "Options:\n")
+		flag.PrintDefaults()
+	}
+	flag.Parse()
+
+	// Validate engine argument
+	if *engine != "go" && *engine != "hyperscan" && *engine != "all" {
+		fmt.Fprintf(os.Stderr, "Error: invalid engine '%s'. Must be 'go', 'hyperscan', or 'all'\n", *engine)
+		flag.Usage()
+		os.Exit(1)
+	}
+
 	// For the results referenced in the README.md, we symlinked the Linux
 	// kernel source code to `testdata/benchmark` directory and seeded some
 	// secrets. This is about 1.4GB of content.
@@ -60,27 +79,50 @@ func main() {
 		var ruleSet []poltergeist.Rule
 		if dummyCount == 0 {
 			ruleSet = packagedRules
-			fmt.Printf("=== Testing with %d packaged rules ===\n", len(packagedRules))
 		} else {
 			ruleSet = append([]poltergeist.Rule{}, packagedRules...)
 			dummyRules := generateDummyRules(dummyCount)
 			ruleSet = append(ruleSet, dummyRules...)
+		}
+
+		// Skip scenario if it exceeds max rules limit
+		if *maxRules > 0 && len(ruleSet) > *maxRules {
+			if dummyCount == 0 {
+				fmt.Printf("=== Skipping %d packaged rules (exceeds max-rules=%d) ===\n", len(packagedRules), *maxRules)
+			} else {
+				fmt.Printf("=== Skipping %d packaged + %d dummy rules (%d total, exceeds max-rules=%d) ===\n",
+					len(packagedRules), dummyCount, len(ruleSet), *maxRules)
+			}
+			fmt.Println()
+			continue
+		}
+
+		// Print scenario information
+		if dummyCount == 0 {
+			fmt.Printf("=== Testing with %d packaged rules ===\n", len(packagedRules))
+		} else {
 			fmt.Printf("=== Testing with %d packaged + %d dummy rules (%d total) ===\n",
 				len(packagedRules), dummyCount, len(ruleSet))
 		}
 
-		// Test with Go engine
-		goResult := benchmarkEngine("go", ruleSet, benchmarkDir)
-		allResults = append(allResults, goResult)
-		printResult(goResult)
+		// Test with selected engine(s)
+		if *engine == "go" || *engine == "all" {
+			goResult := benchmarkEngine("go", ruleSet, benchmarkDir)
+			allResults = append(allResults, goResult)
+			printResult(goResult)
+		}
 
-		// Test with Hyperscan engine (if available)
-		if poltergeist.IsHyperscanAvailable() {
-			hyperscanResult := benchmarkEngine("hyperscan", ruleSet, benchmarkDir)
-			allResults = append(allResults, hyperscanResult)
-			printResult(hyperscanResult)
-		} else {
-			fmt.Println("Hyperscan engine not available, skipping...")
+		if *engine == "hyperscan" || *engine == "all" {
+			if poltergeist.IsHyperscanAvailable() {
+				hyperscanResult := benchmarkEngine("hyperscan", ruleSet, benchmarkDir)
+				allResults = append(allResults, hyperscanResult)
+				printResult(hyperscanResult)
+			} else {
+				if *engine == "hyperscan" {
+					log.Fatalf("Hyperscan engine requested but not available")
+				}
+				fmt.Println("Hyperscan engine not available, skipping...")
+			}
 		}
 
 		fmt.Println()
