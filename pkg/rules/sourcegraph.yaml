@@ -8,7 +8,7 @@ rules:
     pattern: |
       (?x)
         \b
-          (?:sgp_(?:[a-f0-9]{16}_local_)?[a-f0-9]{40}|[a-f0-9]{40})
+          (sgp_(?:[a-f0-9]{16}_local_)[a-f0-9]{40})
         \b
     entropy: 4.1
     redact: [10, 4]
@@ -17,6 +17,7 @@ rules:
         - sgp_abcdef1234567890_local_0123456789abcdef0123456789abcdef01234567
       assert_not:
         - sgp_12345678901234567890123456789012345678901
+        - 9a81c16b527528ad307843be5571111aa8d35a80
     history:
       - 2025-08-12 initial version
     refs:

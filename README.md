@@ -227,6 +227,7 @@ Running against some real-world [content](https://github.com/torvalds/linux) wit
 
 ## TODO
 
+- [x] Track whether minimum entropy is met for matches
 - [ ] Track multiple matches per line
 - [ ] If multiple matches, ignore generic rule matches if there is a non-generic match
 - [ ] Incorporate plain english stop words to reduce false positives

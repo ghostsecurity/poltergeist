@@ -166,6 +166,10 @@ func (e *HyperscanEngine) FindAllInLine(line string) []MatchResult {
 			redacted = match[:rule.Redact[0]] + strings.Repeat("*", min(5, len(match))) + match[len(match)-rule.Redact[1]:]
 		}
 
+		// Calculate entropy and check if it meets the minimum requirement
+		entropy := ShannonEntropy(match)
+		entropyMet := entropy >= rule.Entropy
+
 		results = append(results, MatchResult{
 			Start:    int(from),
 			End:      int(to),
@@ -173,6 +177,7 @@ func (e *HyperscanEngine) FindAllInLine(line string) []MatchResult {
 			Redacted: redacted,
 			RuleName: rule.Name,
 			RuleID:   rule.ID,
+			Entropy:  entropyMet,
 		})
 
 		return nil
@@ -284,6 +289,10 @@ func (e *GoRegexEngine) FindAllInLine(line string) []MatchResult {
 				redacted = match[:e.rules[i].Redact[0]] + strings.Repeat("*", min(5, len(match))) + match[len(match)-e.rules[i].Redact[1]:]
 			}
 
+			// Calculate entropy and check if it meets the minimum requirement
+			entropy := ShannonEntropy(match)
+			entropyMet := entropy >= e.rules[i].Entropy
+
 			results = append(results, MatchResult{
 				Start:    0,
 				End:      0,
@@ -291,6 +300,7 @@ func (e *GoRegexEngine) FindAllInLine(line string) []MatchResult {
 				Redacted: redacted,
 				RuleName: e.rules[i].Name,
 				RuleID:   e.rules[i].ID,
+				Entropy:  entropyMet,
 			})
 		}
 	}
@@ -313,6 +323,10 @@ func (e *GoRegexEngine) FindAllInContent(content []byte) []MatchResult {
 				redacted = matchText[:e.rules[i].Redact[0]] + strings.Repeat("*", min(5, len(matchText))) + matchText[len(matchText)-e.rules[i].Redact[1]:]
 			}
 
+			// Calculate entropy and check if it meets the minimum requirement
+			entropy := ShannonEntropy(matchText)
+			entropyMet := entropy >= e.rules[i].Entropy
+
 			results = append(results, MatchResult{
 				Start:    match[0],
 				End:      match[1],
@@ -320,6 +334,7 @@ func (e *GoRegexEngine) FindAllInContent(content []byte) []MatchResult {
 				Redacted: redacted,
 				RuleName: e.rules[i].Name,
 				RuleID:   e.rules[i].ID,
+				Entropy:  entropyMet,
 			})
 		}
 	}

@@ -3,7 +3,7 @@
 // This package can be used as a library to scan files and directories for
 // sensitive patterns like API keys, certificate private keys, credentials,
 // and other secrets. It supports multiple pattern engines (Go regex and
-// Hyperscan/Vectorscan).
+// Hyperscan/Vectorscan) and includes entropy analysis to reduce false positives.
 //
 // Basic usage:
 //
@@ -55,6 +55,7 @@ type ScanResult struct {
 	Redacted   string // The redacted version of the match
 	RuleName   string // Name of the rule that matched
 	RuleID     string // ID of the rule that matched
+	Entropy    bool   // Whether the match met the minimum entropy requirement
 }
 
 // MatchResult represents a single pattern match within content
@@ -65,6 +66,7 @@ type MatchResult struct {
 	Redacted string // The redacted text
 	RuleName string // Name of the rule that matched
 	RuleID   string // ID of the rule that matched
+	Entropy  bool   // Whether the match met the minimum entropy requirement
 }
 
 // ScanMetrics tracks scanning statistics
@@ -338,6 +340,7 @@ func (s *Scanner) scanFile(filePath string) ([]ScanResult, error) {
 				Redacted:   match.Redacted,
 				RuleName:   match.RuleName,
 				RuleID:     match.RuleID,
+				Entropy:    match.Entropy,
 			})
 		}
 

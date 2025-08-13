@@ -58,37 +58,8 @@ rules:
       - 2025-08-13 initial version
     notes:
       - Generic secret variable declaration with a secret of at least 32 characters.
-  - name: Generic Key
-    id: ghost.generic.3
-    description: Generic key variable declaration.
-    tags:
-      - generic
-      - key
-    pattern: |
-      (?x)
-        \b
-          (
-            (?i)(?:\w*key\w*)
-            [\W]{0,10}?
-            (?i)[A-Z0-9_-]{20,}
-          )
-        \b
-    entropy: 1.5
-    redact: [12, 4]
-    tests:
-      assert:
-        - 'key="867d48d0072b60b6049a7b3173c33596"'
-        - 'api_key="867d48d0072b60b6049a7b3173c33596"'
-        - 'export APP_KEY="867d48d0072b60b6049a7b3173c33596"'
-      assert_not:
-        - 'var secret="867d48d0072b60b6049a7b3173c3359"'
-        - 'export KEY=${MY_KEY}'
-    history:
-      - 2025-08-13 initial version
-    notes:
-      - Generic key variable declaration with a key of at least 20 characters.
   - name: Generic Password
-    id: ghost.generic.4
+    id: ghost.generic.3
     description: Generic password variable declaration.
     tags:
       - generic
@@ -99,25 +70,26 @@ rules:
           (
             (?i)(?:\w*password\w*)
             [\W]{0,10}?
-            (?i)[A-Z0-9_-]{10,}
+            (?i)[A-Z0-9_-]{24,}
           )
         \b
-    entropy: 1.5
+    entropy: 3.5
     redact: [4, 4]
     tests:
       assert:
-        - 'password="867d48d0078"'
-        - 'api_password="867d48d0072b60b6049a76"'
+        - 'password="867d48d0078867d48d0078XYZ"'
+        - 'api_password="867d48d0072b60b6049a76XYZ"'
         - 'export APP_PASSWORD="867d48d0072b60b6049a7b596"'
       assert_not:
         - 'var password="password"'
         - 'var secret="867d48d0072b60b6049a7b3173c3359"'
+        - 'if (test_add_key(sk, DEFAULT_TEST_PASSWORD, this_ip_dest, DEFAULT_TEST_PREFIX, 0, 0))'
     history:
       - 2025-08-13 initial version
     notes:
       - Generic password variable declaration with a password of at least 10 characters.
   - name: Sensitive JWT
-    id: ghost.generic.5
+    id: ghost.generic.4
     description: Sensitive JWT variable declaration.
     tags:
       - generic

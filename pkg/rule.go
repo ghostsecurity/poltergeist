@@ -1,11 +1,18 @@
 package poltergeist
 
 import (
+	"embed"
+	"fmt"
 	"math"
 	"strings"
 	"unicode"
 	"unicode/utf8"
+
+	"gopkg.in/yaml.v3"
 )
+
+//go:embed rules/*.yaml
+var defaultRulesFS embed.FS
 
 // RuleFile represents the structure of a YAML rule file
 type RuleFile struct {
@@ -77,6 +84,45 @@ func (r *Rule) ToRuntimeRule() RuntimeRule {
 		Redact:  r.Redact,
 		Entropy: r.Entropy,
 	}
+}
+
+// LoadDefaultRules loads the built-in default rules embedded in the package
+func LoadDefaultRules() ([]Rule, error) {
+	var allRules []Rule
+
+	entries, err := defaultRulesFS.ReadDir("rules")
+	if err != nil {
+		return nil, fmt.Errorf("failed to read embedded default rules directory: %w", err)
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+
+		// Only process YAML files
+		name := entry.Name()
+		if !strings.HasSuffix(name, ".yaml") && !strings.HasSuffix(name, ".yml") {
+			continue
+		}
+
+		// Read the embedded file
+		filePath := "rules/" + name
+		data, err := defaultRulesFS.ReadFile(filePath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read embedded default rule file %s: %w", name, err)
+		}
+
+		// Parse the YAML content
+		var ruleFile RuleFile
+		if err := yaml.Unmarshal(data, &ruleFile); err != nil {
+			return nil, fmt.Errorf("failed to parse embedded default YAML file %s: %w", name, err)
+		}
+
+		allRules = append(allRules, ruleFile.Rules...)
+	}
+
+	return allRules, nil
 }
 
 // NormalizeExtendedRegex normalizes PCRE extended regex syntax for Go regex.

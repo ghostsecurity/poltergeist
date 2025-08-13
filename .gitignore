@@ -12,6 +12,7 @@
 !poltergeist/**
 !pkg/**
 !rules/*
+!rules
 
 !*.go
 !go.sum
