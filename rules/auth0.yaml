@@ -1,0 +1,31 @@
+rules:
+  - name: Auth0 Client Secret
+    id: ghost.auth0.1
+    description: Auth0 client secret.
+    tags:
+      - api
+      - auth0
+      - client
+      - secret
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)(?:\w*AUTH0\w*SECRET\w*)
+            [\W]{0,10}?
+            (?i)[A-Z0-9_-]{32,}
+          )
+        \b
+    entropy: 5.1
+    redact: [24, 4]
+    tests:
+      assert:
+        - 'export AUTH0_CLIENT_SECRET="ozG9n_wtgTfvgmwTwK9TKfmU67eGlECfiyhxn2M1HIrsd-fXuyYQMPnBk-kh-ZBy"'
+        - 'export AUTH0_SECRET="Sock1sFt2wJlM8ghfq35NZARYRG7etckxmPjdH9Rq_ZRhlC9meMoPr-0J5y8SpDs"'
+        - 'export AUTH0_CLIENT_SECRET="t89qsO_n0oxlwQJfuyRwhBtYW77zqGKk0sffhPpmbiXPcZlxAgQddLy2xqor1kF1"'
+      assert_not:
+        - 'export AUTH0_TOKEN="1234567890123456789012345"'
+    history:
+      - 2025-08-13 initial version
+    refs:
+      - https://auth0.com/docs/secure/tokens/access-tokens/create-and-manage-access-tokens
