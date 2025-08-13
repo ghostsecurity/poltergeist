@@ -1,0 +1,52 @@
+rules:
+  - name: DigitalOcean Personal Access Token
+    id: ghost.digitalocean.1
+    description: DigitalOcean personal access token.
+    tags:
+      - api
+      - digitalocean
+      - pat
+      - token
+    pattern: |
+      (?x)
+        \b
+          (dop_v1_(?i)[A-F0-9]{64})
+        \b
+    entropy: 3.1
+    redact: [11, 4]
+    tests:
+      assert:
+        - dop_v1_948aa2174815f7c3eaba74dc11f1a3cd2986d67a4a6f9c70fed85c0e17b3878a
+        - dop_v1_db03ee9b74a7b2c87defa06919dd6c0011df7922730bd7aedd1ca160a0b8c8fe
+        - 'const doToken = "dop_v1_db03ee9b74a7b2c87defa06919dd6c0011df7922730bd7aedd1ca160a0b8c8fe"'
+      assert_not:
+        - dop_v2_948aa2174815f7c3eaba74dc11f1a3cd2986d67a4a6f9c70fed85c0e17b3878a
+    history:
+      - 2025-08-13 initial version
+    refs:
+      - https://docs.digitalocean.com/reference/api/
+  - name: DigitalOcean Application Access Token
+    id: ghost.digitalocean.2
+    description: DigitalOcean application access token.
+    tags:
+      - api
+      - digitalocean
+      - token
+    pattern: |
+      (?x)
+        \b
+          (doo_v1_(?i)[A-F0-9]{64})
+        \b
+    entropy: 3.1
+    redact: [11, 4]
+    tests:
+      assert:
+        - doo_v1_948aa2174815f7c3eaba74dc11f1a3cd2986d67a4a6f9c70fed85c0e17b3878a
+        - doo_v1_db03ee9b74a7b2c87defa06919dd6c0011df7922730bd7aedd1ca160a0b8c8fe
+        - 'var doToken = "doo_v1_db03ee9b74a7b2c87defa06919dd6c0011df7922730bd7aedd1ca160a0b8c8fe"'
+      assert_not:
+        - doo_v2_948aa2174815f7c3eaba74dc11f1a3cd2986d67a4a6f9c70fed85c0e17b3878a
+    history:
+      - 2025-08-13 initial version
+    refs:
+      - https://docs.digitalocean.com/reference/api/

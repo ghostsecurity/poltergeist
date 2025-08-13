@@ -1,0 +1,143 @@
+#
+# These are intentionally generic to help identify secrets we aren't catching with other rules.
+#
+rules:
+  - name: Generic Token
+    id: ghost.generic.1
+    description: Generic token variable declaration.
+    tags:
+      - generic
+      - token
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)(?:\w*token\w*)
+            [\W]{0,10}?
+            (?i)[A-Z0-9_-]{32,}
+          )
+        \b
+    entropy: 3.1
+    redact: [15, 4]
+    tests:
+      assert:
+        - 'token="fca52b64dcdd9451c080ce33d65ed963"'
+        - 'api_token="fca52b64dcdd9451c080ce33d65ed963"'
+        - 'export APP_TOKEN="fca52b64dcdd9451c080ce33d65ed963"'
+      assert_not:
+        - 'var token="fca52b64dcdd9451c080ce33d65ed96"'
+    history:
+      - 2025-08-13 initial version
+    notes:
+      - Generic token variable declaration with a token of at least 32 characters.
+  - name: Generic Secret
+    id: ghost.generic.2
+    description: Generic secret variable declaration.
+    tags:
+      - generic
+      - secret
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)(?:\w*secret\w*)
+            [\W]{0,10}?
+            (?i)[A-Z0-9_-]{32,}
+          )
+        \b
+    entropy: 3.1
+    redact: [16, 4]
+    tests:
+      assert:
+        - 'secret="867d48d0072b60b6049a7b3173c33596"'
+        - 'api_secret="867d48d0072b60b6049a7b3173c33596"'
+        - 'export APP_SECRET="867d48d0072b60b6049a7b3173c33596"'
+      assert_not:
+        - 'var secret="867d48d0072b60b6049a7b3173c3359"'
+    history:
+      - 2025-08-13 initial version
+    notes:
+      - Generic secret variable declaration with a secret of at least 32 characters.
+  - name: Generic Key
+    id: ghost.generic.3
+    description: Generic key variable declaration.
+    tags:
+      - generic
+      - key
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)(?:\w*key\w*)
+            [\W]{0,10}?
+            (?i)[A-Z0-9_-]{20,}
+          )
+        \b
+    entropy: 1.5
+    redact: [12, 4]
+    tests:
+      assert:
+        - 'key="867d48d0072b60b6049a7b3173c33596"'
+        - 'api_key="867d48d0072b60b6049a7b3173c33596"'
+        - 'export APP_KEY="867d48d0072b60b6049a7b3173c33596"'
+      assert_not:
+        - 'var secret="867d48d0072b60b6049a7b3173c3359"'
+        - 'export KEY=${MY_KEY}'
+    history:
+      - 2025-08-13 initial version
+    notes:
+      - Generic key variable declaration with a key of at least 20 characters.
+  - name: Generic Password
+    id: ghost.generic.4
+    description: Generic password variable declaration.
+    tags:
+      - generic
+      - password
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)(?:\w*password\w*)
+            [\W]{0,10}?
+            (?i)[A-Z0-9_-]{10,}
+          )
+        \b
+    entropy: 1.5
+    redact: [4, 4]
+    tests:
+      assert:
+        - 'password="867d48d0078"'
+        - 'api_password="867d48d0072b60b6049a76"'
+        - 'export APP_PASSWORD="867d48d0072b60b6049a7b596"'
+      assert_not:
+        - 'var password="password"'
+        - 'var secret="867d48d0072b60b6049a7b3173c3359"'
+    history:
+      - 2025-08-13 initial version
+    notes:
+      - Generic password variable declaration with a password of at least 10 characters.
+  - name: Sensitive JWT
+    id: ghost.generic.5
+    description: Sensitive JWT variable declaration.
+    tags:
+      - generic
+      - jwt
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)(?:\w*(?:token|secret|key)\w*)
+            [\W]{0,10}?
+            eyJ(?i:[A-Z0-9_-]{32,})\.eyJ(?i:[A-Z0-9_-]{32,})\.(?i:[A-Z0-9_-]{8,})
+          )
+        \b
+    entropy: 5.1
+    redact: [18, 4]
+    tests:
+      assert:
+        - 'export ACCESS_TOKEN="eyJ2ZXIiOiIyJkvigHlvKabcSldUIiwiYWxnIjoiUlMyNTYiLCJraWQiOiJLSWpEMWlyTVpYY0pmLXBNUVJaclUzQlNpSjREWDdOUGZDSnJ4NnhzdFJBIn0.eyJzdWIiOiJqZmFjQDAxazIyMXpxZ204OHJwMTI1cmQ0NmYxamIwL3VzZXJzL2FkbWluIiwic2NwIjoiYXBwbGllZC1wZXJtaXNzaW9ucy9hZG1pbiIsImF1ZCI6IipAKiIsImlzcyI6ImpmZmVAMDFrMjIxenFnbTg4cnAxMjVyZDQ2ZjFqYjAiLCJleHAiOjE3NTUxODY4MDMsImlhdCI6MTc1NTEwMDQwMywianRpIjoiYzNmMDQxODUtYmE4Mi00MmZmLTgyYWItMTgzZTExZmNkMmEwIn0.KG06V6Glb-5eRF_9Fo2GvFO1yKLCY_MqCtQanwtzqdV5x51PH19D0c1HqbblwLsqF8-lTJgNvmWo01hsIanOIdUuZtHGvIMYhImRvtq0bxPNNj9FOnwdNpmu8Dq-8x7xYLkSdbvK-2iCp5vHrVRqrc0M3S73x3bQpEn0XQScdfUDf1QbQoUirtiZ-TVmgloZVDEDwGw0rFQdtgnYATNrUVpH6h4p3-ZjHuNZikiDw589KOkvVxtIY_8qIMIZJj_UWXEdhqtcFfk54watw_5RbWOextto8eIA54lyD_LghvLJCLl3C_wywCQNB1kfWtQeVI0mYdEqqLhzym88umioeA"'
+      assert_not:
+        - 'var token="password"'
+        - 'var secret="867d48d0072b60b6049a7b3173c3359"'
+    history:
+      - 2025-08-13 initial version

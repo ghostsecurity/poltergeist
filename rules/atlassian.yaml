@@ -1,0 +1,32 @@
+rules:
+  - name: Atlassian API Token
+    id: ghost.atlassian.1
+    description: Atlassian API token.
+    tags:
+      - api
+      - atlassian
+      - token
+      - jira
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)\w*(?:BITBUCKET|JIRA)\w*TOKEN\w*
+            [\W]{0,10}?
+            AT(?i)[A-Z0-9_-]{32,}\=[A-F0-9]{8}
+          )
+        \b
+    entropy: 5.2
+    redact: [15, 4]
+    tests:
+      assert:
+        - 'export BITBUCKET_TOKEN="ATATT3xFfGF07F7a-N2s3AYWxSlCMXnjZ1eFA2apmC7ujT5GwRcKg9D9D5e4CANVjerDL02L4z9eZeOFOVtsyAfefQ85T2_0tMt212d0dhuWaYb3eP1_XmHZCxp3R5MesHCRUFZDypICEzmpWdXezFuAdJXdjIDexZkwJoNwTXwLH4UahQNbBoo=A18B8C09"'
+        - 'export BITBUCKET_TOKEN="ATATT3xFfGF0TO5d1w6ph2mRAGvEWmXMRF7EfORmBVE_slnuRs-BKtk3QtyWc9-JK4Hc1hfJSDisv41F7L16Gte9aE8ju362A1Ggu-Ai29f_fJUXkI5IKTsLwUr4p9MNRJdodwncvPjsXaoB3-4fDRQqIuof-cJN_bm8tDUXigKgc3X9XSV_ruE=620D5ACF"'
+        - 'export BITBUCKET_TOKEN="ATATT3xFfGF02FT44VPlyet-CmNO5AIXd3fMmEOaORwcyoadVytsKNH4EUAFR2rbr4c4zJCZ_Vl74N17gL5fQ4MbN0cE4uNaUZXDF3GoDx2cXt_PBdKqrUSDtQqnqHANyVlHJzltPDetMY0Z_rvm-yQUV2CRyF2fxJMj8N1S_6g2YbgbdTr3xhA=CB050D44"'
+      assert_not:
+        - 'export BITBUCKET_TOKEN="AZATT3xFfGF02FT44VPlyet-CmNO5AIXd3fMmEOaORwcyoadVytsKNH4EUAFR2rbr4c4zJCZ_Vl74N17gL5fQ4MbN0cE4uNaUZXDF3GoDx2cXt_PBdKqrUSDtQqnqHANyVlHJzltPDetMY0Z_rvm-yQUV2CRyF2fxJMj8N1S_6g2YbgbdTr3xhA=CB050D44"'
+        - 'BITBUCKET_TOKEN=1234567890123456789012345'
+    history:
+      - 2025-08-13 initial version
+    refs:
+      - https://support.atlassian.com/bitbucket-cloud/docs/api-tokens/

@@ -1,0 +1,32 @@
+rules:
+  - name: Bitbucket Legacy App Password
+    id: ghost.bitbucket.1
+    description: Bitbucket legacy app password.
+    tags:
+      - api
+      - bitbucket
+      - legacy
+      - app
+      - password
+    pattern: |
+      (?x)
+        \b
+          (
+            ATBB(?i)[A-Z0-9]{32}
+          )
+        \b
+    entropy: 4.1
+    redact: [7, 4]
+    tests:
+      assert:
+        - ATBB5hSDa5zDng3U13qeLPFbxFaGl0GOhWet
+        - ATBB5aDsxvOF27pPlCDj857e5C1EAsuAhFsr
+        - ATBB5aS7VvewE8XaHZIkDN3batgWHRJBokRg
+      assert_not:
+        - ATBB5aS7VvewE8XaHZIkDN3batgWHRJBokRgZ
+        - ATBB5aS7VvewE8XaHZIkDN3batgWHRJBokR
+        - 'BITBUCKET_PASSWORD=1234567890123456789012345'
+    history:
+      - 2025-08-13 initial version
+    refs:
+      - https://support.atlassian.com/bitbucket-cloud/docs/app-passwords/
