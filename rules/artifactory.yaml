@@ -1,0 +1,90 @@
+rules:
+  - name: Artifactory Legacy API Key
+    id: ghost.artifactory.1
+    description: Legacy Artifactory API key.
+    tags:
+      - api
+      - artifactory
+    pattern: |
+      (?x)
+        \b
+          (AKC(?i)[A-Z0-9]{61,})
+        \b
+    entropy: 4.5
+    redact: [6, 4]
+    tests:
+      assert:
+        - 'AKCfIzPzEGvQcNcPJZfCoZxVro5MqBhdUUoaFYCu8tadMXIe0SdjVdDg4JITrJbU'
+        - 'AKCVuf48dsuDWoXVWYQRq9giqvhlubDMptjUTdanjaF5PlJTeOP8SkUEL8g5IsSJ'
+      assert_not:
+        - 'AKC1234567890123456789012345678901234567890'
+        - 'AKCbR2HUQMXFF4qLNAtsq1WGrQVcmY9NU8vw78emgzgSxYVI2U41H'
+    history:
+      - 2025-08-13 initial version
+    refs:
+      - https://jfrog-external.fluidtopics.net/r/jfrog-platform-administration-documentation/api-key
+    notes:
+      - Deprecated in version 7.47.10 in favor of access tokens.
+  - name: Artifactory Access Token
+    id: ghost.artifactory.2
+    description: Artifactory identity token variable declaration.
+    tags:
+      - api
+      - artifactory
+      - identity
+      - reference
+      - token
+    pattern: |
+      (?x)
+        \b
+          (?i)(?:ARTIFACTORY|JFROG)\w*(?:SECRET|KEY|TOKEN)\w*
+          [\W]{0,10}?
+          (eyJ(?i:[A-Z0-9_-]{32,})\.eyJ(?i:[A-Z0-9_-]{32,})\.(?i:[A-Z0-9_-]{8,}))
+        \b
+    entropy: 5.1
+    redact: [16, 4]
+    tests:
+      assert:
+        - 'export ARTIFACTORY_ACCESS_TOKEN="eyJ2ZXIiOiIyJkvigHlvKabcSldUIiwiYWxnIjoiUlMyNTYiLCJraWQiOiJLSWpEMWlyTVpYY0pmLXBNUVJaclUzQlNpSjREWDdOUGZDSnJ4NnhzdFJBIn0.eyJzdWIiOiJqZmFjQDAxazIyMXpxZ204OHJwMTI1cmQ0NmYxamIwL3VzZXJzL2FkbWluIiwic2NwIjoiYXBwbGllZC1wZXJtaXNzaW9ucy9hZG1pbiIsImF1ZCI6IipAKiIsImlzcyI6ImpmZmVAMDFrMjIxenFnbTg4cnAxMjVyZDQ2ZjFqYjAiLCJleHAiOjE3NTUxODY4MDMsImlhdCI6MTc1NTEwMDQwMywianRpIjoiYzNmMDQxODUtYmE4Mi00MmZmLTgyYWItMTgzZTExZmNkMmEwIn0.KG06V6Glb-5eRF_9Fo2GvFO1yKLCY_MqCtQanwtzqdV5x51PH19D0c1HqbblwLsqF8-lTJgNvmWo01hsIanOIdUuZtHGvIMYhImRvtq0bxPNNj9FOnwdNpmu8Dq-8x7xYLkSdbvK-2iCp5vHrVRqrc0M3S73x3bQpEn0XQScdfUDf1QbQoUirtiZ-TVmgloZVDEDwGw0rFQdtgnYATNrUVpH6h4p3-ZjHuNZikiDw589KOkvVxtIY_8qIMIZJj_UWXEdhqtcFfk54watw_5RbWOextto8eIA54lyD_LghvLJCLl3C_wywCQNB1kfWtQeVI0mYdEqqLhzym88umioeA"'
+        - 'export ARTIFACTORY_ACCESS_KEY="eyJ2ZXIiOiIyJkvigHlvKabcSldUIiwiYWxnIjoiUlMyNTYiLCJraWQiOiJLSWpEMWlyTVpYY0pmLXBNUVJaclUzQlNpSjREWDdOUGZDSnJ4NnhzdFJBIn0.eyJzdWIiOiJqZmFjQDAxazIyMXpxZ204OHJwMTI1cmQ0NmYxamIwL3VzZXJzL2psYXJAdnQuZWR1Iiwic2NwIjoiYXBwbGllZC1wZXJtaXNzaW9ucy91c2VyIiwiYXVkIjoiKkAqIiwiaXNzIjoiamZmZUAwMWsyMjF6cWdtODhycDEyNXJkNDZmMWpiMCIsImV4cCI6MTc1NTE4NzUxNSwiaWF0IjoxNzU1MTAxMTE1LCJqdGkiOiIyNDM1NzgyZi01ZTY2LTRmYzMtODA0My0xNjU4OWYxNTJlYTYifQ.hebYfyPJvrGNz2LECbfDdn-OXHGaKE71wGrCW35QNs8_VMo7kqccDEtmulUUHaMlQQdUMBBRIPjdxjNp9hCA8QR5oFlymrKi15QyWDY1_N4wJE4Hw9sg4W--CG26SNlOcPuUlBLyKbJL6sKOVtJCgKhiiNIQCi8sxHGSWszxWIfoe9SeRvftpebJbOt64IRI2E7Trg8_86h2Y8GiGKszaW0uwhOqVBpuVIwYxiJ1Qzn9qcOrvOdq30JFEFrPAIhliGs_NYpMPGsQkpnqUkObArMkA2mJojR3l1l7mpqaBGZJdAUBru__nfqy-Jd_w1zZs1Y5PV4JH6t3RCgmXoHIzQ"'
+        - 'export JFROG_KEY="eyJ2ZXIiOiIyJkvigHlvKabcSldUIiwiYWxnIjoiUlMyNTYiLCJraWQiOiJLSWpEMWlyTVpYY0pmLXBNUVJaclUzQlNpSjREWDdOUGZDSnJ4NnhzdFJBIn0.eyJzdWIiOiJqZmFjQDAxazIyMXpxZ204OHJwMTI1cmQ0NmYxamIwL3VzZXJzL2psYXJAdnQuZWR1Iiwic2NwIjoiYXBwbGllZC1wZXJtaXNzaW9ucy91c2VyIiwiYXVkIjoiKkAqIiwiaXNzIjoiamZmZUAwMWsyMjF6cWdtODhycDEyNXJkNDZmMWpiMCIsImV4cCI6MTc1NTE4NzUxNSwiaWF0IjoxNzU1MTAxMTE1LCJqdGkiOiIyNDM1NzgyZi01ZTY2LTRmYzMtODA0My0xNjU4OWYxNTJlYTYifQ.hebYfyPJvrGNz2LECbfDdn-OXHGaKE71wGrCW35QNs8_VMo7kqccDEtmulUUHaMlQQdUMBBRIPjdxjNp9hCA8QR5oFlymrKi15QyWDY1_N4wJE4Hw9sg4W--CG26SNlOcPuUlBLyKbJL6sKOVtJCgKhiiNIQCi8sxHGSWszxWIfoe9SeRvftpebJbOt64IRI2E7Trg8_86h2Y8GiGKszaW0uwhOqVBpuVIwYxiJ1Qzn9qcOrvOdq30JFEFrPAIhliGs_NYpMPGsQkpnqUkObArMkA2mJojR3l1l7mpqaBGZJdAUBru__nfqy-Jd_w1zZs1Y5PV4JH6t3RCgmXoHIzQ"'
+        - 'var artifactory_id_token = "eyJ2ZXIiOiIyJkvigHlvKabcSldUIiwiYWxnIjoiUlMyNTYiLCJraWQiOiJLSWpEMWlyTVpYY0pmLXBNUVJaclUzQlNpSjREWDdOUGZDSnJ4NnhzdFJBIn0.eyJzdWIiOiJqZmFjQDAxazIyMXpxZ204OHJwMTI1cmQ0NmYxamIwL3VzZXJzL2psYXJAdnQuZWR1Iiwic2NwIjoiYXBwbGllZC1wZXJtaXNzaW9ucy91c2VyIiwiYXVkIjoiKkAqIiwiaXNzIjoiamZmZUAwMWsyMjF6cWdtODhycDEyNXJkNDZmMWpiMCIsImV4cCI6MTc1NTE4NzUxNSwiaWF0IjoxNzU1MTAxMTE1LCJqdGkiOiIyNDM1NzgyZi01ZTY2LTRmYzMtODA0My0xNjU4OWYxNTJlYTYifQ.hebYfyPJvrGNz2LECbfDdn-OXHGaKE71wGrCW35QNs8_VMo7kqccDEtmulUUHaMlQQdUMBBRIPjdxjNp9hCA8QR5oFlymrKi15QyWDY1_N4wJE4Hw9sg4W--CG26SNlOcPuUlBLyKbJL6sKOVtJCgKhiiNIQCi8sxHGSWszxWIfoe9SeRvftpebJbOt64IRI2E7Trg8_86h2Y8GiGKszaW0uwhOqVBpuVIwYxiJ1Qzn9qcOrvOdq30JFEFrPAIhliGs_NYpMPGsQkpnqUkObArMkA2mJojR3l1l7mpqaBGZJdAUBru__nfqy-Jd_w1zZs1Y5PV4JH6t3RCgmXoHIzQ"'
+      assert_not:
+        - 'export ARTIFACTORY_ACCESS_KEY="1234567890123456789012345678901234567890"'
+    history:
+      - 2025-08-13 initial version
+    refs:
+      - https://jfrog.com/help/r/jfrog-platform-administration-documentation/access-tokens#AccessTokens-ManagingScopedandPairingTokens
+  - name: Artifactory Identity Token
+    id: ghost.artifactory.3
+    description: An Artifactory identity token variable declaration.
+    tags:
+      - api
+      - artifactory
+      - identity
+      - reference
+      - token
+    pattern: |
+      (?x)
+        \b
+          (?i)(?:ARTIFACTORY|JFROG)\w*(?:SECRET|KEY|TOKEN)\w*
+          [\W]{0,10}?
+          ((?i)[A-Z0-9]{64})
+        \b
+    entropy: 4.1
+    redact: [16, 4]
+    tests:
+      assert:
+        - 'export ARTIFACTORY_TOKEN="cmVmdGtuOjAxOjE3ODY2MzYxNDQ6Z21aNzNNN3h5TXFMN1d6QUI3WndmOGdaZFkx"'
+        - 'var artifactory_id_token = "cmVmdGtuOjAxOjE3ODY2MzYyNjY6RkFEbWtBUlduQzRNZG9xc2FTeWZISXNTOWNp"'
+        - 'var jfrog_token = "cmVmdGtuOjAxOjE3ODY2MzYyNjY6RkFEbWtBUlduQzRNZG9xc2FTeWZISXNTOWNp"'
+        - 'var jfrog_secret = "cmVmdGtuOjAxOjE3ODY2MzYyNjY6RkFEbWtBUlduQzRNZG9xc2FTeWZISXNTOWNp"'
+      assert_not:
+        - 'export ARTIFACTORY_API_KEY="1234567890123456789012345678901234567890"'
+    history:
+      - 2025-08-13 initial version
+    refs:
+      - https://jfrog.com/help/r/jfrog-platform-administration-documentation/generate-identity-token
+    notes:
+      - Reference tokens are also the same format as identity tokens.
+      - A reference token is a shorter, 64-character string, which can be used as a bearer token, a password, or with the "X-JFrog-Art-Api" header.
