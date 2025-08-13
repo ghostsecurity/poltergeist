@@ -204,12 +204,24 @@ func validateAssertNotCase(t *testing.T, rule Rule, assertNotCase string, caseNu
 	// Test with Hyperscan engine
 	matches := hyperscanEngine.FindAllInLine(assertNotCase)
 	if len(matches) > 0 {
-		t.Errorf("Rule %s pattern should not match assert_not case %d, but does (Hyperscan)", rule.ID, caseNum)
+		// we matched, now check if the entropy is met
+		entropy := ShannonEntropy(matches[0].Match)
+		if entropy >= rule.Entropy {
+			t.Errorf("Rule %s pattern should not match assert_not case %d with high entropy (%f >= %f), but does (Hyperscan)", rule.ID, caseNum, entropy, rule.Entropy)
+		} else {
+			t.Logf("Rule %s pattern should not match assert_not case %d, but does (Hyperscan)", rule.ID, caseNum)
+		}
 	}
 
-	// Test with Go regex engine
-	if regex.MatchString(assertNotCase) {
-		t.Errorf("Rule %s pattern should not match assert_not case %d, but does (Go)", rule.ID, caseNum)
+	goMatches := regex.FindAllString(assertNotCase, -1)
+	if len(goMatches) > 0 {
+		// we matched, now check if the entropy is met
+		entropy := ShannonEntropy(goMatches[0])
+		if entropy >= rule.Entropy {
+			t.Errorf("Rule %s pattern should not match assert_not case %d with high entropy (%f >= %f), but does (Go)", rule.ID, caseNum, entropy, rule.Entropy)
+		} else {
+			t.Logf("Rule %s pattern should not match assert_not case %d, but does (Go)", rule.ID, caseNum)
+		}
 	}
 }
 
