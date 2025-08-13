@@ -19,13 +19,15 @@ func printUsage() {
 	fmt.Fprintf(os.Stderr, "  -engine string\n")
 	fmt.Fprintf(os.Stderr, "        Pattern engine: 'auto' (default), 'go', or 'hyperscan'\n")
 	fmt.Fprintf(os.Stderr, "  -rules string\n")
-	fmt.Fprintf(os.Stderr, "        YAML file or directory containing pattern rules\n")
+	fmt.Fprintf(os.Stderr, "        YAML file or directory containing pattern rules (optional - uses built-in rules if not specified)\n")
 	fmt.Fprintf(os.Stderr, "  -dnr\n")
 	fmt.Fprintf(os.Stderr, "        Do not redact - show full matches instead of redacted versions\n")
 	fmt.Fprintf(os.Stderr, "  -help\n")
 	fmt.Fprintf(os.Stderr, "        Show this help message\n")
 	fmt.Fprintf(os.Stderr, "  -version\n")
 	fmt.Fprintf(os.Stderr, "        Show version information\n")
+	fmt.Fprintf(os.Stderr, "\nIf no rules are specified via -rules flag or command-line patterns,\n")
+	fmt.Fprintf(os.Stderr, "the tool will use built-in detection rules for common secrets.\n")
 }
 
 // Version information (set by build)
@@ -86,10 +88,20 @@ func main() {
 		})
 	}
 
+	// If no rules specified from file or command line, use default rules
+	if len(rules) == 0 {
+		defaultRules, err := poltergeist.LoadDefaultRules()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to load default rules: %v\n", err)
+			os.Exit(1)
+		}
+		rules = append(rules, defaultRules...)
+		fmt.Printf("Using built-in rules (%d patterns loaded)\n", len(defaultRules))
+	}
+
 	// Ensure we have at least one rule
 	if len(rules) == 0 {
-		fmt.Fprintf(os.Stderr, "No patterns specified. Use -rules or provide patterns as arguments.\n")
-		printUsage()
+		fmt.Fprintf(os.Stderr, "No patterns available. This should not happen with default rules.\n")
 		os.Exit(1)
 	}
 
