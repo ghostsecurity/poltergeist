@@ -224,3 +224,8 @@ Running against some real-world [content](https://github.com/torvalds/linux) wit
 | [kingfisher](https://github.com/mongodb/kingfisher)          | 256   | 6s                    |
 | poltergeist                                                  | 516   | 8s                    |
 | poltergeist                                                  | 1016  | 9s                    |
+
+## TODO
+
+- [ ] Track multiple matches per line
+- [ ] If multiple matches, ignore generic rule matches if there is a non-generic match

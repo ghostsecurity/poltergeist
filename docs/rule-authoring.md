@@ -9,6 +9,8 @@ There are two main strategies for writing secret detection patterns:
 - Explicit secret format, when the format is known and static
 - Variable declaration detection (targeting likely ways the secret might be declared as a variable)
 
+In general, we prefer to write more rules that are more precise, more specific, and easier to reason about, rather than fewer rules that are more general. The performance penalty of more rules is negligible.
+
 ### Explicit secret format
 
 When the format is known and static, we can use a regex pattern to match the secret. Often these types of secrets have a known prefix, a fixed length, and sometimes a magic string (e.g. OpenAI API keys have a magic string `T3BlbkFJ`).
