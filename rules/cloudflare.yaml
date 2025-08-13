@@ -1,0 +1,27 @@
+rules:
+  - name: Cloudflare API Key
+    id: ghost.cloudflare.1
+    description: Cloudflare API key.
+    tags:
+      - api
+      - cloudflare
+    pattern: |
+      (?x)
+        \b
+          (?i)cloudflare\w*
+          [\W]{0,10}?
+          ((?i)[A-Z0-9_-]{40})
+        \b
+    entropy: 4.2
+    redact: [4, 4]
+    tests:
+      assert:
+        - 'export CLOUDFLARE_API_KEY=LZ16Lc034UX_CVz6n0dLKMcSicjYBWKVKvHiL3FQ'
+        - 'export CLOUDFLARE_KEY=T6n_WTtEMYCCMn_SyYg-gaYGSXQAcyyhttLHJ4OV'
+        - 'export CLOUDFLARE_TOKEN=X45xjDWKQt3wbgVJ5u90yiriCOykOap1khf9L16g'
+      assert_not:
+        - 'CLOUDFLARE_API_KEY=1234567890123456789012345'
+    history:
+      - 2025-08-12 initial version
+    refs:
+      - https://developers.cloudflare.com/api/keys/
