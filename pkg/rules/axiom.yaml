@@ -1,0 +1,26 @@
+rules:
+  - name: Axiom API Key
+    id: ghost.axiom.1
+    description: Axiom API key.
+    tags:
+      - api
+      - axiom
+    pattern: |
+      (?x)
+        \b
+          (xaat-(?i)[A-F0-9]{8}-[A-F0-9-]{4}-[A-F0-9-]{4}-[A-F0-9-]{4}-[A-F0-9-]{12})
+        \b
+    entropy: 3.2
+    redact: [9, 4]
+    tests:
+      assert:
+        - xaat-315d5e41-4534-4dda-b0e5-c5edb9219bfd
+        - xaat-57137626-aaba-4562-8a56-cb53770e9f13
+      assert_not:
+        - xaat-315d5e4Z-4534-4dda-b0e5-c5edb9219bfd
+        - xaab-315d5e41-4534-4dda-b0e5-c5edb9219bfd
+        - xaat-315d5e4145344ddab0e5c5edb9219bfd
+    history:
+      - 2025-08-13 initial version
+    refs:
+      - https://docs.axiom.co/docs/api-keys
