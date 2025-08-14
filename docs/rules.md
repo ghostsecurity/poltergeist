@@ -41,7 +41,7 @@ Total rules: 56
 | [GitHub PAT (fine-grained)](#ghost.github.5) | ghost.github.5 | GitHub Personal Access Token (fine-grained) | api, github, pat | 4.5 |
 | [Google Cloud API Key](#ghost.google.1) | ghost.google.1 | Google Cloud API key. | api, google | 4.5 |
 | [Google Cloud OAuth Client Secret](#ghost.google.2) | ghost.google.2 | Google Cloud OAuth Client Secret. | api, google, oauth | 4.3 |
-| [HackerOne API Key](#ghost.hackerone.1) | ghost.hackerone.1 | HackerOne API key. | api, hackerone | 4.2 |
+| [HackerOne API Key](#ghost.hackerone.1) | ghost.hackerone.1 | HackerOne API key variable declaration. | api, hackerone | 4.2 |
 | [Hugging Face API Key](#ghost.huggingface.1) | ghost.huggingface.1 | Hugging Face API key. | api, huggingface | 4.2 |
 | [OpenAI API Key](#ghost.openai.1) | ghost.openai.1 | Matches an OpenAI API key. | api, openai | 5.1 |
 | [OpenAI Admin API Key](#ghost.openai.2) | ghost.openai.2 | Matches an OpenAI admin API key. | api, openai, admin | 5.1 |
@@ -987,7 +987,7 @@ Total rules: 56
 
 **ID:** `ghost.hackerone.1`
 
-**Description:** HackerOne API key.
+**Description:** HackerOne API key variable declaration.
 
 **Tags:** api, hackerone
 
@@ -995,7 +995,7 @@ Total rules: 56
 ```
 (?x)
   \b
-    (?i)(?:h1|hackerone)\w*
+    (?i)(?:h1|hackerone)\w*(?:key|token|secret)\w*
     [\W]{0,10}?
     ((?i)[A-Z0-9_\-+=]{42,})
   \b
@@ -1006,7 +1006,7 @@ Total rules: 56
 
 **Tests:**
 - assert: 3 cases
-- assert_not: 1 cases
+- assert_not: 2 cases
 
 
 <a id="ghost.huggingface.1"></a>
