@@ -1,0 +1,135 @@
+rules:
+  - name: GitLab Access Token
+    id: ghost.gitlab.1
+    description: GitLab access token.
+    tags:
+      - api
+      - gitlab
+      - pat
+      - token
+    pattern: |
+      (?x)
+        \b
+          (glpat-(?i)[A-Z0-9-=_\.]{36,})
+        \b
+    entropy: 4.5
+    redact: [9, 4]
+    tests:
+      assert:
+        - glpat-hZFvhgmozY8wzCCeaajQN286MQp1Omhud2ltCw.01.120hup0el
+        - glpat-DZW0fwVdv4xSMNvO1cma2286MQp1Omhud2ltCw.01.120z6c3au
+        - glpat-QQ_aoqABNqueh9lnsqj-RW86MQp1Omhud2ltCw.01.120oclxwo
+      assert_not:
+        - glpat-12345678901234567890123456789012
+    history:
+      - 2025-08-14 initial version
+    refs:
+      - https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html
+      - https://docs.gitlab.com/security/tokens/
+  - name: GitLab Feed Token
+    id: ghost.gitlab.2
+    description: GitLab feed token.
+    tags:
+      - api
+      - gitlab
+      - feed
+      - token
+    pattern: |
+      (?x)
+        \b
+          (glft-(?i)[A-Z0-9-_]{20,})
+        \b
+    entropy: 3.5
+    redact: [8, 4]
+    tests:
+      assert:
+        - glft-RWzPZdnduUCZ9EjeDry2
+        - glft-JrFitA5So5L_y5kEhNvz
+        - glft-ZE4hc1qqTsguKUWMY6od
+      assert_not:
+        - glft-JrFitA5So5L_y5kEhNv
+    history:
+      - 2025-08-14 initial version
+    refs:
+      - https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html
+      - https://docs.gitlab.com/security/tokens/
+  - name: GitLab Incoming Email Token
+    id: ghost.gitlab.3
+    description: GitLab incoming email token.
+    tags:
+      - api
+      - gitlab
+      - email
+      - token
+    pattern: |
+      (?x)
+        \b
+          (glimt-(?i)[A-Z0-9-_]{20,})
+        \b
+    entropy: 3.5
+    redact: [9, 4]
+    tests:
+      assert:
+        - glimt-3w1jwolf96tdqyvjq3lk6t6n4
+        - glimt-bssz3qzb08k5z397mhqlvh9eg
+        - glimt-5jfdpafw9jkwyvghw3l1drudp
+      assert_not:
+        - glimt-bssz3qzb08k5z39
+    history:
+      - 2025-08-14 initial version
+    refs:
+      - https://docs.gitlab.com/security/tokens/
+  - name: GitLab Application Secret
+    id: ghost.gitlab.4
+    description: GitLab application secret.
+    tags:
+      - api
+      - gitlab
+      - app
+      - secret
+    pattern: |
+      (?x)
+        \b
+          (gloas-(?i)[A-F0-9]{64})
+        \b
+    entropy: 3.5
+    redact: [9, 4]
+    tests:
+      assert:
+        - gloas-095652b65adc6a1beb8cd1a258bbd2a2a7f53d71dfe1dfeee75a5e05f506d30a
+        - gloas-09fa5bd7eb88b8fc2bd6e1f4d5f1ac4fc2b95b63c86a851f4da20b8ffd78df36
+        - gloas-8b0b41336fd4c61c735dff7a5ed3f21f22dbd00433acfc44ac07f745b1a58c22
+      assert_not:
+        - gloas-8b0b41336fd4c61c735dff7a5ed3f21f22dbd00433acfc44ac07f745b1a58
+        - gloas-8b0b41336fd4c61c735dXX7a5ed3f21f22dbd00433acfc44ac07f745b1a58c22
+    history:
+      - 2025-08-14 initial version
+    refs:
+      - https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html
+  - name: GitLab Deploy Token
+    id: ghost.gitlab.5
+    description: GitLab deploy token.
+    tags:
+      - api
+      - gitlab
+      - deploy
+      - token
+    pattern: |
+      (?x)
+        \b
+          (gldt-(?i)[A-Z0-9-_]{20,})
+        \b
+    entropy: 3.5
+    redact: [4, 4]
+    tests:
+      assert:
+        - gldt-DGnBsyVTCyyXW4KhxNWM
+        - gldt-QGDTYY_nx_LwWpsJ_QsD
+        - gldt-SMkLDVrE96sRRLosVdG4
+      assert_not:
+        - gldt-SMkLDVrE96sRRLosVdG
+    history:
+      - 2025-08-14 initial version
+    refs:
+      - https://docs.gitlab.com/user/project/deploy_tokens/#create-a-deploy-token
+      - https://docs.gitlab.com/security/tokens/
