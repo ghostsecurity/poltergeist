@@ -1,14 +1,14 @@
 rules:
   - name: HackerOne API Key
     id: ghost.hackerone.1
-    description: HackerOne API key.
+    description: HackerOne API key variable declaration.
     tags:
       - api
       - hackerone
     pattern: |
       (?x)
         \b
-          (?i)(?:h1|hackerone)\w*
+          (?i)(?:h1|hackerone)\w*(?:key|token|secret)\w*
           [\W]{0,10}?
           ((?i)[A-Z0-9_\-+=]{42,})
         \b
@@ -18,10 +18,12 @@ rules:
       assert:
         - 'h1_token="qHtDjXEtlDaUvsNvP8DWhVMiYmAeM9moeNYNWjkWWgA="'
         - 'hackerone_token="m8fLUth1cc2GfDytbREQItxrwMJTbGJqvnB8+lAyink="'
-        - 'h1_token="I1QwIXgl1OUPND8wTC88xwEIAWAI8KFlSlHKMp4FvNU="'
+        - 'h1_key="I1QwIXgl1OUPND8wTC88xwEIAWAI8KFlSlHKMp4FvNU="'
       assert_not:
         - 'var h1="12345678901234567890123456789012345678901"'
+        - 'h1:yABtdzeQs6l1brC900WlRNwj6ZR55d7B+E8C6HtKdec='
     history:
       - 2025-08-12 initial version
+      - 2025-08-14 "h1" is the prefix in go.sum files; added key/token/secret to declaration
     refs:
       - https://docs.hackerone.com/en/articles/8544782-api-tokens
