@@ -8,12 +8,14 @@ rules:
     pattern: |
       (?x)
         \b
-          (?i)(?:h1|hackerone)\w*(?:key|token|secret)\w*
-          [\W]{0,10}?
-          ((?i)[A-Z0-9_\-+=]{42,})
+          (
+            (?i)(?:h1|hackerone)\w*(?:key|token|secret)\w*
+            [\W]{0,10}?
+            [A-Z0-9_\-+=]{42,}
+          )
         \b
     entropy: 4.2
-    redact: [4, 4]
+    redact: [10, 4]
     tests:
       assert:
         - 'h1_token="qHtDjXEtlDaUvsNvP8DWhVMiYmAeM9moeNYNWjkWWgA="'

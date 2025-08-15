@@ -8,11 +8,13 @@ rules:
     pattern: |
       (?x)
         \b
-          (?i)(?:cohere|co_api)\w*
-          [\W]{0,10}?
-          ((?i)[A-Z0-9]{40})
+          (
+            (?i)(?:cohere|co_api)\w*
+            [\W]{0,10}?
+            [A-Z0-9]{40}
+          )
         \b
-    redact: [4, 4]
+    redact: [12, 4]
     entropy: 4.1
     tests:
       assert:
