@@ -1186,7 +1186,7 @@ Total rules: 63
     (
       (?i)(?:h1|hackerone)\w*(?:key|token|secret)\w*
       [\W]{0,10}?
-      [A-Z0-9_\-+=]{42,}
+      [A-Z0-9-_+=]{42,}
     )
   \b
 
