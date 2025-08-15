@@ -1,0 +1,31 @@
+rules:
+  - name: Drata API Key
+    id: ghost.drata.1
+    description: Drata API key.
+    tags:
+      - api
+      - drata
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)drata\w*(?:key|token)\w*
+            [\W]{0,10}?
+            [A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}
+          )
+        \b
+    entropy: 3.2
+    redact: [16, 4]
+    tests:
+      assert:
+        - 'DRATA_API_KEY=4e4ac347-f377-492b-a2e7-221f16fa98cb'
+        - 'drata_api_key=92edb175-bb2c-49dc-ba56-d9fe568a608d'
+        - 'var drata_token=f3492838-213f-4cc8-8084-6fda07c75985'
+        - 'export DRATA_API_KEY=64dd32df-ce2a-4576-aaf4-bb965ce57e7a'
+      assert_not:
+        - 'DRATA_API_KEY=1234567890123456789012345'
+        - 55eda0fd-8249-4af7-a71e-99479a420052
+    history:
+      - 2025-08-15 initial version
+    refs:
+      - https://help.drata.com/en/articles/6695964-drata-public-api
