@@ -1,0 +1,35 @@
+rules:
+  - name: Twilio API Key
+    id: ghost.twilio.1
+    description: Twilio API key or.
+    tags:
+      - api
+      - twilio
+      - key
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)twilio\w*(?:key|token)\w*
+            [\W]{0,10}?
+            [A-Z0-9]{32}
+          )
+        \b
+    entropy: 4.1
+    redact: [12, 4]
+    tests:
+      assert:
+        - 'export TWILIO_API_KEY=MkLXAPxBo0SEZFlJvN1Z711YnwrqsOIp' # main
+        - 'export TWILIO_API_KEY=Iiyxt2SdZ9yOZ99EHYdoHQVfqJsFafdL' # standard
+        - 'export TWILIO_API_KEY=KHp2mjBMYKaUW4RW35limC6xZFIghgAm' # restricted
+        - 'export TWILIO_AUTH_TOKEN=7ffda16a106407b9c55ce345e3e6b17d' # auth token
+        - 'export TWILIO_AUTH_TOKEN=84331aabcf1401e3924f99319182f1f5' # auth token
+      assert_not:
+        - 'export TWILIO_API_KEY=00000000000000000000000000000000'
+        - 'export TWILIO_API_KEY=1234567890'
+    history:
+      - 2025-08-16 initial version
+    refs:
+      - https://www.twilio.com/docs/iam/keys/api-keys
+    notes:
+      - Twilio Auth tokens are 32 character hex - a subset of this pattern - so we don't need a separate rule.
