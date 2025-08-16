@@ -1,0 +1,89 @@
+rules:
+  - name: Salesforce App Consumer Secret
+    id: ghost.salesforce.1
+    description: Salesforce App Consumer Secret.
+    tags:
+      - api
+      - salesforce
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)salesforce\w*secret\w* 
+            [\W]{0,10}?
+            [A-F0-9]{64}
+          )
+        \b
+    entropy: 4.1
+    redact: [31, 4]
+    tests:
+      assert:
+        - 'export SALESFORCE_CONSUMER_SECRET=427F07380A1C20591CDF572067D88DBA8CB4876833E4E9F9EAFB814A25CC590A'
+        - 'export SALESFORCE_CONSUMER_SECRET=859D24AC37123CD3D0D4BD6580ADD6DF12B851D40F748269326C331E3799B039'
+        - 'export SALESFORCE_CONSUMER_SECRET=6D9D742E5266BE3694709567AC8A7F152F388FAC56758F3270A233999F1441D0'
+      assert_not:
+        - 'export SALESFORCE_CONSUMER_SECRET=00D000000000000A'
+        - 'export SALESFORCE_API_KEY=00D000000000000A'
+    history:
+      - 2025-08-16 initial version
+    refs:
+      - https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/quickstart_auth_api_key.htm
+  - name: Salesforce App Consumer Key
+    id: ghost.salesforce.2
+    description: Salesforce App Consumer Key.
+    tags:
+      - api
+      - salesforce
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)salesforce\w*key\w* 
+            [\W]{0,10}?
+            [A-Z0-9-_\.]{85}
+          )
+        \b
+    entropy: 5.1
+    redact: [28, 4]
+    tests:
+      assert:
+        - 'export SALESFORCE_CONSUMER_KEY=3MXB9rZjd7TRXdLhkwIyJxo3zVnq5ofg5OmKuWWt9N7oPHkpYTzQbyHdLspeSwPAcg955FSwHMU3rb3cFmHTx'
+        - 'export SALESFORCE_CONSUMER_KEY=3MXB9rZjd7TRXdLhkwIyJxo3zVvOb4QBh4GgJExOvM.sw_fRzQNbmrhm4mCuBQAPyvtiTuNVxY3oDBY5xIHUI'
+        - 'export SALESFORCE_CONSUMER_KEY=3MXB9rZjd7TRXdLhkwIyJxo3zVvcckz7amJcDGi7KOz9gx3R62TX19uON1IJXG3oVKZmJObe6rxB8n.3l2Ho5'
+      assert_not:
+        - 'export SALESFORCE_CONSUMER_KEY=00D000000000000A'
+        - 'export SALESFORCE_API_KEY=00D000000000000A'
+    history:
+      - 2025-08-16 initial version
+    refs:
+      - https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/quickstart_auth_api_key.htm
+  - name: Salesforce Security Token
+    id: ghost.salesforce.3
+    description: Salesforce Security Token.
+    tags:
+      - api
+      - salesforce
+      - token
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)salesforce\w*(?:token|key)\w* 
+            [\W]{0,10}?
+            [A-Z0-9]{24,28}
+          )
+        \b
+    entropy: 4.1
+    redact: [18, 4]
+    tests:
+      assert:
+        - 'export SALESFORCE_SECURITY_TOKEN=oRNKNWgZDAIT0pzBNkJjUJOB'
+        - 'export SALESFORCE_KEY=dDEzXEabeLfMwfAKZE2WqEjRp'
+        - 'export SALESFORCE_TOKEN=1M7xvDMgYkUsWXHjPmvrE9M1'
+      assert_not:
+        - 'export SALESFORCE_SECURITY_TOKEN=00D000000000000A'
+        - 'export SALESFORCE_SECURITY_TOKEN=00D000000000000A'
+    history:
+      - 2025-08-16 initial version
+    refs:
+      - https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/quickstart_auth_api_key.htm
