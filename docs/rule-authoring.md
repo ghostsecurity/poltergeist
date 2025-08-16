@@ -19,6 +19,10 @@ When the format is known and static, we can use a regex pattern to match the sec
 
 When the format is not known, we look for likely ways the secret might be present in source code when declared as a variable. We look for variables that are unique to the secret provider. For example, Azure Storage Account keys are a fixed length, but no predictable format. We try to match variations on `Azure` (case insensitive) and a high entropy fixed length string. Avoid generic variable names like `TOKEN` as it will be more difficult to map back to a specific secret provider.
 
+### Backwards compatibility
+
+Do not change rule numbers. If a rule needs to be deprecated, delete it without changing the number of other rules.
+
 ## YAML Format
 
 Example Poltergeist rule file:
