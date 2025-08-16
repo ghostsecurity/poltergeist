@@ -1514,7 +1514,7 @@ Total rules: 75
 (?x)
   \b
     (
-      (?i)salesforce\w*secret\w* 
+      (?i)(?:sf|salesforce)\w*secret\w* 
       [\W]{0,10}?
       [A-F0-9]{64}
     )
@@ -1543,7 +1543,7 @@ Total rules: 75
 (?x)
   \b
     (
-      (?i)salesforce\w*key\w* 
+      (?i)(?:sf|salesforce)\w*key\w* 
       [\W]{0,10}?
       [A-Z0-9-_\.]{85}
     )
@@ -1554,7 +1554,7 @@ Total rules: 75
 **Min entropy:** 5.1
 
 **Tests:**
-- assert: 3 cases
+- assert: 4 cases
 - assert_not: 2 cases
 
 
@@ -1572,7 +1572,7 @@ Total rules: 75
 (?x)
   \b
     (
-      (?i)salesforce\w*(?:token|key)\w* 
+      (?i)(?:sf|salesforce)\w*(?:token|key)\w* 
       [\W]{0,10}?
       [A-Z0-9]{24,28}
     )
@@ -1583,7 +1583,7 @@ Total rules: 75
 **Min entropy:** 4.1
 
 **Tests:**
-- assert: 3 cases
+- assert: 4 cases
 - assert_not: 2 cases
 
 

@@ -9,7 +9,7 @@ rules:
       (?x)
         \b
           (
-            (?i)salesforce\w*secret\w* 
+            (?i)(?:sf|salesforce)\w*secret\w* 
             [\W]{0,10}?
             [A-F0-9]{64}
           )
@@ -38,7 +38,7 @@ rules:
       (?x)
         \b
           (
-            (?i)salesforce\w*key\w* 
+            (?i)(?:sf|salesforce)\w*key\w* 
             [\W]{0,10}?
             [A-Z0-9-_\.]{85}
           )
@@ -50,6 +50,7 @@ rules:
         - 'export SALESFORCE_CONSUMER_KEY=3MXB9rZjd7TRXdLhkwIyJxo3zVnq5ofg5OmKuWWt9N7oPHkpYTzQbyHdLspeSwPAcg955FSwHMU3rb3cFmHTx'
         - 'export SALESFORCE_CONSUMER_KEY=3MXB9rZjd7TRXdLhkwIyJxo3zVvOb4QBh4GgJExOvM.sw_fRzQNbmrhm4mCuBQAPyvtiTuNVxY3oDBY5xIHUI'
         - 'export SALESFORCE_CONSUMER_KEY=3MXB9rZjd7TRXdLhkwIyJxo3zVvcckz7amJcDGi7KOz9gx3R62TX19uON1IJXG3oVKZmJObe6rxB8n.3l2Ho5'
+        - 'export SF_CONSUMER_KEY=3MXB9rZjd7TRXdLhkwIyJxo3zVvcckz7amJcDGi7KOz9gx3R62TX19uON1IJXG3oVKZmJObe6rxB8n.3l2Ho5'
       assert_not:
         - 'export SALESFORCE_CONSUMER_KEY=00D000000000000A'
         - 'export SALESFORCE_API_KEY=00D000000000000A'
@@ -68,7 +69,7 @@ rules:
       (?x)
         \b
           (
-            (?i)salesforce\w*(?:token|key)\w* 
+            (?i)(?:sf|salesforce)\w*(?:token|key)\w* 
             [\W]{0,10}?
             [A-Z0-9]{24,28}
           )
@@ -80,6 +81,7 @@ rules:
         - 'export SALESFORCE_SECURITY_TOKEN=oRNKNWgZDAIT0pzBNkJjUJOB'
         - 'export SALESFORCE_KEY=dDEzXEabeLfMwfAKZE2WqEjRp'
         - 'export SALESFORCE_TOKEN=1M7xvDMgYkUsWXHjPmvrE9M1'
+        - 'export SF_TOKEN=1M7xvDMgYkUsWXHjPmvrE9M1'
       assert_not:
         - 'export SALESFORCE_SECURITY_TOKEN=00D000000000000A'
         - 'export SALESFORCE_SECURITY_TOKEN=00D000000000000A'
