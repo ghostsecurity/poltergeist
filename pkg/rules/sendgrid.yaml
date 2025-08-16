@@ -1,0 +1,30 @@
+rules:
+  - name: Sendgrid API Key
+    id: ghost.sendgrid.1
+    description: Sendgrid API key.
+    tags:
+      - api
+      - sendgrid
+    pattern: |
+      (?x)
+        \b
+          (
+            SG\.(?i)[A-Z0-9_-]{22}\.[A-Z0-9_-]{43}
+          )
+        \b
+    entropy: 4.75
+    redact: [7, 4]
+    tests:
+      assert:
+        - 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
+        - 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
+        - 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
+        - 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
+      assert_not:
+        - SG.LKsMcIM8QEeZZxauEG05TA.KKCuDvzg34arfj3TmWwHjvtzFxSOOwjgsVmQLKK3jT
+        - sg.LKsMcIM8QE+ZZxauEG05TA.KKCuDvzg34arfj3TmWwHjvtzFxSOOwjgsVmQLKK3jTQ
+        - SG_LKsMcIM8QEeZZxauEG05TA_KKCuDvzg34arfj3TmWwHjvtzFxSOOwjgsVmQLKK3jTQ
+    history:
+      - 2025-08-16 initial version
+    refs:
+      - https://docs.sendgrid.com/api-reference/api-keys/create-api-keys
