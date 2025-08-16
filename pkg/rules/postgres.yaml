@@ -26,7 +26,7 @@ rules:
         - 'export DB_URL="postgresql://user:2eaIDd-fU8q+CZ=cUp@host:5432/database"'
         - 'export db="postgresql://user:2eaIDd-fU8q+CZ=cUp@host/database"'
       assert_not:
-        - 'export MYSQL_URL="http://user:2eaIDdfU8qCZcUp@host/v1/users"'
+        - 'export POSTGRESQL_URL="http://user:2eaIDdfU8qCZcUp@host/v1/users"'
     history:
       - 2025-08-16 initial version
     refs:
