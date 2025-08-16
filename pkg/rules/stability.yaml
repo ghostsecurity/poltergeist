@@ -1,0 +1,25 @@
+rules:
+  - name: Stability AI API Key
+    id: ghost.stability.1
+    description: Stability AI API key.
+    tags:
+      - api
+      - stability
+    pattern: |
+      (?x)
+        \b
+          (sk-(?i)[A-Z0-9]{48})
+        \b
+    entropy: 4.4
+    redact: [7, 4]
+    tests:
+      assert:
+        - sk-TaEZjB6Eusytm75ysdBWd4dJI6ecGrpBIfm7lkQ0amqml4xt
+        - sk-9bwhL6Kb0dWNrThEb441VwwQtArG6gQ5CT8H2QXmpXKzQbmw
+        - sk-VtniEn4q2FfRYFx6uChD0EDcznpq8o1UMm4tqrCXarazYYMT
+      assert_not:
+        - 'stability_api_key=1234567890'
+    history:
+      - 2025-08-16 initial version
+    refs:
+      - https://platform.stability.ai/docs/api-reference

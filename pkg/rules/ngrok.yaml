@@ -1,0 +1,34 @@
+rules:
+  - name: ngrok API Key
+    id: ghost.ngrok.1
+    description: ngrok API key.
+    tags:
+      - api
+      - ngrok
+      - key
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)ngrok\w*(?:key|token)\w*
+            [\W]{0,10}?
+            [A-Z0-9]{27}_[A-Z0-9]{21}
+          )
+        \b
+    entropy: 4.5
+    redact: [14, 4]
+    tests:
+      assert:
+        - 'export NGROK_API_KEY=31NSu14YCCwJHDcXJZvoyDamcvg_3UwJyuvPyC6d3VmaKNw3B'
+        - 'var ngrok_key="31NT0ubHdc3qAEWaroGePmyhHsq_4LcgAXpTjNY9rxp9VyK2y"'
+        - 'var ngrok_auth_token="31NTMr1m8oGVL9zd0eViH0bJqCQ_SEWYHd17EPUgkV5nG9zV1"'
+      assert_not:
+        - 'var ngrok_auth_token="31NTMr1m8oGVL9zd0eViH0bJqCQ.SEWYHd17EPUgkV5nG9zV"'
+        - 'var ngrok_auth_token="31NTMr1m8oGVL9zd0eViH0bJqCQ_SEWYHd17EPUgkV5nG9z"'
+        - 'export NGROK_API_KEY=1234567890'
+    history:
+      - 2025-08-16 initial version
+    refs:
+      - https://ngrok.com/docs/api/#authentication
+    notes:
+      - Ngrok API keys and auth tokens have the same format.
