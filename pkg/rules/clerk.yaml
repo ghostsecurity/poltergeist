@@ -1,0 +1,28 @@
+rules:
+  - name: Clerk API Key
+    id: ghost.clerk.1
+    description: Clerk API key.
+    tags:
+      - api
+      - clerk
+    pattern: |
+      (?x)
+        \b
+          (sk_live_(?i)[A-Z0-9]{42})
+        \b
+    entropy: 4.5
+    redact: [12, 4]
+    tests:
+      assert:
+        - sk_live_xrSA5MLU3szxmdQJOha4iOQwVFI6RUfhIkwjQVTfjA
+        - sk_live_6Y0FsgCss08gnTzSxWhAaz9XLNYxt7gkWXh3E0U0Mp
+        - sk_live_92rQgRlBhYqw86Jt338QiXy7TPe3ROmdf6AK6xvD74
+      assert_not:
+        - sk_test_xrSA5MLU3szxmdQJOha4iOQwVFI6RUfhIkwjQVTfjA
+        - sk_test_6Y0FsgCss08gnTzSxWhAaz9XLNYxt7gkWXh3E0U0Mp
+        - sk_live_92rQgRlBhYqw86Jt338QiXy7TPe3ROmdf6AK6xvD7
+        - sk_live_92rQgRlBhYqw86Jt338QiXy7TPe3ROmdf6AK6xvD742
+    history:
+      - 2025-08-16 initial version
+    refs:
+      - https://clerk.com/docs/deployments/overview#api-keys-and-environment-variables
