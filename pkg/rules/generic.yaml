@@ -21,9 +21,9 @@ rules:
     redact: [15, 4]
     tests:
       assert:
-        - 'token="fca52b64dcdd9451c080ce33d65ed963"'
-        - 'api_token="fca52b64dcdd9451c080ce33d65ed963"'
-        - 'export APP_TOKEN="fca52b64dcdd9451c080ce33d65ed963"'
+        - 'token="2eaIDdfU8qCZcUpcbDHwMtELwSnZOvDm"'
+        - 'api_token="7PNFBkc1NIBJ0GA4DPBlQADmyhp4VNF2"'
+        - 'export APP_TOKEN="OCurpKRG0kzIDmInjNw0RsZpZI31YRFP"'
       assert_not:
         - 'var token="fca52b64dcdd9451c080ce33d65ed96"'
     history:
