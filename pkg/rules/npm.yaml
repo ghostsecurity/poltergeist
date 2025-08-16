@@ -1,0 +1,55 @@
+rules:
+  - name: NPM Legacy Token
+    id: ghost.npm.1
+    description: NPM legacy token.
+    tags:
+      - api
+      - npm
+      - legacy
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)npm\w*token\w*
+            [\W]{0,10}?
+            [A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}
+          )
+        \b
+    entropy: 4.1
+    redact: [16, 4]
+    tests:
+      assert:
+        - 'export NPM_PUBLISH_TOKEN=dbe8c4a3-28e8-45c1-bec5-a021cdf89ecc'
+        - 'const npm_token = "aafe34f4-f861-4bea-8159-7b3dcd0c70b1"'
+      assert_not:
+        - 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
+    history:
+      - 2025-08-16 initial version
+    refs:
+      - https://docs.npmjs.com/about-access-tokens
+  - name: NPM Access Token
+    id: ghost.npm.2
+    description: NPM access token.
+    tags:
+      - api
+      - npm
+      - token
+    pattern: |
+      (?x)
+        \b
+          (npm_(?i)[A-Z0-9]{36})
+        \b
+    entropy: 4.1
+    redact: [8, 4]
+    tests:
+      assert:
+        - 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
+        - 'const npm_token = "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"'
+      assert_not:
+        - npm_000000000000000000000000000000000000
+    history:
+      - 2025-08-16 initial version
+    refs:
+      - https://docs.npmjs.com/about-access-tokens
+    notes:
+      - Both "classic" and "granular" tokens have the same format.
