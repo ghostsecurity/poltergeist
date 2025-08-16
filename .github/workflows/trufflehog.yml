@@ -1,3 +1,6 @@
+#
+# We run Trufflehog as a backstop in case we leak a live secret in any of the rule assertions.
+#
 name: Secrets
 permissions:
   contents: read
