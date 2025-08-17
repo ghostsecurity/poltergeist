@@ -1,0 +1,28 @@
+rules:
+  - name: NuGet API Key
+    id: ghost.nuget.1
+    description: NuGet API key.
+    tags:
+      - api
+      - nuget
+    pattern: |
+      (?x)
+        \b
+          (oy2(?i)[A-Z0-9]{43})
+        \b
+    entropy: 4.1
+    redact: [6, 4]
+    tests:
+      assert:
+        - oy2erkznxgtijzyhrjmq7ffwgxktjijevgstg6zdcfriq4
+        - oy2eft3wwpc6ruzr4maqnyomvr4tchvudfpdme6cz2fsou
+        - oy2pujsdyk3awbsx7h3axq3jon4jen5uhklmu77unrxjta
+      assert_not:
+        - oz2pujsdyk3awbsx7h3axq3jon4jen5uhklmu77unrxjta
+        - oy3pujsdyk3awbsx7h3axq3jon4jen5uhklmu77unrxjta
+        - oy2pujsdyk3awbsx7h3axq3jon4jen5uhklmu77unrxjt
+        - oy2erkznxgt-jzyhrjmq7ffwgxktjijevgstg6zdcfriq4
+    history:
+      - 2025-08-16 initial version
+    refs:
+      - https://docs.nuget.org/reference/api/nuget-client-sdk
