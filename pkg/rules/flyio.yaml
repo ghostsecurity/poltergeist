@@ -10,7 +10,7 @@ rules:
         \b
           (FlyV1\s(?i)(?:[A-Z0-9-+_/=]{100,},){1,5}[A-Z0-9-+_/=]{100,})
         \b
-    entropy: 4.1
+    entropy: 5.5
     redact: [30, 4]
     tests:
       assert:

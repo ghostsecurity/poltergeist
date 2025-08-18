@@ -33,7 +33,7 @@ Total rules: 86
 | [Drata API Key](#ghost.drata.1) | ghost.drata.1 | Drata API key. | api, drata | 3.2 |
 | [Dynatrace API Token](#ghost.dynatrace.1) | ghost.dynatrace.1 | Dynatrace API token. | api, dynatrace | 4.5 |
 | [Firecrawl API Key](#ghost.firecrawl.1) | ghost.firecrawl.1 | Firecrawl API key. | api, firecrawl | 3.1 |
-| [Fly.io API Key](#ghost.flyio.1) | ghost.flyio.1 | Fly.io API key. | api, flyio | 4.1 |
+| [Fly.io API Key](#ghost.flyio.1) | ghost.flyio.1 | Fly.io API key. | api, flyio | 5.5 |
 | [Generic Token](#ghost.generic.1) | ghost.generic.1 | Generic token variable declaration. | generic, token | 3.1 |
 | [Generic Secret](#ghost.generic.2) | ghost.generic.2 | Generic secret variable declaration. | generic, secret | 3.1 |
 | [Generic Password](#ghost.generic.3) | ghost.generic.3 | Generic password variable declaration. | generic, password | 3.5 |
@@ -818,7 +818,7 @@ Total rules: 86
 
 ```
 
-**Min entropy:** 4.1
+**Min entropy:** 5.5
 
 **Tests:**
 - assert: 6 cases
