@@ -1,0 +1,27 @@
+rules:
+  - name: PlanetScale API Key
+    id: ghost.planetscale.1
+    description: PlanetScale API key.
+    tags:
+      - api
+      - planetscale
+    pattern: |
+      (?x)
+        \b
+          (pscale_tkn_(?i)[A-Z0-9-_]{43})
+        \b
+    entropy: 4.1
+    redact: [8, 4]
+    tests:
+      assert:
+        - pscale_tkn_vr0Go4BFHfwpzt2Kg7QO5JH0EgKOAzISMVAQBC8pQ-A
+        - pscale_tkn_EHNs0hTQfDdHmjNMZyu1DdHZIaT6lrWTyjbsLJbkQbg
+        - pscale_tkn_3eY1pKJeDC3bzfbQ8Dw7mmhLLNT7WBrn479HpSqRpCU
+      assert_not:
+        - pscale_tkn_3eY1pKJeDC3bzfbQ8Dw7.mhLLNT7WBrn479HpSqRpCU
+        - pscale_EHNs0hTQfDdHmjNMZyu1DdHZIaT6lrWTyjbsLJbkQbg
+        - pscale_0000000000
+    history:
+      - 2025-08-18 initial version
+    refs:
+      - https://planetscale.com/docs/reference/api/api-keys
