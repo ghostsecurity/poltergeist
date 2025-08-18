@@ -1,0 +1,27 @@
+rules:
+  - name: Pulumi Access Token
+    id: ghost.pulumi.1
+    description: Pulumi access token.
+    tags:
+      - api
+      - pulumi
+    pattern: |
+      (?x)
+        \b
+          (pul-(?i)[A-F0-9]{40})
+        \b
+    entropy: 3.3
+    redact: [8, 4]
+    tests:
+      assert:
+        - pul-f51cc9bcb2e4a16d63e33d26234ec1bb4f2645b5
+        - pul-adcdf02dd66efbc84acdbba79d1e4dc35743453c
+        - pul-39421d5b74955d9bfc9161a710fc5b0b361baf42
+      assert_not:
+        - pul-adcdf02dd66zfbc84acdbba79d1e4dc35743453c
+        - pul-adcdf02dd66efbc84acdbba79d1e4dc35743453
+        - pulumi_0000000000
+    history:
+      - 2025-08-18 initial version
+    refs:
+      - https://www.pulumi.com/docs/pulumi-cloud/reference/personal-access-tokens/

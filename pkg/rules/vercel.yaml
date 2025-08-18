@@ -15,7 +15,7 @@ rules:
           ) 
         \b
     entropy: 4.1
-    redact: [8, 4]
+    redact: [16, 4]
     tests:
       assert:
         - 'export VERCEL_TOKEN=amRqKksGThR9k4apB56Gv7Pp'
