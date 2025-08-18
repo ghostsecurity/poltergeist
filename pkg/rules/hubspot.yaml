@@ -1,0 +1,30 @@
+rules:
+  - name: HubSpot API Key
+    id: ghost.hubspot.1
+    description: HubSpot API key.
+    tags:
+      - api
+      - hubspot
+    pattern: |
+      (?x)
+        \b
+          (pat-[a-z]{2,3}\d-(?i)[A-F0-9]{8}-(?:[A-F0-9]{4}-){3}[A-F0-9]{12})
+        \b
+    entropy: 3.5
+    redact: [8, 4]
+    tests:
+      assert:
+        - pat-na2-c2b1638d-9ab0-4572-8130-b289b2a5982f
+        - pat-na2-12e30277-e18e-481f-b321-02ca880ccc96
+        - pat-na2-bbe0c196-c394-49e3-9b54-3a856560e16a
+        - pat-na1-bbe0c196-c394-49e3-9b54-3a856560e16a
+        - pat-eu1-bbe0c196-c394-49e3-9b54-3a856560e16a
+        - pat-eu2-bbe0c196-c394-49e3-9b54-3a856560e16a
+      assert_not:
+        - pat-wxyz2-c2b1638d-9ab0-4572-8130-b289b2a5982f
+        - pat-abcd7-c2b1638d-9ab0-4572-8130-b289b2a5982f
+        - pat-na2-c2b1638d-9ab0-4572-8130-b289b2a5982
+    history:
+      - 2025-08-18 initial version
+    refs:
+      - https://developers.hubspot.com/docs/guides/apps/private-apps/overview#make-api-calls-with-your-app-s-access-token
