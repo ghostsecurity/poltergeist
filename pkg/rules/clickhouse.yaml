@@ -1,0 +1,28 @@
+rules:
+  - name: ClickHouse API Key
+    id: ghost.clickhouse.1
+    description: ClickHouse API key.
+    tags:
+      - api
+      - clickhouse
+    pattern: |
+      (?x)
+        \b
+          (4b1d(?i)[A-Z0-9]{38})
+        \b
+    entropy: 4.2
+    redact: [8, 4]
+    tests:
+      assert:
+        - 4b1dtgK9r0hdjR46OwgcUE0m9ihRV1edTbBJGBxBIS
+        - 4b1dpwtvVhukMrdjbbFpFGoAc7x9AviTDvbAZPJKaX
+        - 4b1dj6im7xZGpNfyuevcxlFTpEQm2K2uXUzRQUJcYO
+      assert_not:
+        - 4b1dtgK9r0hdjR46O.gcUE0m9ihRV1edTbBJGBxBIS
+        - 4b1dpwtvVhukMrdjbbFpFGoAc7x9AviTDvbAZPJKaXX
+        - 4b1dj6im7xZGpNfyuevcxlFTpEQm2K2uXUzRQUJcY
+        - 4a1dj6im7xZGpNfyuevcxlFTpEQm2K2uXUzRQUJcYO
+    history:
+      - 2025-08-18 initial version
+    refs:
+      - https://clickhouse.com/docs/cloud/manage/openapi
