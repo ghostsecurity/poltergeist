@@ -1,0 +1,33 @@
+rules:
+  - name: PostgreSQL Senstive Connection String
+    id: ghost.postgres.1
+    description: PostgreSQL connection string with credentials.
+    tags:
+      - api
+      - postgres
+      - postgresql
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)(?:postgres|postgis|postgresql)://[^\s:@]+:[^\s@]+@[^:\s]+[:]?\d{0,5}(?:/[^\s"]+)?
+          )
+        \b
+    entropy: 4.1
+    redact: [24, 8]
+    tests:
+      assert:
+        - 'export POSTGRESQL_URL="postgresql://user:2eaIDdfU8qCZcUp@host:5432/database"'
+        - 'export POSTGRESQL_URL="postgres://user:2eaIDdfU8qCZcUp@host:5432/database"'
+        - 'export PG_URL="postgresql://user:2eaIDdfU8qCZcUp@host:5432/database"'
+        - 'export POSTGRE_URL="postgres://user:2eaIDdfU8qCZcUp@host:5432"'
+        - 'export POSTGRESQL_URL="postgresql://user:2eaIDd-fU8qCZcUp@host:5432/database"'
+        - 'export DB_URL="postgresql://user:2eaIDd-fU8q+CZcUp@host:5432/database"'
+        - 'export DB_URL="postgresql://user:2eaIDd-fU8q+CZ=cUp@host:5432/database"'
+        - 'export db="postgresql://user:2eaIDd-fU8q+CZ=cUp@host/database"'
+      assert_not:
+        - 'export POSTGRESQL_URL="http://user:2eaIDdfU8qCZcUp@host/v1/users"'
+    history:
+      - 2025-08-16 initial version
+    refs:
+      - https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING

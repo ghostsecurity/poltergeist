@@ -1,0 +1,85 @@
+rules:
+  - name: Supabase Sensitive Connection String
+    id: ghost.supabase.1
+    description: Supabase connection string with credentials.
+    tags:
+      - api
+      - supabase
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)supabase://[^\s:@]+:[^\s@]+@[^:\s]+[:]?\d{0,5}(?:/[^\s"]+)?
+          )
+        \b
+    entropy: 4.1
+    redact: [16, 8]
+    tests:
+      assert:
+        - 'export SUPABASE_URL="supabase://user:2eaIDdfU8qCZcUp@host:5432/database"'
+        - 'export SUPABASE_URL="supabase://user:2eaIDdfU8qCZcUp@host:5432"'
+        - 'export SUPABASE_URL="supabase://user:2eaIDd-fU8qCZcUp@host:5432/database"'
+        - 'supabase://user:2eaIDd-fU8q+CZcUp@host:5432/database'
+        - 'export SUPABASE_URL="supabase://user:2eaIDd-fU8q+CZ=cUp@host:5432/database"'
+        - 'export SUPABASE_URL="supabase://user:2eaIDd-fU8q+CZ=cUp@host/database"'
+      assert_not:
+        - 'export SUPABASE_URL="http://user:2eaIDdfU8qCZcUp@host/v1/users"'
+        - 'supabase://user/database'
+    history:
+      - 2025-08-16 initial version
+  - name: Supabase API Key
+    id: ghost.supabase.2
+    description: Supabase API key.
+    tags:
+      - api
+      - supabase
+    pattern: |
+      (?x)
+        \b
+          (
+            sb_secret_(?i)[A-Z0-9_-]{31}
+          )
+        \b
+    entropy: 4.1
+    redact: [14, 4]
+    tests:
+      assert:
+        - sb_secret_O8l-zCyyUtBilmHbQMSQ9A_pm1R_OGa
+        - sb_secret_vVB6vWfGAB78DedHeUvgwA_ltxxwDrj
+        - sb_secret_IPM8OXhqaO6UtUadg6cZSg_LIG1f0Z0
+      assert_not:
+        - sx_secret_O8l-zCyyUtBilmHbQMSQ9A_pm1R_OGa
+    history:
+      - 2025-08-16 initial version
+    refs:
+      - https://supabase.com/docs/guides/api/api-keys
+  - name: Supabase Personal Access Token
+    id: ghost.supabase.3
+    description: Supabase personal access token.
+    tags:
+      - api
+      - supabase
+      - pat
+    pattern: |
+      (?x)
+        \b
+          (
+            sbp_(?:v0_)?(?i)[A-F0-9]{40}
+          )
+        \b
+    entropy: 3.3
+    redact: [7, 4]
+    tests:
+      assert:
+        - sbp_ff2f06ef5f161169fd25540d8fd707905e3b471d
+        - sbp_be5395c62e514fddd4916acb9bc0bc45c57d3435
+        - sbp_v0_2f5d55a6b8109146798c8fb99965c29e0bba9950
+        - sbp_v0_1db78fe77a4ea3f4b192ebdc921a7b2f05763b95
+      assert_not:
+        - sbp-ff2f06ef5f161169fd25540d8fd707905e3b471d
+        - sbp_v1_1db78fe77a4ea3f4b192ebdc921a7b2f05763b95
+        - sbp-v0_1db78fe77a4ea3f4b192ebdc921a7b2f05763b95
+    history:
+      - 2025-08-16 initial version
+    refs:
+      - https://supabase.com/docs/reference/api/introduction

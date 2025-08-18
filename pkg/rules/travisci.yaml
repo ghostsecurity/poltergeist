@@ -1,0 +1,31 @@
+rules:
+  - name: Travis Token
+    id: ghost.travisci.1
+    description: Travis CI token.
+    tags:
+      - api
+      - travisci
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)travis\w*
+            [\W]{0,10}?
+            [A-Z0-9-_]{20,22}
+          )
+        \b
+    entropy: 4.1
+    redact: [14, 4]
+    tests:
+      assert:
+        - 'export TRAVISCI_TOKEN="neONAsmy9dWVpkiqll5uBA"'
+        - 'export TRAVIS_TOKEN="v-CKcrfyA380zKU3aTdVUQ"'
+        - 'export TRAVISCI_TOKEN="LveuS4fpLqKULnRNSse3"'
+      assert_not:
+        - 'export TRAVISCI_TOKEN="LveuS4fpLqKULnRNSse"'
+        - 'export TRAVISCI_TOKEN="neONAsmy9dWVpkiqll5uBAXYZ"'
+        - travis_0000000000
+    history:
+      - 2025-08-18 initial version
+    refs:
+      - https://docs.travis-ci.com/user/api-reference/

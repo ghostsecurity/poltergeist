@@ -1,0 +1,30 @@
+rules:
+  - name: Vercel API Key
+    id: ghost.vercel.1
+    description: Vercel API key.
+    tags:
+      - api
+      - vercel
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)vercel\w*
+            [\W]{0,10}?
+            [A-Z0-9]{24}
+          ) 
+        \b
+    entropy: 4.1
+    redact: [16, 4]
+    tests:
+      assert:
+        - 'export VERCEL_TOKEN=amRqKksGThR9k4apB56Gv7Pp'
+        - 'var vercel_token="9ot7i8XkmtuH5QiEOTX5DjM6"'
+        - 'const VERCEL_TOKEN="upPKvn9vvJMpubjgrMuI5MCm"'
+      assert_not:
+        - 'export VERCEL=amRqKksGThR9k4apB56Gv7P'
+        - 'vercel_token=000000000000000000000000000000000000'
+    history:
+      - 2025-08-18 initial version
+    refs:
+      - https://vercel.com/docs/api/overview
