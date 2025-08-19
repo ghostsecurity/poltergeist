@@ -1,0 +1,32 @@
+rules:
+  - name: Intercom API Key
+    id: ghost.intercom.1
+    description: Intercom API key.
+    tags:
+      - api
+      - intercom
+    pattern: |
+      (?x)
+        \b
+          (?i)intercom\w*(?:token|key|secret)\w*
+          [\W]{0,10}?
+          ((?-i)(?:dG9rO)(?i)[A-Z0-9-_+/]{54,60})
+        \b
+    entropy: 4.2
+    redact: [7, 4]
+    tests:
+      assert:
+        - 'export INTERCOM_TOKEN="dG9rOmNmNjYwMzdhXzA3NzNfNGEyOF9hMzc0XzE1ZDhjNTMzNzg2NDoxOjA="'
+        - 'export INTERCOM_TOKEN="dG9rOmM3ZGQ3MWZkXzRmZTdfNDRkZl9iMjhhXzE3NWJhZjA5NzU2MDoxOjA="'
+        - 'export INTERCOM_TOKEN="dG9rOmViMGU3ZDM3X2E1ZTZfNDk1MF9hZDE4XzZlMzFlNGQxOTRjYToxOjA="'
+        - 'export INTERCOM_TOKEN="dG9rOjNjNDdlMTc1X2U2ODZfNDUzOV9iODZjXzdhNDQ1MjI3MmE4ZjoxOjA="'
+      assert_not:
+        - 'export INTERCOM_TOKEN="dG9rOmNmNjYwMzdhXzA3NzNfNGEyOF9hMzc0XzE1ZDh.NTMzNzg2NDoxOj/="'
+        - 'export INTERCOM_TOKEN="dG8rOmViMGU3ZDM3X2E1ZTZfNDk1MF9hZDE4XzZlMzFlNGQxOTRjYToxOjA="'
+        - 'export INTERCOM_TOKEN=1234567890'
+    history:
+      - 2025-08-19 initial version
+    refs:
+      - https://developers.intercom.com/docs/build-an-integration/learn-more/authentication#access-tokens
+    notes:
+      - The magic string "dG9rO" is "tok:" base64 encoded.
