@@ -1,0 +1,27 @@
+rules:
+  - name: Clearbit API Key
+    id: ghost.clearbit.1
+    description: Clearbit API key.
+    tags:
+      - api
+      - clearbit
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)clearbit\w*(?:token|key|secret)\w*
+            [\W]{0,10}?
+            [A-Z0-9_-]{35}
+          )
+        \b
+    entropy: 4.1
+    redact: [14, 4]
+    tests:
+      assert:
+        - 'export CLEARBIT_TOKEN="td3aCzKhouIIgiua1d6Yvl5veaTNHMFbb7H"'
+        - 'export CLEARBIT_TOKEN="InUrOyg1XarfbeBKcBKnabDZ710PPWX3uNf"'
+        - 'export CLEARBIT_TOKEN="lLAb7R44VapM9uH7HB2SnTvHVzuqjUwlydd"'
+      assert_not:
+        - 'export CLEARBIT_TOKEN="td3aCzKhouIIgiua1dveaTNHMFbb7H"'
+    history:
+      - 2025-08-19 initial version
