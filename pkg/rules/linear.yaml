@@ -1,0 +1,26 @@
+rules:
+  - name: Linear API Key
+    id: ghost.linear.1
+    description: Linear API key.
+    tags:
+      - api
+      - linear
+    pattern: |
+      (?x)
+        \b
+          (lin_api_(?i)[A-Z0-9_-]{40})
+        \b
+    entropy: 4.2
+    redact: [12, 4]
+    tests:
+      assert:
+        - lin_api_dBsvX9vZHZisExSE4ytOtg89akuwHKFbFbVASVhk
+        - lin_api_GtOKGaauQKrOMEKEU2htOeemA0FNqNNfXVUK6TXk
+        - lin_api_NLdHTz1wXr31mBS1Vv3hlbmjXMCmK780zkZQa2cb
+      assert_not:
+        - lin_api_dBsvX9vZHZisExSE4ytOtg89akuwHKFbFbVASVh
+        - lin_api_dBsvX9vZHZisExS.4ytOtg8kuwHKFbFbVASVh
+    history:
+      - 2025-08-19 initial version
+    refs:
+      - https://linear.app/developers/graphql#personal-api-keys
