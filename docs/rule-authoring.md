@@ -19,6 +19,44 @@ When the format is known and static, we can use a regex pattern to match the sec
 
 When the format is not known, we look for likely ways the secret might be present in source code when declared as a variable. We look for variables that are unique to the secret provider. For example, Azure Storage Account keys are a fixed length, but no predictable format. We try to match variations on `Azure` (case insensitive) and a high entropy fixed length string. Avoid generic variable names like `TOKEN` as it will be more difficult to map back to a specific secret provider.
 
+#### Capture group
+
+Currently we only expect one capture group from the regex pattern. If the secret is a known format, the capture group should be just the secret itself.
+
+The Huggingface rule, for example:
+
+```
+(?x)
+  \b
+    (hf_(?i)[A-Z0-9]{34})
+  \b
+```
+
+Matches the token like `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` exactly.
+
+However, if we are looking for a variable declaration secret, we capture the variable name in addition to the secret value.
+
+The Clearbit rule, for example:
+
+```
+(?x)
+  \b
+    (
+      (?i)clearbit\w*(?:token|key|secret)\w*
+      [\W]{0,40}?
+      [A-Z0-9_-]{35}
+    )
+  \b
+```
+
+Matches the `CLEARBIT_TOKEN` variable as well as the secret value in the case of `export CLEARBIT_TOKEN="td3aCzKhouIIgiua1d6Yvl5veaTNHMFbb7H"`.
+
+Though this lowers the entropy of the match overall, it allows us to see (even in redacted logs) more information about the match. It is easier to understand how to match occurred and potentially if/how the match is a false positive.
+
+#### Non-word matcher
+
+We enlarged the non-word matcher from 10 to 40 characters to allow for more whitespace between the variable name and the secret(`[\W]{0,10}?` -> `[\W]{0,40}?`).
+
 ### Backwards compatibility
 
 Do not change rule numbers. If a rule needs to be deprecated, delete it without changing the number of other rules.
