@@ -1,0 +1,27 @@
+rules:
+  - name: Crates.io API Key
+    id: ghost.crates.1
+    description: Crates.io API key.
+    tags:
+      - api
+      - crates
+    pattern: |
+      (?x)
+        \b
+          (cio(?i)[A-Z0-9_-]{32})
+        \b
+    entropy: 3.75
+    redact: [7, 4]
+    tests:
+      assert:
+        - cio1qoXV92bW4YGVVoQWVS247qTepzOzG2W
+        - ciolSeHg7g05tjtIaZdlRi0etMMGHjzgGEm
+        - cio2NJ4Zu9sReAQ6Ftn6effJnD1qfnnu75O
+      assert_not:
+        - cio1qoXV92bW4YGVVoQWVS247qTepzOzG2
+        - cio1qoXV92bW4YGVVoQWVS24.qTepzOzG2W
+        - cxo1qoXV92bW4YGVVoQWVS247qTepzOzG2W
+    history:
+      - 2025-08-19 initial version
+    refs:
+      - https://crates.io/data-access#api
