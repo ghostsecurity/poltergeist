@@ -95,7 +95,7 @@ rules:
       (?x)
         \b
           (?i)(?:GITHUB.*SECRET)
-          [\W]{0,10}?
+          [\W]{0,40}?
           ([A-Z0-9]{40})
         \b
     redact: [4, 4]

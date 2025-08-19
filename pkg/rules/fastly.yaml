@@ -10,7 +10,7 @@ rules:
         \b
           (
             (?i)fastly\w*(?:token|key|secret)\w*
-            [\W]{0,10}?
+            [\W]{0,40}?
             [A-Z0-9_-]{32}
           )
         \b
