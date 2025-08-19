@@ -9,7 +9,7 @@ rules:
       (?x)
         \b
           (?i)cloudflare\w*
-          [\W]{0,10}?
+          [\W]{0,40}?
           ((?i)[A-Z0-9_-]{40})
         \b
     entropy: 4.2

@@ -10,7 +10,7 @@ rules:
         \b
           (
             (?i)(?:h1|hackerone)\w*(?:key|token|secret)\w*
-            [\W]{0,10}?
+            [\W]{0,40}?
             [A-Z0-9-_+=]{42,}
           )
         \b

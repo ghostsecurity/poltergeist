@@ -10,7 +10,7 @@ rules:
         \b
           (
             (?i)mailgun\w*(?:token|key|secret)\w*
-            [\W]{0,10}?
+            [\W]{0,40}?
             [A-F0-9]{32}-[A-F0-9]{8}-[A-F0-9]{8}
           )
         \b
