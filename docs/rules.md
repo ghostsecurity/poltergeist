@@ -246,7 +246,7 @@ Total rules: 93
   \b
     (
       (?i)\w*(?:BITBUCKET|JIRA)\w*TOKEN\w*
-      [\W]{0,10}?
+      [\W]{0,40}?
       AT(?i)[A-Z0-9_-]{32,}\=[A-F0-9]{8}
     )
   \b
@@ -275,7 +275,7 @@ Total rules: 93
   \b
     (
       (?i)(?:\w*AUTH0\w*SECRET\w*)
-      [\W]{0,10}?
+      [\W]{0,40}?
       (?i)[A-Z0-9_-]{32,}
     )
   \b
@@ -303,7 +303,7 @@ Total rules: 93
 (?x)
   \b
     (?i)AWS_SECRET_ACCESS_KEY
-    [\W]{0,10}?
+    [\W]{0,40}?
     ((?i)[A-Z0-9+/=]{40})
   \b
 
@@ -380,7 +380,7 @@ Total rules: 93
 (?x)
   \b
     (?i)AZURE\w*
-    [\W]{0,10}?
+    [\W]{0,40}?
     ((?i)[A-Z0-9+/-]{86,88}={0,2})
   \b
 
@@ -587,7 +587,7 @@ Total rules: 93
   \b
     (
       (?i)clearbit\w*(?:token|key|secret)\w*
-      [\W]{0,10}?
+      [\W]{0,40}?
       [A-Z0-9_-]{35}
     )
   \b
@@ -665,7 +665,7 @@ Total rules: 93
 (?x)
   \b
     (?i)cloudflare\w*
-    [\W]{0,10}?
+    [\W]{0,40}?
     ((?i)[A-Z0-9_-]{40})
   \b
 
@@ -693,7 +693,7 @@ Total rules: 93
   \b
     (
       (?i)(?:cohere|co_api)\w*
-      [\W]{0,10}?
+      [\W]{0,40}?
       [A-Z0-9]{40}
     )
   \b
@@ -822,7 +822,7 @@ Total rules: 93
   \b
     (
       (?i)drata\w*(?:key|token)\w*
-      [\W]{0,10}?
+      [\W]{0,40}?
       [A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}
     )
   \b
@@ -876,7 +876,7 @@ Total rules: 93
   \b
     (
       (?i)fastly\w*(?:token|key|secret)\w*
-      [\W]{0,10}?
+      [\W]{0,40}?
       [A-Z0-9_-]{32}
     )
   \b
@@ -955,7 +955,7 @@ Total rules: 93
   \b
     (
       (?i)(?:\w*token\w*)
-      [\W]{0,10}?
+      [\W]{0,40}?
       (?i)[A-Z0-9_-]{32,}
     )
   \b
@@ -1373,7 +1373,7 @@ Total rules: 93
   \b
     (
       (?i)(?:h1|hackerone)\w*(?:key|token|secret)\w*
-      [\W]{0,10}?
+      [\W]{0,40}?
       [A-Z0-9-_+=]{42,}
     )
   \b
@@ -1451,7 +1451,7 @@ Total rules: 93
 (?x)
   \b
     (?i)intercom\w*(?:token|key|secret)\w*
-    [\W]{0,10}?
+    [\W]{0,40}?
     ((?-i)(?:dG9rO)(?i)[A-Z0-9-_+/]{54,60})
   \b
 
@@ -1504,7 +1504,7 @@ Total rules: 93
   \b
     (
       (?i)mailgun\w*(?:token|key|secret)\w*
-      [\W]{0,10}?
+      [\W]{0,40}?
       [A-F0-9]{32}-[A-F0-9]{8}-[A-F0-9]{8}
     )
   \b
@@ -1532,7 +1532,7 @@ Total rules: 93
 (?x)
   \b
     (?i)mistral\w*
-    [\W]{0,10}?
+    [\W]{0,40}?
     [A-Z0-9]{32}
   \b
 
@@ -1587,7 +1587,7 @@ Total rules: 93
   \b
     (
       (?i)ngrok\w*(?:key|token)\w*
-      [\W]{0,10}?
+      [\W]{0,40}?
       [A-Z0-9]{27}_[A-Z0-9]{21}
     )
   \b
@@ -1616,7 +1616,7 @@ Total rules: 93
   \b
     (
       (?i)npm\w*token\w*
-      [\W]{0,10}?
+      [\W]{0,40}?
       [A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}
     )
   \b
@@ -1871,8 +1871,8 @@ Total rules: 93
 (?x)
   \b
     (
-      (?i)(?:sf|salesforce)\w*secret\w* 
-      [\W]{0,10}?
+      (?i)(?:sf|salesforce)\w*secret\w*
+      [\W]{0,40}?
       [A-F0-9]{64}
     )
   \b
@@ -1900,8 +1900,8 @@ Total rules: 93
 (?x)
   \b
     (
-      (?i)(?:sf|salesforce)\w*key\w* 
-      [\W]{0,10}?
+      (?i)(?:sf|salesforce)\w*key\w*
+      [\W]{0,40}?
       [A-Z0-9-_\.]{85}
     )
   \b
@@ -1929,8 +1929,8 @@ Total rules: 93
 (?x)
   \b
     (
-      (?i)(?:sf|salesforce)\w*(?:token|key)\w* 
-      [\W]{0,10}?
+      (?i)(?:sf|salesforce)\w*(?:token|key)\w*
+      [\W]{0,40}?
       [A-Z0-9]{24,28}
     )
   \b
@@ -1985,7 +1985,7 @@ Total rules: 93
 (?x)
   \b
     (?i)shodan\w*
-    [\W]{0,10}?
+    [\W]{0,40}?
     ((?i)[A-Z0-9]{32})
   \b
 
@@ -2454,7 +2454,7 @@ Total rules: 93
   \b
     (
       (?i)travis\w*
-      [\W]{0,10}?
+      [\W]{0,40}?
       [A-Z0-9-_]{20,22}
     )
   \b
@@ -2483,7 +2483,7 @@ Total rules: 93
   \b
     (
       (?i)twilio\w*(?:key|token)\w*
-      [\W]{0,10}?
+      [\W]{0,40}?
       [A-Z0-9]{32}
     )
   \b
@@ -2512,9 +2512,9 @@ Total rules: 93
   \b
     (
       (?i)vercel\w*
-      [\W]{0,10}?
+      [\W]{0,40}?
       [A-Z0-9]{24}
-    ) 
+    )
   \b
 
 ```
