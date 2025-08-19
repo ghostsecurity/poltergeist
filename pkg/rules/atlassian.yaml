@@ -12,7 +12,7 @@ rules:
         \b
           (
             (?i)\w*(?:BITBUCKET|JIRA)\w*TOKEN\w*
-            [\W]{0,10}?
+            [\W]{0,40}?
             AT(?i)[A-Z0-9_-]{32,}\=[A-F0-9]{8}
           )
         \b

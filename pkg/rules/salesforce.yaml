@@ -9,8 +9,8 @@ rules:
       (?x)
         \b
           (
-            (?i)(?:sf|salesforce)\w*secret\w* 
-            [\W]{0,10}?
+            (?i)(?:sf|salesforce)\w*secret\w*
+            [\W]{0,40}?
             [A-F0-9]{64}
           )
         \b
@@ -38,8 +38,8 @@ rules:
       (?x)
         \b
           (
-            (?i)(?:sf|salesforce)\w*key\w* 
-            [\W]{0,10}?
+            (?i)(?:sf|salesforce)\w*key\w*
+            [\W]{0,40}?
             [A-Z0-9-_\.]{85}
           )
         \b
@@ -69,8 +69,8 @@ rules:
       (?x)
         \b
           (
-            (?i)(?:sf|salesforce)\w*(?:token|key)\w* 
-            [\W]{0,10}?
+            (?i)(?:sf|salesforce)\w*(?:token|key)\w*
+            [\W]{0,40}?
             [A-Z0-9]{24,28}
           )
         \b

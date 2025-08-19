@@ -10,9 +10,9 @@ rules:
         \b
           (
             (?i)vercel\w*
-            [\W]{0,10}?
+            [\W]{0,40}?
             [A-Z0-9]{24}
-          ) 
+          )
         \b
     entropy: 4.1
     redact: [16, 4]

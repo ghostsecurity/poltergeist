@@ -9,7 +9,7 @@ rules:
       (?x)
         \b
           (?i)intercom\w*(?:token|key|secret)\w*
-          [\W]{0,10}?
+          [\W]{0,40}?
           ((?-i)(?:dG9rO)(?i)[A-Z0-9-_+/]{54,60})
         \b
     entropy: 4.2
@@ -18,7 +18,7 @@ rules:
       assert:
         - 'export INTERCOM_TOKEN="dG9rOmNmNjYwMzdhXzA3NzNfNGEyOF9hMzc0XzE1ZDhjNTMzNzg2NDoxOjA="'
         - 'export INTERCOM_TOKEN="dG9rOmM3ZGQ3MWZkXzRmZTdfNDRkZl9iMjhhXzE3NWJhZjA5NzU2MDoxOjA="'
-        - 'export INTERCOM_TOKEN="dG9rOmViMGU3ZDM3X2E1ZTZfNDk1MF9hZDE4XzZlMzFlNGQxOTRjYToxOjA="'
+        - 'var INTERCOM_KEY="dG9rOmViMGU3ZDM3X2E1ZTZfNDk1MF9hZDE4XzZlMzFlNGQxOTRjYToxOjA="'
         - 'export INTERCOM_TOKEN="dG9rOjNjNDdlMTc1X2U2ODZfNDUzOV9iODZjXzdhNDQ1MjI3MmE4ZjoxOjA="'
       assert_not:
         - 'export INTERCOM_TOKEN="dG9rOmNmNjYwMzdhXzA3NzNfNGEyOF9hMzc0XzE1ZDh.NTMzNzg2NDoxOj/="'

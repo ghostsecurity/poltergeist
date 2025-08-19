@@ -11,7 +11,7 @@ rules:
         \b
           (
             (?i)twilio\w*(?:key|token)\w*
-            [\W]{0,10}?
+            [\W]{0,40}?
             [A-Z0-9]{32}
           )
         \b
