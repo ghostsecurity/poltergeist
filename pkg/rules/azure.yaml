@@ -37,7 +37,7 @@ rules:
       (?x)
         \b
           (?i:(?:\w*AZURE\w*OPENAI\w*))
-          [\W]{0,10}?
+          [\W]{0,40}?
           ((?i:[A-Z0-9]{84}))
         \b
     redact: [4, 4]
@@ -66,7 +66,7 @@ rules:
       (?x)
         \b
           (?i:(?:TOKEN|PAT|PERSONAL_?ACCESS_?TOKEN)\w*)
-          [\W]{0,10}?
+          [\W]{0,40}?
           ((?i:[A-Z0-9]{75,}(?-i:AZDO)[A-Z0-9]{4,}))
         \b
     redact: [4, 4]
@@ -95,7 +95,7 @@ rules:
       (?x)
         \b
           (?i:(?:AZURE|ENTRA|ENTRA_?TOKEN)\w*)
-          [\W]{0,10}?
+          [\W]{0,40}?
           ((?i:eyJ[A-Z0-9_-]{100,})\.eyJ(?i:[A-Z0-9_-]{100,})\.(?i:[A-Z0-9_-]{3,}))
         \b
     redact: [8, 4]
@@ -122,7 +122,7 @@ rules:
       (?x)
         \b
           (?i:(?:AZURE|ENTRA|ENTRA_?TOKEN)\w*)
-          [\W]{0,10}?
+          [\W]{0,40}?
           ((?i:eyJ[A-Z0-9_-]{50,})\.eyJ(?i:[A-Z0-9_-]{100,})\.(?i:[A-Z0-9_-]{3,}))
         \b
     redact: [8, 4]

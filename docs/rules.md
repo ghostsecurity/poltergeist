@@ -191,7 +191,7 @@ Total rules: 93
 (?x)
   \b
     (?i)(?:ARTIFACTORY|JFROG)\w*(?:SECRET|KEY|TOKEN)\w*
-    [\W]{0,10}?
+    [\W]{0,40}?
     (eyJ(?i:[A-Z0-9_-]{32,})\.eyJ(?i:[A-Z0-9_-]{32,})\.(?i:[A-Z0-9_-]{8,}))
   \b
 
@@ -218,7 +218,7 @@ Total rules: 93
 (?x)
   \b
     (?i)(?:ARTIFACTORY|JFROG)\w*(?:SECRET|KEY|TOKEN)\w*
-    [\W]{0,10}?
+    [\W]{0,40}?
     ((?i)[A-Z0-9]{64})
   \b
 
@@ -407,7 +407,7 @@ Total rules: 93
 (?x)
   \b
     (?i:(?:\w*AZURE\w*OPENAI\w*))
-    [\W]{0,10}?
+    [\W]{0,40}?
     ((?i:[A-Z0-9]{84}))
   \b
 
@@ -434,7 +434,7 @@ Total rules: 93
 (?x)
   \b
     (?i:(?:TOKEN|PAT|PERSONAL_?ACCESS_?TOKEN)\w*)
-    [\W]{0,10}?
+    [\W]{0,40}?
     ((?i:[A-Z0-9]{75,}(?-i:AZDO)[A-Z0-9]{4,}))
   \b
 
@@ -461,7 +461,7 @@ Total rules: 93
 (?x)
   \b
     (?i:(?:AZURE|ENTRA|ENTRA_?TOKEN)\w*)
-    [\W]{0,10}?
+    [\W]{0,40}?
     ((?i:eyJ[A-Z0-9_-]{100,})\.eyJ(?i:[A-Z0-9_-]{100,})\.(?i:[A-Z0-9_-]{3,}))
   \b
 
@@ -488,7 +488,7 @@ Total rules: 93
 (?x)
   \b
     (?i:(?:AZURE|ENTRA|ENTRA_?TOKEN)\w*)
-    [\W]{0,10}?
+    [\W]{0,40}?
     ((?i:eyJ[A-Z0-9_-]{50,})\.eyJ(?i:[A-Z0-9_-]{100,})\.(?i:[A-Z0-9_-]{3,}))
   \b
 
@@ -984,7 +984,7 @@ Total rules: 93
   \b
     (
       (?i)(?:\w*secret\w*)
-      [\W]{0,10}?
+      [\W]{0,40}?
       (?i)[A-Z0-9_-]{32,}
     )
   \b
@@ -1013,7 +1013,7 @@ Total rules: 93
   \b
     (
       (?i)(?:\w*password\w*)
-      [\W]{0,10}?
+      [\W]{0,40}?
       (?i)[A-Z0-9_-]{24,}
     )
   \b
@@ -1042,7 +1042,7 @@ Total rules: 93
   \b
     (
       (?i)(?:\w*(?:token|secret|key)\w*)
-      [\W]{0,10}?
+      [\W]{0,40}?
       eyJ(?i:[A-Z0-9_-]{32,})\.eyJ(?i:[A-Z0-9_-]{32,})\.(?i:[A-Z0-9_-]{8,})
     )
   \b
@@ -1145,7 +1145,7 @@ Total rules: 93
 (?x)
   \b
     (?i)(?:GITHUB.*SECRET)
-    [\W]{0,10}?
+    [\W]{0,40}?
     ([A-Z0-9]{40})
   \b
 

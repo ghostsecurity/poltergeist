@@ -145,7 +145,7 @@ func generateDummyRules(count int) []poltergeist.Rule {
 			Pattern: fmt.Sprintf(`(?x)
         \b
           (?i)DUMMY%s\w*
-          [\W]{0,10}?
+          [\W]{0,40}?
           ((?i)[A-Z0-9+/-]{86,88}={0,2})
         \b`, ruleNum),
 			Redact:  []int{4, 4},
