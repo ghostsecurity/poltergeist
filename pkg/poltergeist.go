@@ -49,13 +49,13 @@ import (
 
 // ScanResult represents a match found in a file
 type ScanResult struct {
-	FilePath   string
-	LineNumber int
-	Match      string // The original matched text
-	Redacted   string // The redacted version of the match
-	RuleName   string // Name of the rule that matched
-	RuleID     string // ID of the rule that matched
-	Entropy    bool   // Whether the match met the minimum entropy requirement
+	FilePath   string `json:"file_path"`
+	LineNumber int    `json:"line_number"`
+	Match      string `json:"match"`     // The original matched text
+	Redacted   string `json:"redacted"`  // The redacted version of the match
+	RuleName   string `json:"rule_name"` // Name of the rule that matched
+	RuleID     string `json:"rule_id"`   // ID of the rule that matched
+	Entropy    bool   `json:"entropy"`   // Whether the match met the minimum entropy requirement
 }
 
 // MatchResult represents a single pattern match within content
