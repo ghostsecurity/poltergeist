@@ -1,0 +1,51 @@
+rules:
+  - name: LangSmith Personal Access Token
+    id: ghost.langsmith.1
+    description: LangSmith personal access token.
+    tags:
+      - api
+      - langsmith
+      - pat
+    pattern: |
+      (?x)
+        \b
+          (lsv2_pt_(?i)[A-F0-9]{32}_[A-F0-9]{10})
+        \b
+    entropy: 3.1
+    redact: [12, 4]
+    tests:
+      assert:
+        - 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
+        - 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
+      assert_not:
+        - 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
+        - 'export LANGSMITH_API_KEY=1234567890'
+    history:
+      - 2025-08-22 initial version
+    refs:
+      - https://www.langchain.com/docs/api-reference/langsmith/langsmith_api_key
+  - name: LangSmith Service Key
+    id: ghost.langsmith.2
+    description: LangSmith service key.
+    tags:
+      - api
+      - langsmith
+      - service
+    pattern: |
+      (?x)
+        \b
+          (lsv2_sk_(?i)[A-F0-9]{32}_[A-F0-9]{10})
+        \b
+    entropy: 3.1
+    redact: [12, 4]
+    tests:
+      assert:
+        - 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
+        - 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
+      assert_not:
+        - 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
+        - 'export LANGSMITH_API_KEY=1234567890'
+    history:
+      - 2025-08-22 initial version
+    refs:
+      - https://www.langchain.com/docs/api-reference/langsmith/langsmith_api_key

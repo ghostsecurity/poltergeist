@@ -16,7 +16,7 @@ rules:
           )
         \b
     entropy: 4.5
-    redact: [12, 4]
+    redact: [14, 4]
     tests:
       assert:
         - 'export NOTION_API_KEY="secret_mRZDNNbL9uKaPytUfmVou1kdBH8emZXegUXLyDN5KWc"'
@@ -46,7 +46,7 @@ rules:
           )
         \b
     entropy: 4.5
-    redact: [12, 4]
+    redact: [14, 4]
     tests:
       assert:
         - 'export NOTION_API_KEY="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"'
@@ -76,7 +76,7 @@ rules:
           )
         \b
     entropy: 4.5
-    redact: [12, 4]
+    redact: [14, 4]
     tests:
       assert:
         - 'export NOTION_REFRESH_TOKEN="nrt_61670579373J173ADoomQoPCjzjrT0et7oyf9HXaq9kaSG"'
