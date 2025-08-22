@@ -1,0 +1,28 @@
+rules:
+  - name: PyPI API Key
+    id: ghost.pypi.1
+    description: PyPI API key.
+    tags:
+      - api
+      - pypi
+    pattern: |
+      (?x)
+        \b
+          ((?:pypi-AgEIcHlwaS5vcmcCJD)(?i)[A-Z0-9-_]{50,})
+        \b
+    entropy: 4.5
+    redact: [9, 4]
+    tests:
+      assert:
+        - pypi-AgEIcHlwaS5vcmcCJDY2YjYwMzE0LTQzYzItNGIzNy1hZjEwLWJiODY1NzFlZjEwNwACKlszLCJjNjI3Mzg5Ni0xZmUwLTRiMTctOGJlOS0wNzVmNWMzZWVlYWMiXQAABiD_ffSUB_bPkVzWiKrDFgfD2DeWgFuaFb7xZLKl7gaowg
+        - pypi-AgEIcHlwaS5vcmcCJDlkNzliNGUxLWNlMTItNDI4OC1iNWUyLTE1NjEwYTFmM2M2MwACKlszLCJjNjI3Mzg5Ni0xZmUwLTRiMTctOGJlOS0wNzVmNWMzZWVlYWMiXQAABiDDNWiCgIxgNmLtcP3v13ex9ltZEXcxMaTI9Uqu17x3fA
+        - pypi-AgEIcHlwaS5vcmcCJDk1NzM2MDkwLTY5MjEtNGQ4YS1hMDFkLWFjZjIzMjMzNGZhZgACKlszLCJjNjI3Mzg5Ni0xZmUwLTRiMTctOGJlOS0wNzVmNWMzZWVlYWMiXQAABiDgu9oitil9qhNinsJvs788wJYkM14Zx-YDdioqMUWm1A
+      assert_not:
+        - pypi-AgEIcHlwaS5vcmcCJDk1NzM2MDkwLTY5MjEtNGQ4YS1hMDFk
+        - pypi-616705793736zhoejl6BN49cD7Cu9H5iotB7b5xI5tsgrF
+    history:
+      - 2025-08-22 initial version
+    refs:
+      - https://pypi.org/project/pypi-token/
+    notes:
+      - Magic string "AgEIcHlwaS5vcmcCJD" base64 encoded "pypi.org".
