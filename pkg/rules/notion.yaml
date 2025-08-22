@@ -15,7 +15,7 @@ rules:
             (?-i:secret_)[A-Z0-9]{43}
           )
         \b
-    entropy: 4.1
+    entropy: 4.5
     redact: [12, 4]
     tests:
       assert:
@@ -45,7 +45,7 @@ rules:
             (?-i:ntn_)[A-Z0-9]{40,}
           )
         \b
-    entropy: 4.1
+    entropy: 4.5
     redact: [12, 4]
     tests:
       assert:
@@ -75,7 +75,7 @@ rules:
             (?-i:nrt_)[A-Z0-9]{40,}
           )
         \b
-    entropy: 4.1
+    entropy: 4.5
     redact: [12, 4]
     tests:
       assert:
