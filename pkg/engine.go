@@ -161,8 +161,11 @@ func (e *HyperscanEngine) FindAllInLine(line string) []MatchResult {
 			match = line[from:to]
 		}
 
-		// Redact the match if we have redaction offsets
-		if len(rule.Redact) > 0 && rule.Redact[0] > 0 && rule.Redact[1] > 0 {
+		// Redact the match if we have redaction offsets and the match is long enough to redact
+		if len(rule.Redact) > 0 &&
+			rule.Redact[0] > 0 &&
+			rule.Redact[1] > 0 &&
+			len(match) > rule.Redact[0]+rule.Redact[1] {
 			redacted = match[:rule.Redact[0]] + strings.Repeat("*", min(5, len(match))) + match[len(match)-rule.Redact[1]:]
 		}
 
@@ -284,8 +287,11 @@ func (e *GoRegexEngine) FindAllInLine(line string) []MatchResult {
 		for _, match := range matches {
 			redacted := match
 
-			// redact the match if we have redaction offsets
-			if len(e.rules[i].Redact) > 0 && e.rules[i].Redact[0] > 0 && e.rules[i].Redact[1] > 0 {
+			// redact the match if we have redaction offsets and the match is long enough to redact
+			if len(e.rules[i].Redact) > 0 &&
+				e.rules[i].Redact[0] > 0 &&
+				e.rules[i].Redact[1] > 0 &&
+				len(match) > e.rules[i].Redact[0]+e.rules[i].Redact[1] {
 				redacted = match[:e.rules[i].Redact[0]] + strings.Repeat("*", min(5, len(match))) + match[len(match)-e.rules[i].Redact[1]:]
 			}
 

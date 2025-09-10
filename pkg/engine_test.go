@@ -47,28 +47,73 @@ func TestEngineRedaction(t *testing.T) {
 		},
 	}
 
-	engine := NewGoRegexEngine()
-	defer engine.Close()
-
-	err := engine.CompileRules(redactionRule)
-	if err != nil {
-		t.Fatalf("Failed to compile redaction rule: %v", err)
+	engines := []PatternEngine{
+		NewGoRegexEngine(),
+		NewHyperscanEngine(),
 	}
 
-	input := `secret_key="abcdefghijklmnopqrstuvwxyz1234"`
-	results := engine.FindAllInLine(input)
+	for _, engine := range engines {
+		defer engine.Close()
 
-	if len(results) != 1 {
-		t.Fatalf("Expected 1 match for redaction test, got %d", len(results))
+		err := engine.CompileRules(redactionRule)
+		if err != nil {
+			t.Fatalf("Failed to compile redaction rule: %v", err)
+		}
+
+		input := `secret_key="abcdefghijklmnopqrstuvwxyz1234"`
+		results := engine.FindAllInLine(input)
+
+		if len(results) != 1 {
+			t.Fatalf("Expected 1 match for redaction test, got %d", len(results))
+		}
+
+		result := results[0]
+		if result.Redacted == result.Match {
+			t.Error("Expected redacted version to be different from original match")
+		}
+
+		// Should contain asterisks for redaction
+		if !strings.Contains(result.Redacted, "*****") {
+			t.Errorf("Expected redacted text to contain asterisk mask, got: %s", result.Redacted)
+		}
+	}
+}
+
+func TestEngineRedactionDoesntPanic(t *testing.T) {
+	redactionRule := []Rule{
+		{
+			Name:    "Redacted API Key",
+			ID:      "test.redacted",
+			Pattern: `secret[_-]?key['":\s=]+([a-zA-Z0-9]{20,})`,
+			Redact:  []int{50, 50}, // Keep first 50 and last 50 chars
+		},
 	}
 
-	result := results[0]
-	if result.Redacted == result.Match {
-		t.Error("Expected redacted version to be different from original match")
+	engines := []PatternEngine{
+		NewGoRegexEngine(),
+		NewHyperscanEngine(),
 	}
 
-	// Should contain asterisks for redaction
-	if !strings.Contains(result.Redacted, "*****") {
-		t.Errorf("Expected redacted text to contain asterisk mask, got: %s", result.Redacted)
+	for _, engine := range engines {
+		defer engine.Close()
+
+		err := engine.CompileRules(redactionRule)
+		if err != nil {
+			t.Fatalf("Failed to compile redaction rule: %v", err)
+		}
+
+		input := `secret_key="abcdefghijklmnopqrstuvwxyz1234"`
+		results := engine.FindAllInLine(input)
+
+		if len(results) != 1 {
+			t.Fatalf("Expected 1 match for redaction test, got %d", len(results))
+		}
+
+		result := results[0]
+
+		// Should not contain asterisks for redaction, because the match is too short
+		if strings.Contains(result.Redacted, "*****") {
+			t.Errorf("Expected redacted text to not contain asterisk mask, got: %s", result.Redacted)
+		}
 	}
 }
