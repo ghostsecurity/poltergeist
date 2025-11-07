@@ -1,0 +1,23 @@
+rules:
+  - name: JumpCloud API Key
+    id: ghost.jumpcloud.1
+    description: JumpCloud API key.
+    tags:
+      - api
+      - jumpcloud
+    pattern: |
+      (?x)
+        \b
+          (jca_(?i)[A-Z0-9]{36})
+        \b
+    entropy: 4.2
+    redact: [8, 4]
+    tests:
+      assert:
+        - jca_667TVUeiS2Z2skeMtgVzWkhxiPewrA8cgks6
+        - jca_pi3zJxDVvaAktPWRdyrRHCChxqHWa2Evje6I
+        - jca_7xa6QXUNv4EUfZapyrREmiMph8mWbSodf5wU
+      assert_not:
+        - jcb_667TVUeiS2Z2skeMtgVzWkhxiPewrA8cgks6
+    history:
+      - 2025-08-22 initial version
