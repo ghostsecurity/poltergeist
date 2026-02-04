@@ -4,6 +4,16 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Create GitHub release'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
 
 permissions:
   contents: write
@@ -48,8 +58,13 @@ jobs:
           export CGO_CFLAGS="-I$(pwd)/build/vectorscan/linux_amd64/include"
           export CGO_LDFLAGS="-L$(pwd)/build/vectorscan/linux_amd64/lib -lhs -lstdc++ -lm"
 
+          VERSION="${{ github.ref_name }}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="dev-$(git rev-parse --short HEAD)"
+          fi
+
           go build -a \
-            -ldflags "-s -w -X main.version=${{ github.ref_name }} -linkmode external -extldflags '-static'" \
+            -ldflags "-s -w -X main.version=$VERSION -linkmode external -extldflags '-static'" \
             -o poltergeist \
             ./cmd/poltergeist
 
@@ -98,8 +113,13 @@ jobs:
           export CGO_CFLAGS="-I$(pwd)/build/vectorscan/darwin_${{ matrix.goarch }}/include"
           export CGO_LDFLAGS="-L$(pwd)/build/vectorscan/darwin_${{ matrix.goarch }}/lib -lhs -lc++"
 
+          VERSION="${{ github.ref_name }}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="dev-$(git rev-parse --short HEAD)"
+          fi
+
           go build \
-            -ldflags "-s -w -X main.version=${{ github.ref_name }}" \
+            -ldflags "-s -w -X main.version=$VERSION" \
             -o poltergeist \
             ./cmd/poltergeist
 
@@ -118,6 +138,7 @@ jobs:
   create-release:
     needs: [build-linux, build-macos]
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.inputs.create_release == 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
