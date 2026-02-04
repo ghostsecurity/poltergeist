@@ -30,32 +30,63 @@ Some decisions were made in the interest of performance and simplicity:
 - When used as a library, the intent is to present matches found by Poltergeist as "secret candidates" to a Ghost Platform "secret agent" (with surrounding content near the secret) to validate intent - i.e. does this look like a valid secret being used in the codebase?.
 - Recent [research has shown](https://arxiv.org/html/2504.18784v1) that adding an LLM validation layer dramatically improves the accuracy of secret detection.
 
-### Setup
+### Installation
 
-Poltergeist is built around the capabilities of the Hyperscan regex engine.
+#### Pre-built Releases (Recommended)
 
-#### Hyperscan/Vectorscan
+Download the latest release for your platform from [GitHub Releases](https://github.com/ghostsecurity/poltergeist/releases).
 
-The main benefit of Hyperscan is multi-pattern matching and some aggressive trade-offs
-in terms of regex syntax support in favor of performance. Things like backtracking, lookbehind,
-lookahead, capture groups, and other advanced features are not supported.
+**Supported Platforms:**
+- Linux (x86_64)
+- macOS (Intel & Apple Silicon)
 
-Despite these limitations, the rule patterns are written with extended regex syntax for
-flexibility and ease of authoring. While initial matches are made with Hyperscan, the
-final match (exact location) and capture group is refined with Go regex. Since we've
-already done the heavy lifting with Hyperscan, the final Go regex match is fast.
+Release binaries are statically linked with Vectorscan and have no external dependencies (except standard system libraries on macOS).
 
-Vectorscan is the ARM port of Hyperscan.
+```bash
+# Linux/macOS
+curl -L https://github.com/ghostsecurity/poltergeist/releases/download/v2.0.0/poltergeist_linux_amd64.tar.gz | tar xz
+./poltergeist --version
 
-### macOS Support
+# Or extract and move to PATH
+tar xzf poltergeist_*.tar.gz
+sudo mv poltergeist /usr/local/bin/
+```
 
-On macOS, Vectorscan can be installed via Homebrew:
+#### Building from Source
 
+If you want to build from source, you'll need Vectorscan installed:
+
+**macOS:**
 ```bash
 brew install vectorscan
 ```
 
-## Build
+**Linux:**
+```bash
+# Ubuntu/Debian
+sudo apt-get install cmake ragel libboost-dev pkg-config
+
+# Then build Vectorscan from source (see scripts/build-vectorscan.sh)
+bash scripts/build-vectorscan.sh
+```
+
+**Build:**
+```bash
+make build
+```
+
+### About Vectorscan/Hyperscan
+
+Poltergeist uses Vectorscan (a portable fork of Intel's Hyperscan) for high-performance multi-pattern matching.
+
+The main benefit of Vectorscan is multi-pattern matching and aggressive optimizations.
+Some advanced regex features (backtracking, lookbehind, lookahead, capture groups) are not supported.
+
+Despite these limitations, rule patterns are written with extended regex syntax for
+flexibility. While initial matches use Vectorscan, the final match location and capture
+groups are refined with Go regex for maximum compatibility.
+
+## Build from Source
 
 ```bash
 make build
@@ -69,35 +100,63 @@ make build
 ./poltergeist [options] <directory_path|file_path> [pattern1] [pattern2] ...
 ```
 
+#### Options
+
+- `-engine string` - Pattern engine: 'auto' (default), 'go', or 'hyperscan'
+- `-rules string` - YAML file or directory containing pattern rules
+- `-format string` - Output format: 'text' (default), 'json', or 'md'
+- `-output string` - Write output to file (auto-detects format from .json or .md extension)
+- `-no-color` - Disable colored output (text format only)
+- `-dnr` - Do not redact - show full matches
+- `-low-entropy` - Show matches that don't meet minimum entropy requirements
+
 #### Examples
 
-**Single pattern:**
+**Basic scan with default settings:**
 
 ```bash
+./poltergeist /path/to/code
+```
+
+**Output formats:**
+
+```bash
+# Text output (default, colored)
+./poltergeist /path/to/code
+
+# JSON output
+./poltergeist --format json /path/to/code
+
+# Markdown report
+./poltergeist --format md /path/to/code
+
+# Write to file (auto-detects format)
+./poltergeist --output report.json /path/to/code
+./poltergeist --output report.md /path/to/code
+```
+
+**Custom patterns:**
+
+```bash
+# Single pattern
 ./poltergeist /path/to/code "api[_-]?key"
-```
 
-**YAML rule files:**
-
-```bash
+# YAML rule files
 ./poltergeist -rules=custom-rules.yaml /path/to/code
-```
-
-```bash
 ./poltergeist -rules=./rules /path/to/code
-```
 
-**Combine multiple sources:**
-
-```bash
-# YAML file + additional patterns
+# Combine YAML file + additional patterns
 ./poltergeist -rules=custom.yaml /path/to/code "additional.*pattern"
 ```
 
-**Force specific engine:**
+**Engine selection:**
 
 ```bash
+# Force Vectorscan/Hyperscan engine
 ./poltergeist -engine=hyperscan /path/to/code
+
+# Force Go regex engine
+./poltergeist -engine=go /path/to/code
 ```
 
 ### Library Usage

@@ -14,7 +14,7 @@ help: ## Show this help
 
 .PHONY: build
 build: ## Build the binary
-	go build $(LDFLAGS) -o $(BINARY_NAME) ./cmd/poltergeist
+	CGO_ENABLED=1 go build $(LDFLAGS) -o $(BINARY_NAME) ./cmd/poltergeist
 
 .PHONY: deps
 deps: ## Install Go dependencies
@@ -54,3 +54,19 @@ benchmarks-go: ## Run benchmarks with Go engine
 .PHONY: benchmarks-hyperscan
 benchmarks-hyperscan: ## Run benchmarks with Hyperscan engine
 	go run cmd/benchmark/main.go -engine hyperscan
+
+.PHONY: build-static-linux
+build-static-linux: ## Build statically linked Linux binary
+	CGO_ENABLED=1 GOOS=linux go build -a $(LDFLAGS) -linkmode external -extldflags "-static" -o $(BINARY_NAME) ./cmd/poltergeist
+
+.PHONY: build-vectorscan
+build-vectorscan: ## Build Vectorscan static library for current platform
+	bash scripts/build-vectorscan.sh
+
+.PHONY: release
+release: ## Create a release using GoReleaser
+	goreleaser release --clean
+
+.PHONY: release-snapshot
+release-snapshot: ## Create a snapshot release (no tagging required)
+	goreleaser build --snapshot --clean --single-target

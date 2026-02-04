@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -10,6 +11,15 @@ import (
 	"time"
 
 	poltergeist "github.com/ghostsecurity/poltergeist/pkg"
+)
+
+const (
+	colorRed    = "\033[31m"
+	colorGreen  = "\033[32m"
+	colorYellow = "\033[33m"
+	colorCyan   = "\033[36m"
+	colorReset  = "\033[0m"
+	colorBold   = "\033[1m"
 )
 
 // printUsage displays the command usage information
@@ -24,6 +34,12 @@ func printUsage() {
 	fmt.Fprintf(os.Stderr, "        Do not redact - show full matches instead of redacted versions\n")
 	fmt.Fprintf(os.Stderr, "  -low-entropy\n")
 	fmt.Fprintf(os.Stderr, "        Show matches that don't meet minimum entropy requirements\n")
+	fmt.Fprintf(os.Stderr, "  -format string\n")
+	fmt.Fprintf(os.Stderr, "        Output format: 'text' (default), 'json', or 'md'\n")
+	fmt.Fprintf(os.Stderr, "  -output string\n")
+	fmt.Fprintf(os.Stderr, "        Write output to file (auto-detects format from .json or .md extension)\n")
+	fmt.Fprintf(os.Stderr, "  -no-color\n")
+	fmt.Fprintf(os.Stderr, "        Disable colored output (text format only)\n")
 	fmt.Fprintf(os.Stderr, "  -help\n")
 	fmt.Fprintf(os.Stderr, "        Show this help message\n")
 	fmt.Fprintf(os.Stderr, "  -version\n")
@@ -43,6 +59,9 @@ var (
 	rulesFlag      = flag.String("rules", "", "YAML file or directory containing pattern rules")
 	dnrFlag        = flag.Bool("dnr", false, "Do not redact - show full matches instead of redacted versions")
 	lowEntropyFlag = flag.Bool("low-entropy", false, "Show matches that don't meet minimum entropy requirements")
+	formatFlag     = flag.String("format", "text", "Output format: text, json, md")
+	outputFlag     = flag.String("output", "", "Write output to file (auto-detects format from extension)")
+	noColorFlag    = flag.Bool("no-color", false, "Disable colored output (text format only)")
 	helpFlag       = flag.Bool("help", false, "Show help message")
 	versionFlag    = flag.Bool("version", false, "Show version information")
 )
@@ -168,58 +187,267 @@ func main() {
 		}
 	}
 
-	// Print results
-	if len(filteredResults) == 0 {
-		if lowEntropyCount > 0 {
-			fmt.Printf("No high-entropy matches found. %d low-entropy matches were filtered out.\n", lowEntropyCount)
-			fmt.Printf("Use --show-low-entropy to see all matches.\n")
-		} else {
-			fmt.Println("No matches found.")
-		}
-	} else {
-		totalMatches := len(results)
-		shownMatches := len(filteredResults)
-		if lowEntropyCount > 0 {
-			fmt.Printf("Found %d matches (%d high-entropy, %d low-entropy filtered out):\n\n", totalMatches, shownMatches, lowEntropyCount)
-		} else {
-			fmt.Printf("Found %d matches:\n\n", shownMatches)
-		}
-		for _, result := range filteredResults {
-			fmt.Printf("Rule: %s\n", result.RuleName)
-			if result.RuleID != "" {
-				fmt.Printf("ID: %s\n", result.RuleID)
-			}
-			fmt.Printf("File: %s:%d\n", result.FilePath, result.LineNumber)
-			// Display either redacted or full match based on -dnr flag
-			if *dnrFlag {
-				fmt.Printf("Match: %s\n", result.Match)
-			} else {
-				fmt.Printf("Match: %s\n", result.Redacted)
-			}
-			// Display entropy status
-			if result.Entropy {
-				fmt.Printf("Entropy: ✓ Met minimum requirement\n")
-			} else {
-				fmt.Printf("Entropy: ✗ Below minimum requirement\n")
-			}
-			fmt.Println(strings.Repeat("-", 80))
-		}
-	}
-
-	// Display metrics
+	// Gather metrics
 	filesScanned := atomic.LoadInt64(&scanner.Metrics.FilesScanned)
 	filesSkipped := atomic.LoadInt64(&scanner.Metrics.FilesSkipped)
 	totalBytes := atomic.LoadInt64(&scanner.Metrics.TotalBytes)
 	matchesFound := atomic.LoadInt64(&scanner.Metrics.MatchesFound)
 
-	fmt.Printf("\n=== Scan Metrics ===\n")
-	fmt.Printf("Files scanned: %d\n", filesScanned)
-	fmt.Printf("Files skipped: %d (binary/large files)\n", filesSkipped)
-	fmt.Printf("Total content: %s\n", poltergeist.FormatBytes(totalBytes))
-	fmt.Printf("Total matches found: %d\n", matchesFound)
-	if lowEntropyCount > 0 {
-		fmt.Printf("High-entropy matches: %d\n", len(filteredResults))
-		fmt.Printf("Low-entropy matches filtered: %d\n", lowEntropyCount)
+	// Determine output format (auto-detect from file extension if output flag is set)
+	outputFormat := *formatFlag
+	if *outputFlag != "" {
+		if strings.HasSuffix(*outputFlag, ".md") && *formatFlag == "text" {
+			outputFormat = "md"
+		} else if strings.HasSuffix(*outputFlag, ".json") && *formatFlag == "text" {
+			outputFormat = "json"
+		}
 	}
-	fmt.Printf("Scan completed in %v\n", duration)
+
+	// Determine if we should use colors
+	useColor := !*noColorFlag && isTerminal() && *outputFlag == "" && outputFormat == "text"
+
+	// Format output
+	var output string
+	var exitCode int
+
+	switch outputFormat {
+	case "json":
+		output, exitCode = formatJSON(filteredResults, filesScanned, filesSkipped, totalBytes, matchesFound, lowEntropyCount)
+	case "md", "markdown":
+		output, exitCode = formatMarkdown(filteredResults, scanPath, filesScanned, filesSkipped, totalBytes, matchesFound, lowEntropyCount, duration)
+	case "text":
+		output, exitCode = formatText(filteredResults, filesScanned, filesSkipped, totalBytes, matchesFound, lowEntropyCount, duration, useColor, *dnrFlag)
+	default:
+		fmt.Fprintf(os.Stderr, "Error: unknown format %q (use text, json, or md)\n", outputFormat)
+		os.Exit(1)
+	}
+
+	// Write to file or stdout
+	if *outputFlag != "" {
+		if err := os.WriteFile(*outputFlag, []byte(output), 0644); err != nil {
+			fmt.Fprintf(os.Stderr, "Error writing to file: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Fprintf(os.Stderr, "Report written to %s\n", *outputFlag)
+	} else {
+		fmt.Print(output)
+	}
+
+	os.Exit(exitCode)
+}
+
+// formatText formats results as colored text output
+func formatText(results []poltergeist.ScanResult, filesScanned, filesSkipped, totalBytes, matchesFound int64, lowEntropyCount int, duration time.Duration, useColor bool, showFullMatch bool) (string, int) {
+	var sb strings.Builder
+
+	sb.WriteString(fmt.Sprintf("\n%s\n", divider(50)))
+	sb.WriteString(fmt.Sprintf("%s SCAN SUMMARY %s\n", bold("", useColor), ""))
+	sb.WriteString(fmt.Sprintf("%s\n\n", divider(50)))
+
+	sb.WriteString(fmt.Sprintf("Files scanned:  %s\n", bold(fmt.Sprintf("%d", filesScanned), useColor)))
+	sb.WriteString(fmt.Sprintf("Total content:  %s\n", poltergeist.FormatBytes(totalBytes)))
+
+	if len(results) == 0 {
+		sb.WriteString(fmt.Sprintf("Secrets found:  %s\n\n", green("0", useColor)))
+		if lowEntropyCount > 0 {
+			sb.WriteString(fmt.Sprintf("%s No high-entropy secrets found. %d low-entropy matches were filtered out.\n", green("✓", useColor), lowEntropyCount))
+			sb.WriteString("  Use -low-entropy to see all matches.\n\n")
+		} else {
+			sb.WriteString(fmt.Sprintf("%s No secrets found!\n\n", green("✓", useColor)))
+		}
+		return sb.String(), 0
+	}
+
+	sb.WriteString(fmt.Sprintf("Secrets found:  %s", red(fmt.Sprintf("%d", len(results)), useColor)))
+	if lowEntropyCount > 0 {
+		sb.WriteString(fmt.Sprintf(" (%d low-entropy filtered)", lowEntropyCount))
+	}
+	sb.WriteString("\n\n")
+
+	// Group results by file
+	fileResults := make(map[string][]poltergeist.ScanResult)
+	for _, result := range results {
+		fileResults[result.FilePath] = append(fileResults[result.FilePath], result)
+	}
+
+	for filePath, fileMatches := range fileResults {
+		sb.WriteString(fmt.Sprintf("%s %s %s (%d matches)\n",
+			red("●", useColor),
+			bold(filePath, useColor),
+			"",
+			len(fileMatches)))
+
+		for _, match := range fileMatches {
+			sb.WriteString(fmt.Sprintf("  %s Line %s: %s\n",
+				yellow("└─", useColor),
+				cyan(fmt.Sprintf("%d", match.LineNumber), useColor),
+				match.RuleName))
+
+			displayMatch := match.Redacted
+			if showFullMatch {
+				displayMatch = match.Match
+			}
+
+			// Truncate very long matches
+			if len(displayMatch) > 80 {
+				displayMatch = displayMatch[:77] + "..."
+			}
+
+			sb.WriteString(fmt.Sprintf("     %s\n", displayMatch))
+
+			if match.RuleID != "" {
+				sb.WriteString(fmt.Sprintf("     ID: %s\n", match.RuleID))
+			}
+		}
+		sb.WriteString("\n")
+	}
+
+	// Metrics footer
+	sb.WriteString(fmt.Sprintf("%s\n", divider(50)))
+	sb.WriteString(fmt.Sprintf("Files skipped: %d (binary/large files)\n", filesSkipped))
+	sb.WriteString(fmt.Sprintf("Scan completed in %v\n\n", duration))
+
+	sb.WriteString(fmt.Sprintf("%s Review and address the secrets above.\n\n", yellow("!", useColor)))
+	return sb.String(), 1
+}
+
+// formatJSON formats results as JSON
+func formatJSON(results []poltergeist.ScanResult, filesScanned, filesSkipped, totalBytes, matchesFound int64, lowEntropyCount int) (string, int) {
+	output := struct {
+		Summary struct {
+			FilesScanned   int64 `json:"files_scanned"`
+			FilesSkipped   int64 `json:"files_skipped"`
+			TotalBytes     int64 `json:"total_bytes"`
+			MatchesFound   int64 `json:"matches_found"`
+			HighEntropy    int   `json:"high_entropy_matches"`
+			LowEntropy     int   `json:"low_entropy_matches"`
+		} `json:"summary"`
+		Results []poltergeist.ScanResult `json:"results"`
+	}{
+		Results: results,
+	}
+
+	output.Summary.FilesScanned = filesScanned
+	output.Summary.FilesSkipped = filesSkipped
+	output.Summary.TotalBytes = totalBytes
+	output.Summary.MatchesFound = matchesFound
+	output.Summary.HighEntropy = len(results)
+	output.Summary.LowEntropy = lowEntropyCount
+
+	data, err := json.MarshalIndent(output, "", "  ")
+	if err != nil {
+		return fmt.Sprintf("Error encoding JSON: %v\n", err), 1
+	}
+
+	exitCode := 0
+	if len(results) > 0 {
+		exitCode = 1
+	}
+	return string(data) + "\n", exitCode
+}
+
+// formatMarkdown formats results as markdown
+func formatMarkdown(results []poltergeist.ScanResult, scanPath string, filesScanned, filesSkipped, totalBytes, matchesFound int64, lowEntropyCount int, duration time.Duration) (string, int) {
+	var sb strings.Builder
+
+	sb.WriteString("# Secret Scan Report\n\n")
+	sb.WriteString(fmt.Sprintf("**Scanned:** `%s`  \n", scanPath))
+	sb.WriteString(fmt.Sprintf("**Date:** %s  \n\n", time.Now().Format("2006-01-02 15:04:05")))
+
+	sb.WriteString("## Summary\n\n")
+	sb.WriteString("| Metric | Count |\n")
+	sb.WriteString("|--------|-------|\n")
+	sb.WriteString(fmt.Sprintf("| Files scanned | %d |\n", filesScanned))
+	sb.WriteString(fmt.Sprintf("| Files skipped | %d |\n", filesSkipped))
+	sb.WriteString(fmt.Sprintf("| Total content | %s |\n", poltergeist.FormatBytes(totalBytes)))
+	sb.WriteString(fmt.Sprintf("| Secrets found | %d |\n", len(results)))
+	if lowEntropyCount > 0 {
+		sb.WriteString(fmt.Sprintf("| Low-entropy filtered | %d |\n", lowEntropyCount))
+	}
+	sb.WriteString(fmt.Sprintf("| Scan duration | %v |\n\n", duration))
+
+	if len(results) == 0 {
+		sb.WriteString("✅ **No secrets found!**\n")
+		if lowEntropyCount > 0 {
+			sb.WriteString(fmt.Sprintf("\n*Note: %d low-entropy matches were filtered out.*\n", lowEntropyCount))
+		}
+		return sb.String(), 0
+	}
+
+	sb.WriteString("## Findings\n\n")
+
+	// Group results by file
+	fileResults := make(map[string][]poltergeist.ScanResult)
+	for _, result := range results {
+		fileResults[result.FilePath] = append(fileResults[result.FilePath], result)
+	}
+
+	for filePath, fileMatches := range fileResults {
+		sb.WriteString(fmt.Sprintf("### `%s`\n\n", filePath))
+		sb.WriteString(fmt.Sprintf("**Matches:** %d\n\n", len(fileMatches)))
+
+		for i, match := range fileMatches {
+			sb.WriteString(fmt.Sprintf("#### Finding %d\n\n", i+1))
+			sb.WriteString(fmt.Sprintf("- **Line:** %d\n", match.LineNumber))
+			sb.WriteString(fmt.Sprintf("- **Rule:** %s\n", match.RuleName))
+			if match.RuleID != "" {
+				sb.WriteString(fmt.Sprintf("- **Rule ID:** %s\n", match.RuleID))
+			}
+			sb.WriteString(fmt.Sprintf("- **Match:** `%s`\n", match.Redacted))
+			if match.Entropy {
+				sb.WriteString("- **Entropy:** ✓ High\n")
+			} else {
+				sb.WriteString("- **Entropy:** ✗ Low\n")
+			}
+			sb.WriteString("\n")
+		}
+	}
+
+	return sb.String(), 1
+}
+
+// Helper functions
+
+func isTerminal() bool {
+	fileInfo, _ := os.Stdout.Stat()
+	return (fileInfo.Mode() & os.ModeCharDevice) != 0
+}
+
+func divider(n int) string {
+	return strings.Repeat("─", n)
+}
+
+func red(s string, useColor bool) string {
+	if useColor {
+		return colorRed + s + colorReset
+	}
+	return s
+}
+
+func green(s string, useColor bool) string {
+	if useColor {
+		return colorGreen + s + colorReset
+	}
+	return s
+}
+
+func yellow(s string, useColor bool) string {
+	if useColor {
+		return colorYellow + s + colorReset
+	}
+	return s
+}
+
+func cyan(s string, useColor bool) string {
+	if useColor {
+		return colorCyan + s + colorReset
+	}
+	return s
+}
+
+func bold(s string, useColor bool) string {
+	if useColor {
+		return colorBold + s + colorReset
+	}
+	return s
 }

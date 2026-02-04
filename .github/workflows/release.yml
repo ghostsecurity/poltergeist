@@ -1,0 +1,138 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  # Build for Linux (amd64 only for now)
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goarch: [amd64]  # arm64 can be added later with cross-compilation setup
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            ragel \
+            pkg-config \
+            libsqlite3-dev \
+            libpcap-dev
+
+      - name: Build Vectorscan
+        run: bash scripts/build-vectorscan.sh
+
+      - name: Build poltergeist
+        run: |
+          export CGO_ENABLED=1
+          export CGO_CFLAGS="-I$(pwd)/build/vectorscan/linux_amd64/include"
+          export CGO_LDFLAGS="-L$(pwd)/build/vectorscan/linux_amd64/lib -lhs -lstdc++ -lm"
+
+          go build -a \
+            -ldflags "-s -w -X main.version=${{ github.ref_name }} -linkmode external -extldflags '-static'" \
+            -o poltergeist \
+            ./cmd/poltergeist
+
+      - name: Create archive
+        run: |
+          tar czf poltergeist_linux_${{ matrix.goarch }}.tar.gz \
+            poltergeist README.md LICENSE NOTICE
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-${{ matrix.goarch }}
+          path: poltergeist_linux_${{ matrix.goarch }}.tar.gz
+
+  # Build for macOS on actual macOS runners
+  build-macos:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-13
+            goarch: amd64
+          - os: macos-latest
+            goarch: arm64
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Install build dependencies
+        run: brew install cmake ragel boost pkg-config sqlite libpcap
+
+      - name: Build Vectorscan
+        run: bash scripts/build-vectorscan.sh
+
+      - name: Build poltergeist
+        run: |
+          export CGO_ENABLED=1
+          export CGO_CFLAGS="-I$(pwd)/build/vectorscan/darwin_${{ matrix.goarch }}/include"
+          export CGO_LDFLAGS="-L$(pwd)/build/vectorscan/darwin_${{ matrix.goarch }}/lib -lhs -lc++"
+
+          go build \
+            -ldflags "-s -w -X main.version=${{ github.ref_name }}" \
+            -o poltergeist \
+            ./cmd/poltergeist
+
+      - name: Create archive
+        run: |
+          tar czf poltergeist_darwin_${{ matrix.goarch }}.tar.gz \
+            poltergeist README.md LICENSE NOTICE
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: darwin-${{ matrix.goarch }}
+          path: poltergeist_darwin_${{ matrix.goarch }}.tar.gz
+
+  # Create the GitHub release
+  create-release:
+    needs: [build-linux, build-macos]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Display structure
+        run: ls -R dist/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/**/*.tar.gz
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

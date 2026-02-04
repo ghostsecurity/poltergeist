@@ -1,0 +1,8 @@
+Poltergeist
+Copyright 2026 Ghost Security
+
+This product includes Vectorscan, a portable fork of Hyperscan:
+- Vectorscan (https://github.com/VectorCamp/vectorscan)
+  Licensed under the BSD 3-Clause License
+  Based on Hyperscan (https://github.com/intel/hyperscan)
+  developed by Intel Corporation
