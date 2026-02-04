@@ -35,6 +35,7 @@ jobs:
             cmake \
             ragel \
             pkg-config \
+            libboost-dev \
             libsqlite3-dev \
             libpcap-dev
 

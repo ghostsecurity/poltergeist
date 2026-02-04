@@ -43,6 +43,7 @@ install_dependencies() {
                 cmake \
                 ragel \
                 pkg-config \
+                libboost-dev \
                 libsqlite3-dev \
                 libpcap-dev
         elif command -v yum &> /dev/null; then
@@ -95,6 +96,8 @@ build_vectorscan() {
         -DCMAKE_BUILD_TYPE=Release \
         -DBUILD_SHARED_LIBS=OFF \
         -DBUILD_STATIC_LIBS=ON \
+        -DBUILD_EXAMPLES=OFF \
+        -DBUILD_TOOLS=OFF \
         -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX"
 
     # Build
