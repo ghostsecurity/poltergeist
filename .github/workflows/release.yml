@@ -4,16 +4,9 @@ on:
   push:
     tags:
       - 'v*'
-  workflow_dispatch:
-    inputs:
-      create_release:
-        description: 'Create GitHub release'
-        required: false
-        default: 'false'
-        type: choice
-        options:
-          - 'true'
-          - 'false'
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -59,7 +52,7 @@ jobs:
           export CGO_LDFLAGS="-L$(pwd)/build/vectorscan/linux_amd64/lib -lhs -lstdc++ -lm"
 
           VERSION="${{ github.ref_name }}"
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
             VERSION="dev-$(git rev-parse --short HEAD)"
           fi
 
@@ -114,7 +107,7 @@ jobs:
           export CGO_LDFLAGS="-L$(pwd)/build/vectorscan/darwin_${{ matrix.goarch }}/lib -lhs -lc++"
 
           VERSION="${{ github.ref_name }}"
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
             VERSION="dev-$(git rev-parse --short HEAD)"
           fi
 
@@ -138,7 +131,7 @@ jobs:
   create-release:
     needs: [build-linux, build-macos]
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || github.event.inputs.create_release == 'true'
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     steps:
       - name: Checkout
         uses: actions/checkout@v4
