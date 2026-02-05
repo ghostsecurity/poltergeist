@@ -109,7 +109,7 @@ New-Item -ItemType Directory -Force -Path $pkgConfigDir | Out-Null
 prefix=$unixPath/build/hyperscan/windows_amd64
 exec_prefix=`${prefix}
 libdir=`${exec_prefix}/lib
-includedir=`${prefix}/include
+includedir=`${prefix}/include/hs
 
 Name: libhs
 Description: Intel Hyperscan
@@ -119,7 +119,7 @@ Libs: -L`${libdir} -lhs
 "@ | Set-Content "$pkgConfigDir\libhs.pc"
 
 $env:PKG_CONFIG_PATH = "$unixPath/build/hyperscan/windows_amd64/lib/pkgconfig"
-$env:CGO_CFLAGS = "-I$unixPath/build/hyperscan/windows_amd64/include"
+$env:CGO_CFLAGS = "-I$unixPath/build/hyperscan/windows_amd64/include/hs"
 $env:CGO_LDFLAGS = "-L$unixPath/build/hyperscan/windows_amd64/lib -lhs"
 go build -o poltergeist.exe ./cmd/poltergeist
 ```

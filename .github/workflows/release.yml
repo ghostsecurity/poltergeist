@@ -237,11 +237,12 @@ jobs:
           # Convert Windows paths to Unix-style for pkg-config
           $unixPath = $buildPath -replace '\\', '/'
 
+          # Point to include/hs directory where hs.h is actually located
           $pcContent = @"
           prefix=$unixPath/build/hyperscan/windows_amd64
           exec_prefix=`${prefix}
           libdir=`${exec_prefix}/lib
-          includedir=`${prefix}/include
+          includedir=`${prefix}/include/hs
 
           Name: libhs
           Description: Intel Hyperscan
@@ -262,8 +263,9 @@ jobs:
           # Use forward slashes for CGO paths (required on Windows)
           $unixPath = $buildPath -replace '\\', '/'
 
+          # Point to include/hs directory where hs.h is actually located
           $env:PKG_CONFIG_PATH = "$unixPath/build/hyperscan/windows_amd64/lib/pkgconfig"
-          $env:CGO_CFLAGS = "-I$unixPath/build/hyperscan/windows_amd64/include"
+          $env:CGO_CFLAGS = "-I$unixPath/build/hyperscan/windows_amd64/include/hs"
           $env:CGO_LDFLAGS = "-L$unixPath/build/hyperscan/windows_amd64/lib -lhs"
 
           Write-Host "CGO_CFLAGS: $env:CGO_CFLAGS" -ForegroundColor Cyan
