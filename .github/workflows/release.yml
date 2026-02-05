@@ -139,6 +139,9 @@ jobs:
   # Build for Windows
   build-windows:
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
     strategy:
       matrix:
         goarch: [amd64]
@@ -148,146 +151,65 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
         with:
-          go-version-file: go.mod
-          cache: true
+          msystem: MINGW64
+          update: true
+          install: >-
+            base-devel
+            git
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-boost
+            mingw-w64-x86_64-ragel
+            mingw-w64-x86_64-pcre
+            mingw-w64-x86_64-sqlite3
+            mingw-w64-x86_64-pkg-config
 
-      - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@v2
+      - name: Set up Go in MSYS2
+        shell: msys2 {0}
+        run: |
+          # Download and install Go
+          GO_VERSION=$(cat go.mod | grep -oP 'go \K[0-9.]+')
+          echo "Installing Go ${GO_VERSION}..."
+          curl -L "https://go.dev/dl/go${GO_VERSION}.windows-amd64.zip" -o go.zip
+          unzip -q go.zip -d /c/
+          echo "/c/go/bin" >> $GITHUB_PATH
 
-      - name: Cache vcpkg packages
+      - name: Cache Vectorscan build
+        id: cache-vectorscan
         uses: actions/cache@v4
         with:
-          path: |
-            ${{ github.workspace }}/vcpkg/installed
-            ${{ github.workspace }}/vcpkg/packages
-            ${{ github.workspace }}/vcpkg/buildtrees
-          key: vcpkg-${{ runner.os }}-${{ hashFiles('.github/workflows/release.yml') }}
-          restore-keys: |
-            vcpkg-${{ runner.os }}-
+          path: build/vectorscan
+          key: vectorscan-5.4.12-mingw-${{ runner.os }}-${{ hashFiles('scripts/build-vectorscan-windows.sh') }}
 
-      - name: Setup vcpkg
-        uses: lukka/run-vcpkg@v11
-        with:
-          vcpkgGitCommitId: '66c0373dc7fca549e5803087b9487edfe3aca0a1'
-          doNotCache: false
-
-      - name: Install vcpkg dependencies
-        run: |
-          vcpkg install boost-graph:x64-windows-static `
-            boost-dynamic-bitset:x64-windows-static `
-            boost-multi-array:x64-windows-static `
-            boost-icl:x64-windows-static `
-            boost-system:x64-windows-static `
-            boost-filesystem:x64-windows-static `
-            boost-thread:x64-windows-static `
-            ragel:x64-windows-static `
-            pcre:x64-windows-static
-        shell: pwsh
-
-      - name: Cache Hyperscan build
-        id: cache-hyperscan
-        uses: actions/cache@v4
-        with:
-          path: build/hyperscan
-          key: hyperscan-5.4.2-${{ runner.os }}-${{ hashFiles('scripts/build-hyperscan-windows.ps1') }}
-
-      - name: Build Intel Hyperscan
-        if: steps.cache-hyperscan.outputs.cache-hit != 'true'
-        run: |
-          $env:VCPKG_ROOT = "${{ github.workspace }}\vcpkg"
-          pwsh -File scripts/build-hyperscan-windows.ps1
-        shell: pwsh
-
-      - name: Verify Hyperscan installation
-        run: |
-          Write-Host "Checking Hyperscan build files..." -ForegroundColor Cyan
-          $buildPath = (Get-Location).Path
-          $hyperscanDir = "$buildPath\build\hyperscan\windows_amd64"
-
-          Write-Host "Listing all files in include directory:" -ForegroundColor Yellow
-          Get-ChildItem -Recurse "$hyperscanDir\include" | Select-Object FullName
-
-          if (Test-Path "$hyperscanDir\include\hs.h") {
-            Write-Host "✓ Found hs.h header at include\hs.h" -ForegroundColor Green
-          } elseif (Test-Path "$hyperscanDir\include\hs\hs.h") {
-            Write-Host "⚠ Found hs.h header at include\hs\hs.h (in subdirectory)" -ForegroundColor Yellow
-          } else {
-            Write-Host "✗ hs.h not found" -ForegroundColor Red
-          }
-
-          Write-Host "Listing all files in lib directory:" -ForegroundColor Yellow
-          Get-ChildItem "$hyperscanDir\lib" | Select-Object Name, Length
-
-          if (Test-Path "$hyperscanDir\lib\hs.lib") {
-            Write-Host "✓ Found hs.lib library" -ForegroundColor Green
-          } else {
-            Write-Host "✗ hs.lib not found" -ForegroundColor Red
-          }
-        shell: pwsh
-
-      - name: Create pkg-config file
-        run: |
-          $buildPath = (Get-Location).Path
-          $pkgConfigDir = "$buildPath\build\hyperscan\windows_amd64\lib\pkgconfig"
-          New-Item -ItemType Directory -Force -Path $pkgConfigDir | Out-Null
-
-          # Convert Windows paths to Unix-style for pkg-config
-          $unixPath = $buildPath -replace '\\', '/'
-
-          # Point to include/hs directory where hs.h is actually located
-          $pcContent = @"
-          prefix=$unixPath/build/hyperscan/windows_amd64
-          exec_prefix=`${prefix}
-          libdir=`${exec_prefix}/lib
-          includedir=`${prefix}/include/hs
-
-          Name: libhs
-          Description: Intel Hyperscan
-          Version: 5.4.2
-          Cflags: -I`${includedir}
-          Libs: -L`${libdir} -lhs
-          "@
-
-          Set-Content -Path "$pkgConfigDir\libhs.pc" -Value $pcContent
-          Write-Host "Created pkg-config file at $pkgConfigDir\libhs.pc" -ForegroundColor Green
-        shell: pwsh
+      - name: Build Vectorscan
+        if: steps.cache-vectorscan.outputs.cache-hit != 'true'
+        run: bash scripts/build-vectorscan-windows.sh
 
       - name: Build poltergeist
         run: |
-          $env:CGO_ENABLED = "1"
-          $buildPath = (Get-Location).Path
+          export CGO_ENABLED=1
+          export PKG_CONFIG_PATH="$(pwd)/build/vectorscan/windows_amd64/lib/pkgconfig"
+          export CGO_CFLAGS="-I$(pwd)/build/vectorscan/windows_amd64/include"
+          export CGO_LDFLAGS="-L$(pwd)/build/vectorscan/windows_amd64/lib -lhs -lstdc++"
 
-          # Use forward slashes for CGO paths (required on Windows)
-          $unixPath = $buildPath -replace '\\', '/'
+          VERSION="${{ github.ref_name }}"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            VERSION="dev-$(git rev-parse --short HEAD)"
+          fi
 
-          # Point to include/hs directory where hs.h is actually located
-          $env:PKG_CONFIG_PATH = "$unixPath/build/hyperscan/windows_amd64/lib/pkgconfig"
-          $env:CGO_CFLAGS = "-I$unixPath/build/hyperscan/windows_amd64/include/hs"
-          $env:CGO_LDFLAGS = "-L$unixPath/build/hyperscan/windows_amd64/lib -lhs"
-
-          Write-Host "CGO_CFLAGS: $env:CGO_CFLAGS" -ForegroundColor Cyan
-          Write-Host "CGO_LDFLAGS: $env:CGO_LDFLAGS" -ForegroundColor Cyan
-
-          $version = "${{ github.ref_name }}"
-          if ("${{ github.event_name }}" -eq "pull_request") {
-            $commit = git rev-parse --short HEAD
-            $version = "dev-$commit"
-          }
-
-          go build `
-            -ldflags "-s -w -X main.version=$version" `
-            -o poltergeist.exe `
-            .\cmd\poltergeist
-        shell: pwsh
+          /c/go/bin/go build \
+            -ldflags "-s -w -X main.version=$VERSION" \
+            -o poltergeist.exe \
+            ./cmd/poltergeist
 
       - name: Create archive
+        shell: pwsh
         run: |
           Compress-Archive -Path poltergeist.exe,README.md,LICENSE,NOTICE `
             -DestinationPath poltergeist_windows_${{ matrix.goarch }}.zip
-        shell: pwsh
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

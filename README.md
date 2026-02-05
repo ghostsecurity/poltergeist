@@ -39,9 +39,9 @@ Download the latest release for your platform from [GitHub Releases](https://git
 **Supported Platforms:**
 - Linux (x86_64, ARM64) - statically linked with Vectorscan
 - macOS (Intel & Apple Silicon) - statically linked with Vectorscan
-- Windows (x86_64) - statically linked with Intel Hyperscan
+- Windows (x86_64) - statically linked with Vectorscan (built with MinGW)
 
-Release binaries have no external dependencies (except standard system libraries on macOS).
+Release binaries have no external dependencies.
 
 ```bash
 # Linux/macOS
@@ -62,7 +62,7 @@ Expand-Archive -Path poltergeist.zip -DestinationPath .
 
 #### Building from Source
 
-If you want to build from source, you'll need Vectorscan (Linux/macOS) or Intel Hyperscan (Windows) installed:
+If you want to build from source, you'll need Vectorscan installed:
 
 **macOS:**
 ```bash
@@ -78,59 +78,36 @@ sudo apt-get install cmake ragel libboost-dev pkg-config
 bash scripts/build-vectorscan.sh
 ```
 
-**Windows:**
-```powershell
-# Install Visual Studio 2017+ with C++ tools
-# Install CMake and vcpkg
+**Windows (requires MSYS2):**
+```bash
+# Install MSYS2 from https://www.msys2.org/
+# Open MSYS2 MINGW64 terminal
 
-# Install dependencies (specific Boost components + PCRE required for Hyperscan)
-vcpkg install boost-graph:x64-windows-static boost-dynamic-bitset:x64-windows-static boost-multi-array:x64-windows-static boost-icl:x64-windows-static boost-system:x64-windows-static boost-filesystem:x64-windows-static boost-thread:x64-windows-static ragel:x64-windows-static pcre:x64-windows-static
+# Install dependencies
+pacman -S --needed base-devel git \
+  mingw-w64-x86_64-gcc \
+  mingw-w64-x86_64-cmake \
+  mingw-w64-x86_64-boost \
+  mingw-w64-x86_64-ragel \
+  mingw-w64-x86_64-pcre \
+  mingw-w64-x86_64-sqlite3 \
+  mingw-w64-x86_64-pkg-config
 
-# Build Intel Hyperscan
-pwsh scripts/build-hyperscan-windows.ps1
+# Build Vectorscan
+bash scripts/build-vectorscan-windows.sh
 ```
 
 **Build:**
 ```bash
-# Linux/macOS
+# Linux/macOS/Windows (MSYS2)
 make build
-
-# Windows (PowerShell)
-$env:CGO_ENABLED = "1"
-$buildPath = (Get-Location).Path
-
-# Convert to Unix-style paths (required for CGO on Windows)
-$unixPath = $buildPath -replace '\\', '/'
-
-# Create pkg-config file for libhs
-$pkgConfigDir = "$buildPath\build\hyperscan\windows_amd64\lib\pkgconfig"
-New-Item -ItemType Directory -Force -Path $pkgConfigDir | Out-Null
-@"
-prefix=$unixPath/build/hyperscan/windows_amd64
-exec_prefix=`${prefix}
-libdir=`${exec_prefix}/lib
-includedir=`${prefix}/include/hs
-
-Name: libhs
-Description: Intel Hyperscan
-Version: 5.4.2
-Cflags: -I`${includedir}
-Libs: -L`${libdir} -lhs
-"@ | Set-Content "$pkgConfigDir\libhs.pc"
-
-$env:PKG_CONFIG_PATH = "$unixPath/build/hyperscan/windows_amd64/lib/pkgconfig"
-$env:CGO_CFLAGS = "-I$unixPath/build/hyperscan/windows_amd64/include/hs"
-$env:CGO_LDFLAGS = "-L$unixPath/build/hyperscan/windows_amd64/lib -lhs"
-go build -o poltergeist.exe ./cmd/poltergeist
 ```
 
-### About Vectorscan/Hyperscan
+### About Vectorscan
 
-Poltergeist uses:
-- **Vectorscan** (a portable fork of Intel's Hyperscan) on Linux and macOS
-- **Intel Hyperscan** on Windows (official Windows support)
+Poltergeist uses [Vectorscan](https://github.com/VectorCamp/vectorscan), a portable fork of Intel's Hyperscan, on all platforms (Linux, macOS, and Windows).
 
-Both provide high-performance multi-pattern matching with aggressive optimizations.
+Vectorscan provides high-performance multi-pattern matching with aggressive optimizations.
 Some advanced regex features (backtracking, lookbehind, lookahead, capture groups) are not supported.
 
 Despite these limitations, rule patterns are written with extended regex syntax for
