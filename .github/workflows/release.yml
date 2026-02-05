@@ -201,17 +201,41 @@ jobs:
           pwsh -File scripts/build-hyperscan-windows.ps1
         shell: pwsh
 
+      - name: Verify Hyperscan installation
+        run: |
+          Write-Host "Checking Hyperscan build files..." -ForegroundColor Cyan
+          $buildPath = (Get-Location).Path
+          $hyperscanDir = "$buildPath\build\hyperscan\windows_amd64"
+
+          if (Test-Path "$hyperscanDir\include\hs\hs.h") {
+            Write-Host "✓ Found hs.h header" -ForegroundColor Green
+          } else {
+            Write-Host "✗ hs.h not found at $hyperscanDir\include\hs\hs.h" -ForegroundColor Red
+            Write-Host "Listing include directory:" -ForegroundColor Yellow
+            Get-ChildItem -Recurse "$hyperscanDir\include" | Select-Object FullName
+          }
+
+          if (Test-Path "$hyperscanDir\lib\hs.lib") {
+            Write-Host "✓ Found hs.lib library" -ForegroundColor Green
+          } else {
+            Write-Host "✗ hs.lib not found" -ForegroundColor Red
+          }
+        shell: pwsh
+
       - name: Create pkg-config file
         run: |
           $buildPath = (Get-Location).Path
           $pkgConfigDir = "$buildPath\build\hyperscan\windows_amd64\lib\pkgconfig"
           New-Item -ItemType Directory -Force -Path $pkgConfigDir | Out-Null
 
+          # Convert Windows paths to Unix-style for pkg-config
+          $unixPath = $buildPath -replace '\\', '/'
+
           $pcContent = @"
-          prefix=$buildPath\build\hyperscan\windows_amd64
+          prefix=$unixPath/build/hyperscan/windows_amd64
           exec_prefix=`${prefix}
-          libdir=`${exec_prefix}\lib
-          includedir=`${prefix}\include
+          libdir=`${exec_prefix}/lib
+          includedir=`${prefix}/include
 
           Name: libhs
           Description: Intel Hyperscan
@@ -221,15 +245,23 @@ jobs:
           "@
 
           Set-Content -Path "$pkgConfigDir\libhs.pc" -Value $pcContent
+          Write-Host "Created pkg-config file at $pkgConfigDir\libhs.pc" -ForegroundColor Green
         shell: pwsh
 
       - name: Build poltergeist
         run: |
           $env:CGO_ENABLED = "1"
           $buildPath = (Get-Location).Path
-          $env:PKG_CONFIG_PATH = "$buildPath\build\hyperscan\windows_amd64\lib\pkgconfig"
-          $env:CGO_CFLAGS = "-I$buildPath\build\hyperscan\windows_amd64\include"
-          $env:CGO_LDFLAGS = "-L$buildPath\build\hyperscan\windows_amd64\lib -lhs"
+
+          # Use forward slashes for CGO paths (required on Windows)
+          $unixPath = $buildPath -replace '\\', '/'
+
+          $env:PKG_CONFIG_PATH = "$unixPath/build/hyperscan/windows_amd64/lib/pkgconfig"
+          $env:CGO_CFLAGS = "-I$unixPath/build/hyperscan/windows_amd64/include"
+          $env:CGO_LDFLAGS = "-L$unixPath/build/hyperscan/windows_amd64/lib -lhs"
+
+          Write-Host "CGO_CFLAGS: $env:CGO_CFLAGS" -ForegroundColor Cyan
+          Write-Host "CGO_LDFLAGS: $env:CGO_LDFLAGS" -ForegroundColor Cyan
 
           $version = "${{ github.ref_name }}"
           if ("${{ github.event_name }}" -eq "pull_request") {

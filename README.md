@@ -99,14 +99,17 @@ make build
 $env:CGO_ENABLED = "1"
 $buildPath = (Get-Location).Path
 
+# Convert to Unix-style paths (required for CGO on Windows)
+$unixPath = $buildPath -replace '\\', '/'
+
 # Create pkg-config file for libhs
 $pkgConfigDir = "$buildPath\build\hyperscan\windows_amd64\lib\pkgconfig"
 New-Item -ItemType Directory -Force -Path $pkgConfigDir | Out-Null
 @"
-prefix=$buildPath\build\hyperscan\windows_amd64
+prefix=$unixPath/build/hyperscan/windows_amd64
 exec_prefix=`${prefix}
-libdir=`${exec_prefix}\lib
-includedir=`${prefix}\include
+libdir=`${exec_prefix}/lib
+includedir=`${prefix}/include
 
 Name: libhs
 Description: Intel Hyperscan
@@ -115,9 +118,9 @@ Cflags: -I`${includedir}
 Libs: -L`${libdir} -lhs
 "@ | Set-Content "$pkgConfigDir\libhs.pc"
 
-$env:PKG_CONFIG_PATH = "$pkgConfigDir"
-$env:CGO_CFLAGS = "-I$buildPath\build\hyperscan\windows_amd64\include"
-$env:CGO_LDFLAGS = "-L$buildPath\build\hyperscan\windows_amd64\lib -lhs"
+$env:PKG_CONFIG_PATH = "$unixPath/build/hyperscan/windows_amd64/lib/pkgconfig"
+$env:CGO_CFLAGS = "-I$unixPath/build/hyperscan/windows_amd64/include"
+$env:CGO_LDFLAGS = "-L$unixPath/build/hyperscan/windows_amd64/lib -lhs"
 go build -o poltergeist.exe ./cmd/poltergeist
 ```
 
