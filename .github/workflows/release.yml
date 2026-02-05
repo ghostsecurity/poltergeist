@@ -157,14 +157,30 @@ jobs:
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v2
 
+      - name: Cache vcpkg packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ github.workspace }}/vcpkg/installed
+            ${{ github.workspace }}/vcpkg/packages
+            ${{ github.workspace }}/vcpkg/buildtrees
+          key: vcpkg-${{ runner.os }}-${{ hashFiles('.github/workflows/release.yml') }}
+          restore-keys: |
+            vcpkg-${{ runner.os }}-
+
       - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11
         with:
           vcpkgGitCommitId: '66c0373dc7fca549e5803087b9487edfe3aca0a1'
+          doNotCache: false
 
       - name: Install vcpkg dependencies
         run: |
-          vcpkg install boost:x64-windows-static `
+          vcpkg install boost-graph:x64-windows-static `
+            boost-dynamic-bitset:x64-windows-static `
+            boost-system:x64-windows-static `
+            boost-filesystem:x64-windows-static `
+            boost-thread:x64-windows-static `
             ragel:x64-windows-static `
             pcre:x64-windows-static
         shell: pwsh
