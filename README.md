@@ -84,7 +84,7 @@ bash scripts/build-vectorscan.sh
 # Install CMake and vcpkg
 
 # Install dependencies (specific Boost components + PCRE required for Hyperscan)
-vcpkg install boost-graph:x64-windows-static boost-dynamic-bitset:x64-windows-static boost-system:x64-windows-static boost-filesystem:x64-windows-static boost-thread:x64-windows-static ragel:x64-windows-static pcre:x64-windows-static
+vcpkg install boost-graph:x64-windows-static boost-dynamic-bitset:x64-windows-static boost-multi-array:x64-windows-static boost-icl:x64-windows-static boost-system:x64-windows-static boost-filesystem:x64-windows-static boost-thread:x64-windows-static ragel:x64-windows-static pcre:x64-windows-static
 
 # Build Intel Hyperscan
 pwsh scripts/build-hyperscan-windows.ps1
