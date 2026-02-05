@@ -81,9 +81,9 @@ build_vectorscan() {
     mkdir build
     cd build
 
-    # Configure with CMake using MinGW Makefiles
+    # Configure with CMake using MSYS Makefiles (for MSYS2 environment)
     cmake .. \
-        -G "MinGW Makefiles" \
+        -G "MSYS Makefiles" \
         -DCMAKE_BUILD_TYPE=Release \
         -DBUILD_SHARED_LIBS=OFF \
         -DBUILD_STATIC_LIBS=ON \
@@ -99,10 +99,10 @@ build_vectorscan() {
     # Build
     NPROC=$(nproc 2>/dev/null || echo 4)
     echo "Building with $NPROC parallel jobs..."
-    mingw32-make -j$NPROC
+    make -j$NPROC
 
     # Install to our platform directory
-    mingw32-make install
+    make install
 
     echo "Vectorscan built successfully!"
     ls -lh "$INSTALL_PREFIX/lib/"
