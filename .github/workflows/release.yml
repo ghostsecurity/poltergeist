@@ -187,7 +187,15 @@ jobs:
             pcre:x64-windows-static
         shell: pwsh
 
+      - name: Cache Hyperscan build
+        id: cache-hyperscan
+        uses: actions/cache@v4
+        with:
+          path: build/hyperscan
+          key: hyperscan-5.4.2-${{ runner.os }}-${{ hashFiles('scripts/build-hyperscan-windows.ps1') }}
+
       - name: Build Intel Hyperscan
+        if: steps.cache-hyperscan.outputs.cache-hit != 'true'
         run: |
           $env:VCPKG_ROOT = "${{ github.workspace }}\vcpkg"
           pwsh -File scripts/build-hyperscan-windows.ps1
@@ -199,6 +207,7 @@ jobs:
           $buildPath = (Get-Location).Path
           $env:CGO_CFLAGS = "-I$buildPath\build\hyperscan\windows_amd64\include"
           $env:CGO_LDFLAGS = "-L$buildPath\build\hyperscan\windows_amd64\lib -lhs"
+          $env:PKG_CONFIG = ""
 
           $version = "${{ github.ref_name }}"
           if ("${{ github.event_name }}" -eq "pull_request") {

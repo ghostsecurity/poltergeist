@@ -95,7 +95,12 @@ pwsh scripts/build-hyperscan-windows.ps1
 # Linux/macOS
 make build
 
-# Windows
+# Windows (PowerShell)
+$env:CGO_ENABLED = "1"
+$buildPath = (Get-Location).Path
+$env:CGO_CFLAGS = "-I$buildPath\build\hyperscan\windows_amd64\include"
+$env:CGO_LDFLAGS = "-L$buildPath\build\hyperscan\windows_amd64\lib -lhs"
+$env:PKG_CONFIG = ""
 go build -o poltergeist.exe ./cmd/poltergeist
 ```
 
