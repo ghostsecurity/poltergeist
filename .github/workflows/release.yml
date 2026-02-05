@@ -194,7 +194,7 @@ jobs:
           export CGO_ENABLED=1
           export PKG_CONFIG_PATH="$(pwd)/build/vectorscan/windows_amd64/lib/pkgconfig"
           export CGO_CFLAGS="-I$(pwd)/build/vectorscan/windows_amd64/include"
-          export CGO_LDFLAGS="-L$(pwd)/build/vectorscan/windows_amd64/lib -lhs -lstdc++ -static-libgcc -static-libstdc++"
+          export CGO_LDFLAGS="-L$(pwd)/build/vectorscan/windows_amd64/lib -lhs -static-libgcc -static-libstdc++"
 
           VERSION="${{ github.ref_name }}"
           if [ "${{ github.event_name }}" = "pull_request" ]; then

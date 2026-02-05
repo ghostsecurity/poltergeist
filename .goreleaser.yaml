@@ -81,7 +81,7 @@ builds:
         env:
           - CGO_ENABLED=1
           - CGO_CFLAGS=-I{{.Env.PWD}}/build/vectorscan/windows_amd64/include
-          - CGO_LDFLAGS=-L{{.Env.PWD}}/build/vectorscan/windows_amd64/lib -lhs -lstdc++ -static-libgcc -static-libstdc++
+          - CGO_LDFLAGS=-L{{.Env.PWD}}/build/vectorscan/windows_amd64/lib -lhs -static-libgcc -static-libstdc++
         ldflags:
           - -s -w
           - -X main.version={{.Version}}
