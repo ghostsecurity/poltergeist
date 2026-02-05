@@ -19,6 +19,7 @@ builds:
     goos:
       - linux
       - darwin
+      - windows
     goarch:
       - amd64
       - arm64
@@ -71,6 +72,16 @@ builds:
           - CGO_ENABLED=1
           - CGO_CFLAGS=-I{{.Env.PWD}}/build/vectorscan/darwin_arm64/include
           - CGO_LDFLAGS=-L{{.Env.PWD}}/build/vectorscan/darwin_arm64/lib -lhs -lc++
+        ldflags:
+          - -s -w
+          - -X main.version={{.Version}}
+
+      - goos: windows
+        goarch: amd64
+        env:
+          - CGO_ENABLED=1
+          - CGO_CFLAGS=-I{{.Env.PWD}}/build/hyperscan/windows_amd64/include
+          - CGO_LDFLAGS=-L{{.Env.PWD}}/build/hyperscan/windows_amd64/lib -lhs
         ldflags:
           - -s -w
           - -X main.version={{.Version}}

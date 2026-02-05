@@ -37,10 +37,11 @@ Some decisions were made in the interest of performance and simplicity:
 Download the latest release for your platform from [GitHub Releases](https://github.com/ghostsecurity/poltergeist/releases).
 
 **Supported Platforms:**
-- Linux (x86_64)
-- macOS (Intel & Apple Silicon)
+- Linux (x86_64, ARM64) - statically linked with Vectorscan
+- macOS (Intel & Apple Silicon) - statically linked with Vectorscan
+- Windows (x86_64) - statically linked with Intel Hyperscan
 
-Release binaries are statically linked with Vectorscan and have no external dependencies (except standard system libraries on macOS).
+Release binaries have no external dependencies (except standard system libraries on macOS).
 
 ```bash
 # Linux/macOS
@@ -52,9 +53,16 @@ tar xzf poltergeist_*.tar.gz
 sudo mv poltergeist /usr/local/bin/
 ```
 
+```powershell
+# Windows (PowerShell)
+Invoke-WebRequest -Uri "https://github.com/ghostsecurity/poltergeist/releases/download/v2.0.0/poltergeist_windows_amd64.zip" -OutFile "poltergeist.zip"
+Expand-Archive -Path poltergeist.zip -DestinationPath .
+.\poltergeist.exe --version
+```
+
 #### Building from Source
 
-If you want to build from source, you'll need Vectorscan installed:
+If you want to build from source, you'll need Vectorscan (Linux/macOS) or Intel Hyperscan (Windows) installed:
 
 **macOS:**
 ```bash
@@ -70,20 +78,38 @@ sudo apt-get install cmake ragel libboost-dev pkg-config
 bash scripts/build-vectorscan.sh
 ```
 
+**Windows:**
+```powershell
+# Install Visual Studio 2017+ with C++ tools
+# Install CMake and vcpkg
+
+# Install dependencies
+vcpkg install boost-system:x64-windows-static boost-filesystem:x64-windows-static boost-thread:x64-windows-static ragel:x64-windows-static pcre:x64-windows-static
+
+# Build Intel Hyperscan
+pwsh scripts/build-hyperscan-windows.ps1
+```
+
 **Build:**
 ```bash
+# Linux/macOS
 make build
+
+# Windows
+go build -o poltergeist.exe ./cmd/poltergeist
 ```
 
 ### About Vectorscan/Hyperscan
 
-Poltergeist uses Vectorscan (a portable fork of Intel's Hyperscan) for high-performance multi-pattern matching.
+Poltergeist uses:
+- **Vectorscan** (a portable fork of Intel's Hyperscan) on Linux and macOS
+- **Intel Hyperscan** on Windows (official Windows support)
 
-The main benefit of Vectorscan is multi-pattern matching and aggressive optimizations.
+Both provide high-performance multi-pattern matching with aggressive optimizations.
 Some advanced regex features (backtracking, lookbehind, lookahead, capture groups) are not supported.
 
 Despite these limitations, rule patterns are written with extended regex syntax for
-flexibility. While initial matches use Vectorscan, the final match location and capture
+flexibility. While initial matches use Hyperscan/Vectorscan, the final match location and capture
 groups are refined with Go regex for maximum compatibility.
 
 ## Build from Source

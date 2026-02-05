@@ -12,12 +12,12 @@ permissions:
   contents: write
 
 jobs:
-  # Build for Linux (amd64 only for now)
+  # Build for Linux
   build-linux:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        goarch: [amd64]  # arm64 can be added later with cross-compilation setup
+        goarch: [amd64, arm64]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,6 +41,13 @@ jobs:
             libboost-dev \
             libsqlite3-dev \
             libpcap-dev
+
+      - name: Install ARM64 cross-compiler
+        if: matrix.goarch == 'arm64'
+        run: |
+          sudo apt-get install -y \
+            gcc-aarch64-linux-gnu \
+            g++-aarch64-linux-gnu
 
       - name: Build Vectorscan
         run: bash scripts/build-vectorscan.sh
@@ -129,9 +136,81 @@ jobs:
           name: darwin-${{ matrix.goarch }}
           path: poltergeist_darwin_${{ matrix.goarch }}.tar.gz
 
+  # Build for Windows
+  build-windows:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        goarch: [amd64]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: 'a42af01b72c28a8e1d7b48107b33e4f286a55ef6'
+
+      - name: Install vcpkg dependencies
+        run: |
+          vcpkg install boost-system:x64-windows-static `
+            boost-filesystem:x64-windows-static `
+            boost-thread:x64-windows-static `
+            ragel:x64-windows-static `
+            pcre:x64-windows-static
+        shell: pwsh
+
+      - name: Build Intel Hyperscan
+        run: |
+          $env:VCPKG_ROOT = "${{ github.workspace }}\vcpkg"
+          pwsh -File scripts/build-hyperscan-windows.ps1
+        shell: pwsh
+
+      - name: Build poltergeist
+        run: |
+          $env:CGO_ENABLED = "1"
+          $buildPath = (Get-Location).Path
+          $env:CGO_CFLAGS = "-I$buildPath\build\hyperscan\windows_amd64\include"
+          $env:CGO_LDFLAGS = "-L$buildPath\build\hyperscan\windows_amd64\lib -lhs"
+
+          $version = "${{ github.ref_name }}"
+          if ("${{ github.event_name }}" -eq "pull_request") {
+            $commit = git rev-parse --short HEAD
+            $version = "dev-$commit"
+          }
+
+          go build `
+            -ldflags "-s -w -X main.version=$version" `
+            -o poltergeist.exe `
+            .\cmd\poltergeist
+        shell: pwsh
+
+      - name: Create archive
+        run: |
+          Compress-Archive -Path poltergeist.exe,README.md,LICENSE,NOTICE `
+            -DestinationPath poltergeist_windows_${{ matrix.goarch }}.zip
+        shell: pwsh
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-${{ matrix.goarch }}
+          path: poltergeist_windows_${{ matrix.goarch }}.zip
+
   # Create the GitHub release
   create-release:
-    needs: [build-linux, build-macos]
+    needs: [build-linux, build-macos, build-windows]
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     steps:
@@ -149,7 +228,9 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: dist/**/*.tar.gz
+          files: |
+            dist/**/*.tar.gz
+            dist/**/*.zip
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
