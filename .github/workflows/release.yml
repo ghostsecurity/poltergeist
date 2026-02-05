@@ -201,13 +201,35 @@ jobs:
           pwsh -File scripts/build-hyperscan-windows.ps1
         shell: pwsh
 
+      - name: Create pkg-config file
+        run: |
+          $buildPath = (Get-Location).Path
+          $pkgConfigDir = "$buildPath\build\hyperscan\windows_amd64\lib\pkgconfig"
+          New-Item -ItemType Directory -Force -Path $pkgConfigDir | Out-Null
+
+          $pcContent = @"
+          prefix=$buildPath\build\hyperscan\windows_amd64
+          exec_prefix=`${prefix}
+          libdir=`${exec_prefix}\lib
+          includedir=`${prefix}\include
+
+          Name: libhs
+          Description: Intel Hyperscan
+          Version: 5.4.2
+          Cflags: -I`${includedir}
+          Libs: -L`${libdir} -lhs
+          "@
+
+          Set-Content -Path "$pkgConfigDir\libhs.pc" -Value $pcContent
+        shell: pwsh
+
       - name: Build poltergeist
         run: |
           $env:CGO_ENABLED = "1"
           $buildPath = (Get-Location).Path
+          $env:PKG_CONFIG_PATH = "$buildPath\build\hyperscan\windows_amd64\lib\pkgconfig"
           $env:CGO_CFLAGS = "-I$buildPath\build\hyperscan\windows_amd64\include"
           $env:CGO_LDFLAGS = "-L$buildPath\build\hyperscan\windows_amd64\lib -lhs"
-          $env:PKG_CONFIG = ""
 
           $version = "${{ github.ref_name }}"
           if ("${{ github.event_name }}" -eq "pull_request") {

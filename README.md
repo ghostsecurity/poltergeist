@@ -98,9 +98,26 @@ make build
 # Windows (PowerShell)
 $env:CGO_ENABLED = "1"
 $buildPath = (Get-Location).Path
+
+# Create pkg-config file for libhs
+$pkgConfigDir = "$buildPath\build\hyperscan\windows_amd64\lib\pkgconfig"
+New-Item -ItemType Directory -Force -Path $pkgConfigDir | Out-Null
+@"
+prefix=$buildPath\build\hyperscan\windows_amd64
+exec_prefix=`${prefix}
+libdir=`${exec_prefix}\lib
+includedir=`${prefix}\include
+
+Name: libhs
+Description: Intel Hyperscan
+Version: 5.4.2
+Cflags: -I`${includedir}
+Libs: -L`${libdir} -lhs
+"@ | Set-Content "$pkgConfigDir\libhs.pc"
+
+$env:PKG_CONFIG_PATH = "$pkgConfigDir"
 $env:CGO_CFLAGS = "-I$buildPath\build\hyperscan\windows_amd64\include"
 $env:CGO_LDFLAGS = "-L$buildPath\build\hyperscan\windows_amd64\lib -lhs"
-$env:PKG_CONFIG = ""
 go build -o poltergeist.exe ./cmd/poltergeist
 ```
 
