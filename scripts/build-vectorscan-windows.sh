@@ -77,6 +77,10 @@ build_vectorscan() {
     tar xzf vectorscan.tar.gz
     cd "vectorscan-vectorscan-${VECTORSCAN_VERSION}"
 
+    echo "Applying Windows compatibility patches..."
+    # Fix type mismatch in fdr_engine_description.cpp for Windows (size_t is unsigned long long on Win64)
+    sed -i 's/std::min(min_len - 1, 2UL)/std::min(min_len - 1, 2ULL)/g' src/fdr/fdr_engine_description.cpp
+
     echo "Building static library with MinGW..."
     mkdir build
     cd build
