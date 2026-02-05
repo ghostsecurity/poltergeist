@@ -207,13 +207,19 @@ jobs:
           $buildPath = (Get-Location).Path
           $hyperscanDir = "$buildPath\build\hyperscan\windows_amd64"
 
-          if (Test-Path "$hyperscanDir\include\hs\hs.h") {
-            Write-Host "✓ Found hs.h header" -ForegroundColor Green
+          Write-Host "Listing all files in include directory:" -ForegroundColor Yellow
+          Get-ChildItem -Recurse "$hyperscanDir\include" | Select-Object FullName
+
+          if (Test-Path "$hyperscanDir\include\hs.h") {
+            Write-Host "✓ Found hs.h header at include\hs.h" -ForegroundColor Green
+          } elseif (Test-Path "$hyperscanDir\include\hs\hs.h") {
+            Write-Host "⚠ Found hs.h header at include\hs\hs.h (in subdirectory)" -ForegroundColor Yellow
           } else {
-            Write-Host "✗ hs.h not found at $hyperscanDir\include\hs\hs.h" -ForegroundColor Red
-            Write-Host "Listing include directory:" -ForegroundColor Yellow
-            Get-ChildItem -Recurse "$hyperscanDir\include" | Select-Object FullName
+            Write-Host "✗ hs.h not found" -ForegroundColor Red
           }
+
+          Write-Host "Listing all files in lib directory:" -ForegroundColor Yellow
+          Get-ChildItem "$hyperscanDir\lib" | Select-Object Name, Length
 
           if (Test-Path "$hyperscanDir\lib\hs.lib") {
             Write-Host "✓ Found hs.lib library" -ForegroundColor Green
