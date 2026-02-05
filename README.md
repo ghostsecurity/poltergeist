@@ -99,7 +99,7 @@ bash scripts/build-vectorscan-windows.sh
 # Build standalone binary (in MINGW64 terminal)
 CGO_ENABLED=1 \
 CGO_CFLAGS="-I$(pwd)/build/vectorscan/windows_amd64/include" \
-CGO_LDFLAGS="-L$(pwd)/build/vectorscan/windows_amd64/lib -lhs -static-libgcc -static-libstdc++" \
+CGO_LDFLAGS="-L$(pwd)/build/vectorscan/windows_amd64/lib -lhs -static" \
 go build -ldflags "-s -w" -o poltergeist.exe ./cmd/poltergeist
 ```
 
