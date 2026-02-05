@@ -164,9 +164,7 @@ jobs:
 
       - name: Install vcpkg dependencies
         run: |
-          vcpkg install boost-system:x64-windows-static `
-            boost-filesystem:x64-windows-static `
-            boost-thread:x64-windows-static `
+          vcpkg install boost:x64-windows-static `
             ragel:x64-windows-static `
             pcre:x64-windows-static
         shell: pwsh
