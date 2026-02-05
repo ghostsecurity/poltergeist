@@ -98,6 +98,18 @@ try {
 
     Write-Host "Configuring with CMake..." -ForegroundColor Cyan
 
+    # Determine vcpkg toolchain file
+    $VcpkgToolchain = $null
+    if ($env:VCPKG_ROOT) {
+        $VcpkgToolchain = "$env:VCPKG_ROOT\scripts\buildsystems\vcpkg.cmake"
+        Write-Host "Using vcpkg toolchain from VCPKG_ROOT: $VcpkgToolchain" -ForegroundColor Green
+    } elseif (Get-Command vcpkg -ErrorAction SilentlyContinue) {
+        $VcpkgPath = (Get-Command vcpkg).Source
+        $VcpkgRoot = Split-Path (Split-Path $VcpkgPath)
+        $VcpkgToolchain = "$VcpkgRoot\scripts\buildsystems\vcpkg.cmake"
+        Write-Host "Using vcpkg toolchain from vcpkg command: $VcpkgToolchain" -ForegroundColor Green
+    }
+
     # Configure CMake for static library build
     # Use Visual Studio generator
     $CMakeArgs = @(
@@ -109,17 +121,16 @@ try {
         "-DBUILD_TOOLS=OFF",
         "-DCMAKE_INSTALL_PREFIX=$InstallPrefix",
         "-G", "Visual Studio 17 2022",
-        "-A", "x64"
+        "-A", "x64",
+        "-DVCPKG_TARGET_TRIPLET=x64-windows-static"
     )
 
-    # If vcpkg is available, use it for dependencies
-    if (Get-Command vcpkg -ErrorAction SilentlyContinue) {
-        $VcpkgRoot = & vcpkg.exe integrate show | Select-String "CMake projects should use" | ForEach-Object {
-            $_.Line -replace '.*CMake projects should use: "(.*)".*', '$1'
-        }
-        if ($VcpkgRoot) {
-            $CMakeArgs += "-DCMAKE_TOOLCHAIN_FILE=$VcpkgRoot"
-        }
+    # Add vcpkg toolchain file if found
+    if ($VcpkgToolchain -and (Test-Path $VcpkgToolchain)) {
+        $CMakeArgs += "-DCMAKE_TOOLCHAIN_FILE=$VcpkgToolchain"
+        Write-Host "✓ vcpkg toolchain file found and will be used" -ForegroundColor Green
+    } else {
+        Write-Host "Warning: vcpkg toolchain file not found. Dependencies may not be located." -ForegroundColor Yellow
     }
 
     & cmake @CMakeArgs
