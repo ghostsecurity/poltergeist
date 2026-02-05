@@ -93,6 +93,7 @@ build_vectorscan() {
         -DBUILD_STATIC_LIBS=ON \
         -DBUILD_EXAMPLES=OFF \
         -DBUILD_TOOLS=OFF \
+        -DBUILD_UNIT=OFF \
         -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" \
         -DFAT_RUNTIME=OFF \
         -DBUILD_AVX2=ON \
