@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write  # Required for cosign keyless signing
 
 jobs:
   # Build for Linux
@@ -261,12 +262,39 @@ jobs:
       - name: Display structure
         run: ls -R dist/
 
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3.0.4
+
+      - name: Sign release artifacts
+        run: |
+          # Sign all tar.gz files
+          for file in dist/**/*.tar.gz; do
+            if [ -f "$file" ]; then
+              echo "Signing $file"
+              cosign sign-blob --yes "$file" \
+                --output-signature "${file}.sig" \
+                --output-certificate "${file}.crt"
+            fi
+          done
+
+          # Sign all zip files
+          for file in dist/**/*.zip; do
+            if [ -f "$file" ]; then
+              echo "Signing $file"
+              cosign sign-blob --yes "$file" \
+                --output-signature "${file}.sig" \
+                --output-certificate "${file}.crt"
+            fi
+          done
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
             dist/**/*.tar.gz
             dist/**/*.zip
+            dist/**/*.sig
+            dist/**/*.crt
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

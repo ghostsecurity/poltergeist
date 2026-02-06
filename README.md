@@ -60,6 +60,38 @@ Expand-Archive -Path poltergeist.zip -DestinationPath .
 .\poltergeist.exe --version
 ```
 
+#### Verifying Release Signatures
+
+All release artifacts are signed with [Sigstore cosign](https://github.com/sigstore/cosign) for supply chain security.
+
+```bash
+# Install cosign
+brew install cosign  # macOS
+# or download from https://github.com/sigstore/cosign/releases
+
+# Verify a release artifact
+cosign verify-blob poltergeist_linux_amd64.tar.gz \
+  --signature poltergeist_linux_amd64.tar.gz.sig \
+  --certificate poltergeist_linux_amd64.tar.gz.crt \
+  --certificate-identity-regexp 'https://github.com/ghostsecurity/poltergeist/.github/workflows/release.yml' \
+  --certificate-oidc-issuer 'https://token.actions.githubusercontent.com'
+```
+
+#### Platform-Specific Notes
+
+**macOS Security Warning:**
+
+When running the binary on macOS, you may see a Gatekeeper warning. This is because the binary is not signed with an Apple Developer certificate. To bypass:
+
+```bash
+# Remove quarantine attribute
+xattr -d com.apple.quarantine ./poltergeist
+
+# Or right-click the binary in Finder and select "Open"
+```
+
+The binary is safe to run - verify with cosign signatures above.
+
 #### Building from Source
 
 If you want to build from source, you'll need Vectorscan installed:
