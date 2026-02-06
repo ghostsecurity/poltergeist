@@ -49,24 +49,28 @@ import (
 
 // ScanResult represents a match found in a file
 type ScanResult struct {
-	FilePath   string `json:"file_path"`
-	LineNumber int    `json:"line_number"`
-	Match      string `json:"match"`     // The original matched text
-	Redacted   string `json:"redacted"`  // The redacted version of the match
-	RuleName   string `json:"rule_name"` // Name of the rule that matched
-	RuleID     string `json:"rule_id"`   // ID of the rule that matched
-	Entropy    bool   `json:"entropy"`   // Whether the match met the minimum entropy requirement
+	FilePath                string  `json:"file_path"`
+	LineNumber              int     `json:"line_number"`
+	Match                   string  `json:"-"`                           // The original matched text (excluded from JSON)
+	Redacted                string  `json:"redacted"`                    // The redacted version of the match
+	RuleName                string  `json:"rule_name"`                   // Name of the rule that matched
+	RuleID                  string  `json:"rule_id"`                     // ID of the rule that matched
+	Entropy                 float64 `json:"entropy"`                     // Calculated Shannon entropy of the match
+	RuleEntropyThreshold    float64 `json:"rule_entropy_threshold"`      // Entropy threshold from the rule
+	RuleEntropyThresholdMet bool    `json:"rule_entropy_threshold_met"`  // Whether the match met the minimum entropy requirement
 }
 
 // MatchResult represents a single pattern match within content
 type MatchResult struct {
-	Start    int    // Start position in content
-	End      int    // End position in content
-	Match    string // The matched text
-	Redacted string // The redacted text
-	RuleName string // Name of the rule that matched
-	RuleID   string // ID of the rule that matched
-	Entropy  bool   // Whether the match met the minimum entropy requirement
+	Start                   int     // Start position in content
+	End                     int     // End position in content
+	Match                   string  // The matched text
+	Redacted                string  // The redacted text
+	RuleName                string  // Name of the rule that matched
+	RuleID                  string  // ID of the rule that matched
+	Entropy                 float64 // Calculated Shannon entropy of the match
+	RuleEntropyThreshold    float64 // Entropy threshold from the rule
+	RuleEntropyThresholdMet bool    // Whether the match met the minimum entropy requirement
 }
 
 // ScanMetrics tracks scanning statistics
@@ -332,15 +336,21 @@ func (s *Scanner) scanFile(filePath string) ([]ScanResult, error) {
 
 		// Find all matches in this line
 		matches := s.Engine.FindAllInLine(line)
+
+		// Filter out generic matches that overlap with non-generic matches
+		matches = filterOverlappingGenericMatches(matches)
+
 		for _, match := range matches {
 			results = append(results, ScanResult{
-				FilePath:   filePath,
-				LineNumber: lineNumber,
-				Match:      match.Match,
-				Redacted:   match.Redacted,
-				RuleName:   match.RuleName,
-				RuleID:     match.RuleID,
-				Entropy:    match.Entropy,
+				FilePath:                filePath,
+				LineNumber:              lineNumber,
+				Match:                   match.Match,
+				Redacted:                match.Redacted,
+				RuleName:                match.RuleName,
+				RuleID:                  match.RuleID,
+				Entropy:                 match.Entropy,
+				RuleEntropyThreshold:    match.RuleEntropyThreshold,
+				RuleEntropyThresholdMet: match.RuleEntropyThresholdMet,
 			})
 		}
 
@@ -352,6 +362,66 @@ func (s *Scanner) scanFile(filePath string) ([]ScanResult, error) {
 	}
 
 	return results, nil
+}
+
+// isGenericRule returns true if the rule ID indicates a generic rule
+func isGenericRule(ruleID string) bool {
+	return strings.HasPrefix(ruleID, "ghost.generic")
+}
+
+// matchesOverlap returns true if two matches have overlapping positions
+func matchesOverlap(a, b MatchResult) bool {
+	// Two ranges [a.Start, a.End) and [b.Start, b.End) overlap if:
+	// a.Start < b.End AND b.Start < a.End
+	return a.Start < b.End && b.Start < a.End
+}
+
+// filterOverlappingGenericMatches removes generic matches that overlap with non-generic matches.
+// When a specific rule (e.g., ghost.anthropic.1) matches the same position as a generic rule
+// (e.g., ghost.generic.1), the generic match is filtered out to reduce noise.
+func filterOverlappingGenericMatches(matches []MatchResult) []MatchResult {
+	if len(matches) <= 1 {
+		return matches
+	}
+
+	// Separate generic and non-generic matches
+	var genericMatches []MatchResult
+	var nonGenericMatches []MatchResult
+
+	for _, m := range matches {
+		if isGenericRule(m.RuleID) {
+			genericMatches = append(genericMatches, m)
+		} else {
+			nonGenericMatches = append(nonGenericMatches, m)
+		}
+	}
+
+	// If no generic or no non-generic matches, return as-is
+	if len(genericMatches) == 0 || len(nonGenericMatches) == 0 {
+		return matches
+	}
+
+	// Filter out generic matches that overlap with any non-generic match
+	var filteredGeneric []MatchResult
+	for _, gm := range genericMatches {
+		overlaps := false
+		for _, ngm := range nonGenericMatches {
+			if matchesOverlap(gm, ngm) {
+				overlaps = true
+				break
+			}
+		}
+		if !overlaps {
+			filteredGeneric = append(filteredGeneric, gm)
+		}
+	}
+
+	// Combine non-generic matches with filtered generic matches
+	result := make([]MatchResult, 0, len(nonGenericMatches)+len(filteredGeneric))
+	result = append(result, nonGenericMatches...)
+	result = append(result, filteredGeneric...)
+
+	return result
 }
 
 // isBinaryFile attempts to determine if a file is binary

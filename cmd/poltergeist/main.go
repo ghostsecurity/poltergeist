@@ -47,7 +47,7 @@ func printUsage() {
 	fmt.Fprintf(os.Stderr, "\nIf no rules are specified via -rules flag or command-line patterns,\n")
 	fmt.Fprintf(os.Stderr, "the tool will use built-in detection rules for common secrets.\n")
 	fmt.Fprintf(os.Stderr, "\nBy default, only matches that meet minimum entropy requirements are shown.\n")
-	fmt.Fprintf(os.Stderr, "Use --show-low-entropy to see all matches including low-entropy false positives.\n")
+	fmt.Fprintf(os.Stderr, "Use -low-entropy to see all matches including low-entropy false positives.\n")
 }
 
 // Version information (set by build)
@@ -180,7 +180,7 @@ func main() {
 	var lowEntropyCount int
 
 	for _, result := range results {
-		if result.Entropy || *lowEntropyFlag {
+		if result.RuleEntropyThresholdMet || *lowEntropyFlag {
 			filteredResults = append(filteredResults, result)
 		} else {
 			lowEntropyCount++
@@ -298,6 +298,14 @@ func formatText(results []poltergeist.ScanResult, filesScanned, filesSkipped, to
 			if match.RuleID != "" {
 				sb.WriteString(fmt.Sprintf("     ID: %s\n", match.RuleID))
 			}
+
+			// Display entropy information
+			metStr := "No"
+			if match.RuleEntropyThresholdMet {
+				metStr = "Yes"
+			}
+			sb.WriteString(fmt.Sprintf("     Entropy: %.2f | Threshold: %.2f | Met: %s\n",
+				match.Entropy, match.RuleEntropyThreshold, metStr))
 		}
 		sb.WriteString("\n")
 	}
@@ -315,12 +323,12 @@ func formatText(results []poltergeist.ScanResult, filesScanned, filesSkipped, to
 func formatJSON(results []poltergeist.ScanResult, filesScanned, filesSkipped, totalBytes, matchesFound int64, lowEntropyCount int) (string, int) {
 	output := struct {
 		Summary struct {
-			FilesScanned   int64 `json:"files_scanned"`
-			FilesSkipped   int64 `json:"files_skipped"`
-			TotalBytes     int64 `json:"total_bytes"`
-			MatchesFound   int64 `json:"matches_found"`
-			HighEntropy    int   `json:"high_entropy_matches"`
-			LowEntropy     int   `json:"low_entropy_matches"`
+			FilesScanned int64 `json:"files_scanned"`
+			FilesSkipped int64 `json:"files_skipped"`
+			TotalBytes   int64 `json:"total_bytes"`
+			MatchesFound int64 `json:"matches_found"`
+			HighEntropy  int   `json:"high_entropy_matches"`
+			LowEntropy   int   `json:"low_entropy_matches"`
 		} `json:"summary"`
 		Results []poltergeist.ScanResult `json:"results"`
 	}{
@@ -394,11 +402,13 @@ func formatMarkdown(results []poltergeist.ScanResult, scanPath string, filesScan
 				sb.WriteString(fmt.Sprintf("- **Rule ID:** %s\n", match.RuleID))
 			}
 			sb.WriteString(fmt.Sprintf("- **Match:** `%s`\n", match.Redacted))
-			if match.Entropy {
-				sb.WriteString("- **Entropy:** ✓ High\n")
-			} else {
-				sb.WriteString("- **Entropy:** ✗ Low\n")
+			sb.WriteString(fmt.Sprintf("- **Entropy:** %.2f\n", match.Entropy))
+			sb.WriteString(fmt.Sprintf("- **Threshold:** %.2f\n", match.RuleEntropyThreshold))
+			metStr := "No"
+			if match.RuleEntropyThresholdMet {
+				metStr = "Yes"
 			}
+			sb.WriteString(fmt.Sprintf("- **Threshold Met:** %s\n", metStr))
 			sb.WriteString("\n")
 		}
 	}

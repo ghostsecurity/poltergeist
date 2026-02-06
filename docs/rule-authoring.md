@@ -120,7 +120,7 @@ Use word boundaries (`\b`) when possible to reduce false positives. Word boundar
 
 Use entropy to filter out false positives. True secrets, keys, and cryptographic material should have high entropy. Specifying the `entropy` field forces the rule to only match secrets with an entropy greater than or equal to the specified value.
 
-⚠️ **Partially implemented**: we aren't yet checking the entropy of the match.
+The calculated Shannon entropy and the rule threshold are both included in the output, allowing you to see exactly why a match was flagged or filtered.
 
 ### Stop Words
 
