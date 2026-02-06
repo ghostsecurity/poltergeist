@@ -155,7 +155,6 @@ func (e *HyperscanEngine) FindAllInLine(line string) []MatchResult {
 	// Scan the line
 	err := e.database.Scan([]byte(line), scratch, func(id uint, from, to uint64, flags uint, data any) error {
 		match := line[from:to]
-		redacted := match
 
 		// Use the pattern ID to identify which rule matched
 		rule := e.rules[id]
@@ -173,6 +172,7 @@ func (e *HyperscanEngine) FindAllInLine(line string) []MatchResult {
 		}
 
 		// Always redact the match - never show raw secrets
+		var redacted string
 		if len(rule.Redact) > 0 &&
 			rule.Redact[0] > 0 &&
 			rule.Redact[1] > 0 &&
@@ -231,12 +231,12 @@ func (e *HyperscanEngine) FindAllInContent(content []byte) []MatchResult {
 	// Scan the content
 	err := e.database.Scan(content, scratch, func(id uint, from, to uint64, flags uint, data any) error {
 		match := string(content[from:to])
-		redacted := match
 
 		// Use the pattern ID to identify which rule matched
 		rule := e.rules[id]
 
 		// Always redact the match - never show raw secrets
+		var redacted string
 		if len(rule.Redact) > 0 &&
 			rule.Redact[0] > 0 &&
 			rule.Redact[1] > 0 &&
@@ -329,9 +329,8 @@ func (e *GoRegexEngine) FindAllInLine(line string) []MatchResult {
 		matches := pattern.FindAllString(line, -1)
 
 		for _, match := range matches {
-			redacted := match
-
 			// Always redact the match - never show raw secrets
+			var redacted string
 			if len(e.rules[i].Redact) > 0 &&
 				e.rules[i].Redact[0] > 0 &&
 				e.rules[i].Redact[1] > 0 &&
@@ -375,9 +374,9 @@ func (e *GoRegexEngine) FindAllInContent(content []byte) []MatchResult {
 		matches := pattern.FindAllIndex(content, -1)
 		for _, match := range matches {
 			matchText := string(content[match[0]:match[1]])
-			redacted := matchText
 
 			// Always redact the match - never show raw secrets
+			var redacted string
 			if len(e.rules[i].Redact) > 0 &&
 				e.rules[i].Redact[0] > 0 &&
 				e.rules[i].Redact[1] > 0 &&
