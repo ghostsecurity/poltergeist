@@ -49,7 +49,15 @@ jobs:
             gcc-aarch64-linux-gnu \
             g++-aarch64-linux-gnu
 
+      - name: Cache Vectorscan build
+        id: cache-vectorscan
+        uses: actions/cache@v4
+        with:
+          path: build/vectorscan
+          key: vectorscan-${{ runner.os }}-${{ matrix.goarch }}-${{ hashFiles('scripts/build-vectorscan.sh') }}
+
       - name: Build Vectorscan
+        if: steps.cache-vectorscan.outputs.cache-hit != 'true'
         run: bash scripts/build-vectorscan.sh
 
       - name: Build poltergeist
@@ -105,7 +113,15 @@ jobs:
       - name: Install build dependencies
         run: brew install cmake ragel boost pkg-config sqlite libpcap
 
+      - name: Cache Vectorscan build
+        id: cache-vectorscan
+        uses: actions/cache@v4
+        with:
+          path: build/vectorscan
+          key: vectorscan-${{ runner.os }}-${{ matrix.goarch }}-${{ hashFiles('scripts/build-vectorscan.sh') }}
+
       - name: Build Vectorscan
+        if: steps.cache-vectorscan.outputs.cache-hit != 'true'
         run: bash scripts/build-vectorscan.sh
 
       - name: Build poltergeist
@@ -178,12 +194,22 @@ jobs:
           unzip -q go.zip -d /c/
           echo "/c/go/bin" >> $GITHUB_PATH
 
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
       - name: Cache Vectorscan build
         id: cache-vectorscan
         uses: actions/cache@v4
         with:
           path: build/vectorscan
-          key: vectorscan-5.4.12-mingw-${{ runner.os }}-${{ hashFiles('scripts/build-vectorscan-windows.sh') }}
+          key: vectorscan-${{ runner.os }}-${{ matrix.goarch }}-${{ hashFiles('scripts/build-vectorscan-windows.sh') }}
 
       - name: Build Vectorscan
         if: steps.cache-vectorscan.outputs.cache-hit != 'true'
