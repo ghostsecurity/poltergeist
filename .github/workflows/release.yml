@@ -273,8 +273,7 @@ jobs:
             if [ -f "$file" ]; then
               echo "Signing $file"
               cosign sign-blob --yes "$file" \
-                --output-signature "${file}.sig" \
-                --output-certificate "${file}.crt"
+                --bundle "${file}.sigstore.json"
             fi
           done
 
@@ -283,8 +282,7 @@ jobs:
             if [ -f "$file" ]; then
               echo "Signing $file"
               cosign sign-blob --yes "$file" \
-                --output-signature "${file}.sig" \
-                --output-certificate "${file}.crt"
+                --bundle "${file}.sigstore.json"
             fi
           done
 
@@ -294,8 +292,7 @@ jobs:
           files: |
             dist/**/*.tar.gz
             dist/**/*.zip
-            dist/**/*.sig
-            dist/**/*.crt
+            dist/**/*.sigstore.json
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

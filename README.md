@@ -71,8 +71,7 @@ brew install cosign  # macOS
 
 # Verify a release artifact
 cosign verify-blob poltergeist_linux_amd64.tar.gz \
-  --signature poltergeist_linux_amd64.tar.gz.sig \
-  --certificate poltergeist_linux_amd64.tar.gz.crt \
+  --bundle poltergeist_linux_amd64.tar.gz.sigstore.json \
   --certificate-identity-regexp 'https://github.com/ghostsecurity/poltergeist/.github/workflows/release.yml' \
   --certificate-oidc-issuer 'https://token.actions.githubusercontent.com'
 ```
