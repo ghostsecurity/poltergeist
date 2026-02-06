@@ -10,14 +10,15 @@ on:
 
 permissions:
   contents: write
+  id-token: write  # Required for cosign keyless signing
 
 jobs:
-  # Build for Linux (amd64 only for now)
+  # Build for Linux
   build-linux:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        goarch: [amd64]  # arm64 can be added later with cross-compilation setup
+        goarch: [amd64, arm64]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -42,7 +43,22 @@ jobs:
             libsqlite3-dev \
             libpcap-dev
 
+      - name: Install ARM64 cross-compiler
+        if: matrix.goarch == 'arm64'
+        run: |
+          sudo apt-get install -y \
+            gcc-aarch64-linux-gnu \
+            g++-aarch64-linux-gnu
+
+      - name: Cache Vectorscan build
+        id: cache-vectorscan
+        uses: actions/cache@v4
+        with:
+          path: build/vectorscan
+          key: vectorscan-${{ runner.os }}-${{ matrix.goarch }}-${{ hashFiles('scripts/build-vectorscan.sh') }}
+
       - name: Build Vectorscan
+        if: steps.cache-vectorscan.outputs.cache-hit != 'true'
         run: bash scripts/build-vectorscan.sh
 
       - name: Build poltergeist
@@ -98,7 +114,15 @@ jobs:
       - name: Install build dependencies
         run: brew install cmake ragel boost pkg-config sqlite libpcap
 
+      - name: Cache Vectorscan build
+        id: cache-vectorscan
+        uses: actions/cache@v4
+        with:
+          path: build/vectorscan
+          key: vectorscan-${{ runner.os }}-${{ matrix.goarch }}-${{ hashFiles('scripts/build-vectorscan.sh') }}
+
       - name: Build Vectorscan
+        if: steps.cache-vectorscan.outputs.cache-hit != 'true'
         run: bash scripts/build-vectorscan.sh
 
       - name: Build poltergeist
@@ -129,9 +153,102 @@ jobs:
           name: darwin-${{ matrix.goarch }}
           path: poltergeist_darwin_${{ matrix.goarch }}.tar.gz
 
+  # Build for Windows
+  build-windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    strategy:
+      matrix:
+        goarch: [amd64]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          cache: true
+          install: >-
+            base-devel
+            git
+            unzip
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-boost
+            mingw-w64-x86_64-ragel
+            mingw-w64-x86_64-pcre
+            mingw-w64-x86_64-sqlite3
+            mingw-w64-x86_64-pkg-config
+
+      - name: Set up Go in MSYS2
+        shell: msys2 {0}
+        run: |
+          # Download and install Go
+          GO_VERSION=$(cat go.mod | grep -oP 'go \K[0-9.]+')
+          echo "Installing Go ${GO_VERSION}..."
+          curl -L "https://go.dev/dl/go${GO_VERSION}.windows-amd64.zip" -o go.zip
+          unzip -q go.zip -d /c/
+          echo "/c/go/bin" >> $GITHUB_PATH
+
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Cache Vectorscan build
+        id: cache-vectorscan
+        uses: actions/cache@v4
+        with:
+          path: build/vectorscan
+          key: vectorscan-${{ runner.os }}-${{ matrix.goarch }}-${{ hashFiles('scripts/build-vectorscan-windows.sh') }}
+
+      - name: Build Vectorscan
+        if: steps.cache-vectorscan.outputs.cache-hit != 'true'
+        run: bash scripts/build-vectorscan-windows.sh
+
+      - name: Build poltergeist
+        run: |
+          export CGO_ENABLED=1
+          export PKG_CONFIG_PATH="$(pwd)/build/vectorscan/windows_amd64/lib/pkgconfig"
+          export CGO_CFLAGS="-I$(pwd)/build/vectorscan/windows_amd64/include"
+          export CGO_LDFLAGS="-L$(pwd)/build/vectorscan/windows_amd64/lib -lhs -static"
+
+          VERSION="${{ github.ref_name }}"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            VERSION="dev-$(git rev-parse --short HEAD)"
+          fi
+
+          /c/go/bin/go build \
+            -ldflags "-s -w -X main.version=$VERSION" \
+            -o poltergeist.exe \
+            ./cmd/poltergeist
+
+      - name: Create archive
+        shell: pwsh
+        run: |
+          Compress-Archive -Path poltergeist.exe,README.md,LICENSE,NOTICE `
+            -DestinationPath poltergeist_windows_${{ matrix.goarch }}.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-${{ matrix.goarch }}
+          path: poltergeist_windows_${{ matrix.goarch }}.zip
+
   # Create the GitHub release
   create-release:
-    needs: [build-linux, build-macos]
+    needs: [build-linux, build-macos, build-windows]
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     steps:
@@ -146,10 +263,39 @@ jobs:
       - name: Display structure
         run: ls -R dist/
 
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3.0.4
+
+      - name: Sign release artifacts
+        run: |
+          # Sign all tar.gz files
+          for file in dist/**/*.tar.gz; do
+            if [ -f "$file" ]; then
+              echo "Signing $file"
+              cosign sign-blob --yes "$file" \
+                --output-signature "${file}.sig" \
+                --output-certificate "${file}.crt"
+            fi
+          done
+
+          # Sign all zip files
+          for file in dist/**/*.zip; do
+            if [ -f "$file" ]; then
+              echo "Signing $file"
+              cosign sign-blob --yes "$file" \
+                --output-signature "${file}.sig" \
+                --output-certificate "${file}.crt"
+            fi
+          done
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: dist/**/*.tar.gz
+          files: |
+            dist/**/*.tar.gz
+            dist/**/*.zip
+            dist/**/*.sig
+            dist/**/*.crt
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

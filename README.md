@@ -37,10 +37,11 @@ Some decisions were made in the interest of performance and simplicity:
 Download the latest release for your platform from [GitHub Releases](https://github.com/ghostsecurity/poltergeist/releases).
 
 **Supported Platforms:**
-- Linux (x86_64)
-- macOS (Intel & Apple Silicon)
+- Linux (x86_64, ARM64) - statically linked with Vectorscan
+- macOS (Intel & Apple Silicon) - statically linked with Vectorscan
+- Windows (x86_64) - statically linked with Vectorscan (built with MinGW)
 
-Release binaries are statically linked with Vectorscan and have no external dependencies (except standard system libraries on macOS).
+Release binaries have no external dependencies.
 
 ```bash
 # Linux/macOS
@@ -51,6 +52,45 @@ curl -L https://github.com/ghostsecurity/poltergeist/releases/download/v2.0.0/po
 tar xzf poltergeist_*.tar.gz
 sudo mv poltergeist /usr/local/bin/
 ```
+
+```powershell
+# Windows (PowerShell)
+Invoke-WebRequest -Uri "https://github.com/ghostsecurity/poltergeist/releases/download/v2.0.0/poltergeist_windows_amd64.zip" -OutFile "poltergeist.zip"
+Expand-Archive -Path poltergeist.zip -DestinationPath .
+.\poltergeist.exe --version
+```
+
+#### Verifying Release Signatures
+
+All release artifacts are signed with [Sigstore cosign](https://github.com/sigstore/cosign) for supply chain security.
+
+```bash
+# Install cosign
+brew install cosign  # macOS
+# or download from https://github.com/sigstore/cosign/releases
+
+# Verify a release artifact
+cosign verify-blob poltergeist_linux_amd64.tar.gz \
+  --signature poltergeist_linux_amd64.tar.gz.sig \
+  --certificate poltergeist_linux_amd64.tar.gz.crt \
+  --certificate-identity-regexp 'https://github.com/ghostsecurity/poltergeist/.github/workflows/release.yml' \
+  --certificate-oidc-issuer 'https://token.actions.githubusercontent.com'
+```
+
+#### Platform-Specific Notes
+
+**macOS Security Warning:**
+
+When running the binary on macOS, you may see a Gatekeeper warning. This is because the binary is not signed with an Apple Developer certificate. To bypass:
+
+```bash
+# Remove quarantine attribute
+xattr -d com.apple.quarantine ./poltergeist
+
+# Or right-click the binary in Finder and select "Open"
+```
+
+The binary is safe to run - verify with cosign signatures above.
 
 #### Building from Source
 
@@ -70,20 +110,46 @@ sudo apt-get install cmake ragel libboost-dev pkg-config
 bash scripts/build-vectorscan.sh
 ```
 
+**Windows (requires MSYS2):**
+```bash
+# Install MSYS2 from https://www.msys2.org/
+# Open MSYS2 MINGW64 terminal
+
+# Install dependencies
+pacman -S --needed base-devel git \
+  mingw-w64-x86_64-gcc \
+  mingw-w64-x86_64-cmake \
+  mingw-w64-x86_64-boost \
+  mingw-w64-x86_64-ragel \
+  mingw-w64-x86_64-pcre \
+  mingw-w64-x86_64-sqlite3 \
+  mingw-w64-x86_64-pkg-config
+
+# Build Vectorscan
+bash scripts/build-vectorscan-windows.sh
+
+# Build standalone binary (in MINGW64 terminal)
+CGO_ENABLED=1 \
+CGO_CFLAGS="-I$(pwd)/build/vectorscan/windows_amd64/include" \
+CGO_LDFLAGS="-L$(pwd)/build/vectorscan/windows_amd64/lib -lhs -static" \
+go build -ldflags "-s -w" -o poltergeist.exe ./cmd/poltergeist
+```
+
 **Build:**
 ```bash
+# Linux/macOS
 make build
 ```
 
-### About Vectorscan/Hyperscan
+### About Vectorscan
 
-Poltergeist uses Vectorscan (a portable fork of Intel's Hyperscan) for high-performance multi-pattern matching.
+Poltergeist uses [Vectorscan](https://github.com/VectorCamp/vectorscan), a portable fork of Intel's Hyperscan, on all platforms (Linux, macOS, and Windows).
 
-The main benefit of Vectorscan is multi-pattern matching and aggressive optimizations.
+Vectorscan provides high-performance multi-pattern matching with aggressive optimizations.
 Some advanced regex features (backtracking, lookbehind, lookahead, capture groups) are not supported.
 
 Despite these limitations, rule patterns are written with extended regex syntax for
-flexibility. While initial matches use Vectorscan, the final match location and capture
+flexibility. While initial matches use Hyperscan/Vectorscan, the final match location and capture
 groups are refined with Go regex for maximum compatibility.
 
 ## Build from Source

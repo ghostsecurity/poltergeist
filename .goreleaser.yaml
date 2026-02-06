@@ -19,6 +19,7 @@ builds:
     goos:
       - linux
       - darwin
+      - windows
     goarch:
       - amd64
       - arm64
@@ -75,9 +76,22 @@ builds:
           - -s -w
           - -X main.version={{.Version}}
 
+      - goos: windows
+        goarch: amd64
+        env:
+          - CGO_ENABLED=1
+          - CGO_CFLAGS=-I{{.Env.PWD}}/build/vectorscan/windows_amd64/include
+          - CGO_LDFLAGS=-L{{.Env.PWD}}/build/vectorscan/windows_amd64/lib -lhs -static
+        ldflags:
+          - -s -w
+          - -X main.version={{.Version}}
+
 archives:
   - id: default
-    formats: ['tar.gz']
+    format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
     name_template: >-
       {{ .ProjectName }}_
       {{- .Os }}_
