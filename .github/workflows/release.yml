@@ -264,7 +264,7 @@ jobs:
         run: ls -R dist/
 
       - name: Install cosign
-        uses: sigstore/cosign-installer@v3.0.4
+        uses: sigstore/cosign-installer@v4
 
       - name: Sign release artifacts
         run: |
