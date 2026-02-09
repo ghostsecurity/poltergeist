@@ -29,9 +29,10 @@ type PatternEngine interface {
 
 // HyperscanEngine implements PatternEngine using Hyperscan/Vectorscan
 type HyperscanEngine struct {
-	database    hyperscan.BlockDatabase
-	scratchPool sync.Pool
-	rules       []RuntimeRule
+	database        hyperscan.BlockDatabase
+	scratchPool     sync.Pool
+	rules           []RuntimeRule
+	goRegexPatterns []*regexp.Regexp // Pre-compiled Go regex for quickMatch refinement
 }
 
 // NewHyperscanEngine creates a new Hyperscan engine
@@ -44,6 +45,17 @@ func (e *HyperscanEngine) CompileRules(rules []Rule) error {
 	e.rules = make([]RuntimeRule, len(rules))
 	for i, rule := range rules {
 		e.rules[i] = rule.ToRuntimeRule()
+	}
+
+	// Pre-compile Go regex patterns for quickMatch refinement
+	e.goRegexPatterns = make([]*regexp.Regexp, len(rules))
+	for i, rule := range rules {
+		compiled, err := regexp.Compile(NormalizeExtendedRegex(rule.Pattern))
+		if err != nil {
+			e.goRegexPatterns[i] = nil // Graceful fallback - Hyperscan may still work
+			continue
+		}
+		e.goRegexPatterns[i] = compiled
 	}
 
 	// Create hyperscan patterns for all rules
@@ -143,7 +155,6 @@ func (e *HyperscanEngine) FindAllInLine(line string) []MatchResult {
 	// Scan the line
 	err := e.database.Scan([]byte(line), scratch, func(id uint, from, to uint64, flags uint, data any) error {
 		match := line[from:to]
-		redacted := match
 
 		// Use the pattern ID to identify which rule matched
 		rule := e.rules[id]
@@ -151,8 +162,7 @@ func (e *HyperscanEngine) FindAllInLine(line string) []MatchResult {
 		// We don't get the beginning of the match (SOM) from Hyperscan when using
 		// `SingleMatch`, which is mutually exclusive with `SomLeftMost`. So we use our
 		// own quick match to refine the line match down to an exact `from` and `to`.
-		p := NormalizeExtendedRegex(rule.Pattern)
-		matches := quickMatch(line, p)
+		matches := quickMatchWithRegex(line, e.goRegexPatterns[id])
 		if len(matches) > 0 {
 			from = matches[0]
 			to = matches[1]
@@ -161,12 +171,20 @@ func (e *HyperscanEngine) FindAllInLine(line string) []MatchResult {
 			match = line[from:to]
 		}
 
-		// Redact the match if we have redaction offsets and the match is long enough to redact
+		// Always redact the match - never show raw secrets
+		var redacted string
 		if len(rule.Redact) > 0 &&
 			rule.Redact[0] > 0 &&
 			rule.Redact[1] > 0 &&
 			len(match) > rule.Redact[0]+rule.Redact[1] {
+			// Use rule-specific redaction offsets
 			redacted = match[:rule.Redact[0]] + strings.Repeat("*", min(5, len(match))) + match[len(match)-rule.Redact[1]:]
+		} else if len(match) > 8 {
+			// Fallback: show first 4 and last 4 chars
+			redacted = match[:4] + strings.Repeat("*", min(5, len(match)-8)) + match[len(match)-4:]
+		} else {
+			// Very short match: fully redact
+			redacted = strings.Repeat("*", len(match))
 		}
 
 		// Calculate entropy and check if it meets the minimum requirement
@@ -174,13 +192,15 @@ func (e *HyperscanEngine) FindAllInLine(line string) []MatchResult {
 		entropyMet := entropy >= rule.Entropy
 
 		results = append(results, MatchResult{
-			Start:    int(from),
-			End:      int(to),
-			Match:    match,
-			Redacted: redacted,
-			RuleName: rule.Name,
-			RuleID:   rule.ID,
-			Entropy:  entropyMet,
+			Start:                   int(from),
+			End:                     int(to),
+			Match:                   match,
+			Redacted:                redacted,
+			RuleName:                rule.Name,
+			RuleID:                  rule.ID,
+			Entropy:                 entropy,
+			RuleEntropyThreshold:    rule.Entropy,
+			RuleEntropyThresholdMet: entropyMet,
 		})
 
 		return nil
@@ -215,12 +235,36 @@ func (e *HyperscanEngine) FindAllInContent(content []byte) []MatchResult {
 		// Use the pattern ID to identify which rule matched
 		rule := e.rules[id]
 
+		// Always redact the match - never show raw secrets
+		var redacted string
+		if len(rule.Redact) > 0 &&
+			rule.Redact[0] > 0 &&
+			rule.Redact[1] > 0 &&
+			len(match) > rule.Redact[0]+rule.Redact[1] {
+			// Use rule-specific redaction offsets
+			redacted = match[:rule.Redact[0]] + strings.Repeat("*", min(5, len(match))) + match[len(match)-rule.Redact[1]:]
+		} else if len(match) > 8 {
+			// Fallback: show first 4 and last 4 chars
+			redacted = match[:4] + strings.Repeat("*", min(5, len(match)-8)) + match[len(match)-4:]
+		} else {
+			// Very short match: fully redact
+			redacted = strings.Repeat("*", len(match))
+		}
+
+		// Calculate entropy and check if it meets the minimum requirement
+		entropy := ShannonEntropy(match)
+		entropyMet := entropy >= rule.Entropy
+
 		results = append(results, MatchResult{
-			Start:    int(from),
-			End:      int(to),
-			Match:    match,
-			RuleName: rule.Name,
-			RuleID:   rule.ID,
+			Start:                   int(from),
+			End:                     int(to),
+			Match:                   match,
+			Redacted:                redacted,
+			RuleName:                rule.Name,
+			RuleID:                  rule.ID,
+			Entropy:                 entropy,
+			RuleEntropyThreshold:    rule.Entropy,
+			RuleEntropyThresholdMet: entropyMet,
 		})
 
 		return nil
@@ -285,14 +329,20 @@ func (e *GoRegexEngine) FindAllInLine(line string) []MatchResult {
 		matches := pattern.FindAllString(line, -1)
 
 		for _, match := range matches {
-			redacted := match
-
-			// redact the match if we have redaction offsets and the match is long enough to redact
+			// Always redact the match - never show raw secrets
+			var redacted string
 			if len(e.rules[i].Redact) > 0 &&
 				e.rules[i].Redact[0] > 0 &&
 				e.rules[i].Redact[1] > 0 &&
 				len(match) > e.rules[i].Redact[0]+e.rules[i].Redact[1] {
+				// Use rule-specific redaction offsets
 				redacted = match[:e.rules[i].Redact[0]] + strings.Repeat("*", min(5, len(match))) + match[len(match)-e.rules[i].Redact[1]:]
+			} else if len(match) > 8 {
+				// Fallback: show first 4 and last 4 chars
+				redacted = match[:4] + strings.Repeat("*", min(5, len(match)-8)) + match[len(match)-4:]
+			} else {
+				// Very short match: fully redact
+				redacted = strings.Repeat("*", len(match))
 			}
 
 			// Calculate entropy and check if it meets the minimum requirement
@@ -300,13 +350,15 @@ func (e *GoRegexEngine) FindAllInLine(line string) []MatchResult {
 			entropyMet := entropy >= e.rules[i].Entropy
 
 			results = append(results, MatchResult{
-				Start:    0,
-				End:      0,
-				Match:    match,
-				Redacted: redacted,
-				RuleName: e.rules[i].Name,
-				RuleID:   e.rules[i].ID,
-				Entropy:  entropyMet,
+				Start:                   0,
+				End:                     0,
+				Match:                   match,
+				Redacted:                redacted,
+				RuleName:                e.rules[i].Name,
+				RuleID:                  e.rules[i].ID,
+				Entropy:                 entropy,
+				RuleEntropyThreshold:    e.rules[i].Entropy,
+				RuleEntropyThresholdMet: entropyMet,
 			})
 		}
 	}
@@ -322,11 +374,21 @@ func (e *GoRegexEngine) FindAllInContent(content []byte) []MatchResult {
 		matches := pattern.FindAllIndex(content, -1)
 		for _, match := range matches {
 			matchText := string(content[match[0]:match[1]])
-			redacted := matchText
 
-			// Redact the match if we have redaction offsets
-			if len(e.rules[i].Redact) > 0 && e.rules[i].Redact[0] > 0 && e.rules[i].Redact[1] > 0 {
+			// Always redact the match - never show raw secrets
+			var redacted string
+			if len(e.rules[i].Redact) > 0 &&
+				e.rules[i].Redact[0] > 0 &&
+				e.rules[i].Redact[1] > 0 &&
+				len(matchText) > e.rules[i].Redact[0]+e.rules[i].Redact[1] {
+				// Use rule-specific redaction offsets
 				redacted = matchText[:e.rules[i].Redact[0]] + strings.Repeat("*", min(5, len(matchText))) + matchText[len(matchText)-e.rules[i].Redact[1]:]
+			} else if len(matchText) > 8 {
+				// Fallback: show first 4 and last 4 chars
+				redacted = matchText[:4] + strings.Repeat("*", min(5, len(matchText)-8)) + matchText[len(matchText)-4:]
+			} else {
+				// Very short match: fully redact
+				redacted = strings.Repeat("*", len(matchText))
 			}
 
 			// Calculate entropy and check if it meets the minimum requirement
@@ -334,13 +396,15 @@ func (e *GoRegexEngine) FindAllInContent(content []byte) []MatchResult {
 			entropyMet := entropy >= e.rules[i].Entropy
 
 			results = append(results, MatchResult{
-				Start:    match[0],
-				End:      match[1],
-				Match:    matchText,
-				Redacted: redacted,
-				RuleName: e.rules[i].Name,
-				RuleID:   e.rules[i].ID,
-				Entropy:  entropyMet,
+				Start:                   match[0],
+				End:                     match[1],
+				Match:                   matchText,
+				Redacted:                redacted,
+				RuleName:                e.rules[i].Name,
+				RuleID:                  e.rules[i].ID,
+				Entropy:                 entropy,
+				RuleEntropyThreshold:    e.rules[i].Entropy,
+				RuleEntropyThresholdMet: entropyMet,
 			})
 		}
 	}
@@ -358,20 +422,21 @@ func (e *GoRegexEngine) Name() string {
 	return "Go Regex"
 }
 
-// quickMatch is an extraction function to refine a match with
-// the exact location of the match in a line. If there are multiple
-// capture groups, we return the index of the last one.
-func quickMatch(line string, pattern string) []uint64 {
-	re := regexp.MustCompile(pattern)
+// quickMatchWithRegex refines a match with the exact location using a pre-compiled regex.
+// If there are multiple capture groups, we return the index of the last one.
+// Returns nil if refinement fails, so the original Hyperscan match is preserved.
+func quickMatchWithRegex(line string, re *regexp.Regexp) []uint64 {
+	// If regex is nil (compilation failed), return nil to keep original match
+	if re == nil {
+		return nil
+	}
 
 	// Get the capture groups
 	cg := re.FindStringSubmatch(line)
 
-	// TODO: handle named capture groups
-
-	// Something went wrong, return the whole line
+	// No match found, return nil to keep original match
 	if len(cg) == 0 {
-		return []uint64{0, uint64(len(line))}
+		return nil
 	}
 
 	// Get the index of the last capture group
