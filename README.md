@@ -348,3 +348,13 @@ Running against some real-world [content](https://github.com/torvalds/linux) wit
 | [kingfisher](https://github.com/mongodb/kingfisher)          | 256   | 6s                    |
 | poltergeist                                                  | 516   | 8s                    |
 | poltergeist                                                  | 1016  | 9s                    |
+
+### Acknowledgments
+
+We'd like to thank the following projects for providing inspiration for Poltergeist and doing tremendous work in the secret scanning space:
+
+- [trufflehog](https://github.com/trufflesecurity/trufflehog)
+- [noseyparker](https://github.com/praetorian-inc/noseyparker)
+- [kingfisher](https://github.com/mongodb/kingfisher)
+- [gitleaks](https://github.com/gitleaks/gitleaks)
+
