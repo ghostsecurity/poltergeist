@@ -3,14 +3,18 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
   pull_request:
     branches:
       - main
+    paths:
+      - "cmd/**"
+      - "pkg/**"
+      - "scripts/**"
 
 permissions:
   contents: write
-  id-token: write  # Required for cosign keyless signing
+  id-token: write # Required for cosign keyless signing
 
 jobs:
   # Build for Linux
