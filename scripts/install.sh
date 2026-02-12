@@ -1,0 +1,161 @@
+#!/bin/bash
+# install.sh
+# Cross-platform installer for Ghost Security Poltergeist
+# Supports: Linux (amd64, arm64), macOS (amd64, arm64), Windows (amd64 via Git Bash/WSL)
+
+set -e
+
+# Configuration
+REPO="ghostsecurity/poltergeist"
+BIN_DIR="${HOME}/.ghost/bin"
+BINARY_NAME="poltergeist"
+
+# Detect platform
+detect_platform() {
+    local os arch
+
+    # Detect OS
+    case "$(uname -s)" in
+        Linux*)     os="linux" ;;
+        Darwin*)    os="darwin" ;;
+        MINGW*|MSYS*|CYGWIN*)  os="windows" ;;
+        *)          echo "Unsupported OS: $(uname -s)" >&2; exit 1 ;;
+    esac
+
+    # Detect architecture
+    case "$(uname -m)" in
+        x86_64|amd64)   arch="amd64" ;;
+        aarch64|arm64)  arch="arm64" ;;
+        *)              echo "Unsupported architecture: $(uname -m)" >&2; exit 1 ;;
+    esac
+
+    echo "${os}_${arch}"
+}
+
+# Get latest release version
+get_latest_version() {
+    curl -s "https://api.github.com/repos/${REPO}/releases/latest" | \
+        grep '"tag_name":' | \
+        sed -E 's/.*"([^"]+)".*/\1/'
+}
+
+# Check if poltergeist is already installed and get version
+get_installed_version() {
+    if [ -x "${BIN_DIR}/${BINARY_NAME}" ]; then
+        "${BIN_DIR}/${BINARY_NAME}" version 2>/dev/null | head -1 || echo ""
+    else
+        echo ""
+    fi
+}
+
+# Download and install from GitHub
+install_from_github() {
+    local platform="$1"
+    local version="$2"
+    local os="${platform%_*}"
+    local arch="${platform#*_}"
+    local ext="tar.gz"
+    local download_url
+
+    # Windows uses zip
+    if [ "$os" = "windows" ]; then
+        ext="zip"
+        BINARY_NAME="poltergeist.exe"
+    fi
+
+    # Construct download URL
+    download_url="https://github.com/${REPO}/releases/download/${version}/poltergeist_${os}_${arch}.${ext}"
+
+    echo "Downloading poltergeist ${version} for ${platform}..."
+    echo "URL: ${download_url}"
+
+    # Create bin directory
+    mkdir -p "${BIN_DIR}"
+
+    # Download and extract
+    local tmp_dir
+    tmp_dir=$(mktemp -d)
+    trap "rm -rf ${tmp_dir}" EXIT
+
+    if [ "$ext" = "zip" ]; then
+        curl -sfL "${download_url}" -o "${tmp_dir}/poltergeist.zip" || return 1
+        if command -v unzip &>/dev/null; then
+            unzip -q "${tmp_dir}/poltergeist.zip" -d "${tmp_dir}"
+        elif command -v powershell.exe &>/dev/null; then
+            local win_zip win_dest
+            win_zip=$(cygpath -m "${tmp_dir}/poltergeist.zip")
+            win_dest=$(cygpath -m "${tmp_dir}")
+            powershell.exe -NoProfile -Command "Expand-Archive -LiteralPath '${win_zip}' -DestinationPath '${win_dest}' -Force"
+        else
+            echo "ERROR: No zip extraction tool found (need unzip or powershell.exe)" >&2
+            return 1
+        fi
+    else
+        curl -sfL "${download_url}" -o "${tmp_dir}/poltergeist.tar.gz" || return 1
+        tar xzf "${tmp_dir}/poltergeist.tar.gz" -C "${tmp_dir}"
+    fi
+
+    # Install binary
+    mv "${tmp_dir}/${BINARY_NAME}" "${BIN_DIR}/${BINARY_NAME}"
+    chmod +x "${BIN_DIR}/${BINARY_NAME}"
+
+    # macOS: remove quarantine attribute
+    if [ "$os" = "darwin" ]; then
+        xattr -d com.apple.quarantine "${BIN_DIR}/${BINARY_NAME}" 2>/dev/null || true
+    fi
+
+    echo "Installed to: ${BIN_DIR}/${BINARY_NAME}"
+    return 0
+}
+
+# Main
+main() {
+    echo "Poltergeist Installer"
+    echo "====================="
+
+    # Detect platform
+    local platform
+    platform=$(detect_platform)
+    echo "Platform: ${platform}"
+
+    # Check if already installed
+    local installed_version
+    installed_version=$(get_installed_version)
+    echo "Installed version: ${installed_version:-none}"
+
+    if [ -n "$installed_version" ]; then
+        echo "Already installed!"
+        echo "Binary path: ${BIN_DIR}/${BINARY_NAME}"
+        exit 0
+    fi
+
+    # Get latest version
+    local latest_version
+    latest_version=$(get_latest_version)
+
+    if [ -z "$latest_version" ]; then
+        echo ""
+        echo "ERROR: Could not fetch latest version from GitHub."
+        echo "Please ensure network access to github.com/ghostsecurity/poltergeist"
+        exit 1
+    fi
+
+    echo "Latest version: ${latest_version}"
+
+    if install_from_github "$platform" "$latest_version"; then
+        echo ""
+        echo "Verification:"
+        "${BIN_DIR}/${BINARY_NAME}" --version
+        echo ""
+        echo "Installation complete!"
+        echo "Binary path: ${BIN_DIR}/${BINARY_NAME}"
+        exit 0
+    fi
+
+    echo ""
+    echo "ERROR: Could not install poltergeist."
+    echo "Please ensure network access to github.com/ghostsecurity/poltergeist"
+    exit 1
+}
+
+main "$@"
