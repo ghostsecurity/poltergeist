@@ -1,6 +1,6 @@
 #!/bin/bash
 # install.sh
-# Cross-platform installer for the poltergeist secret scanner
+# Cross-platform installer for Ghost Security Poltergeist
 # Supports: Linux (amd64, arm64), macOS (amd64, arm64), Windows (amd64 via Git Bash/WSL)
 
 set -e
@@ -100,8 +100,8 @@ install_from_github() {
 
 # Main
 main() {
-    echo "Poltergeist Secret Scanner Installer"
-    echo "====================================="
+    echo "Poltergeist Installer"
+    echo "====================="
 
     # Detect platform
     local platform
@@ -135,7 +135,7 @@ main() {
     if install_from_github "$platform" "$latest_version"; then
         echo ""
         echo "Verification:"
-        "${BIN_DIR}/${BINARY_NAME}" version
+        "${BIN_DIR}/${BINARY_NAME}" --version
         echo ""
         echo "Installation complete!"
         echo "Binary path: ${BIN_DIR}/${BINARY_NAME}"
