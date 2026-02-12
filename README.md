@@ -1,4 +1,4 @@
-![Poltergeist Logo](./docs/poltergeist.png)
+![Poltergeist Banner](https://media.ghostsecurity.ai/poltergeist-banner.png)
 
 # Ghost Security Poltergeist
 
