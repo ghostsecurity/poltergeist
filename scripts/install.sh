@@ -79,7 +79,17 @@ install_from_github() {
 
     if [ "$ext" = "zip" ]; then
         curl -sfL "${download_url}" -o "${tmp_dir}/poltergeist.zip" || return 1
-        unzip -q "${tmp_dir}/poltergeist.zip" -d "${tmp_dir}"
+        if command -v unzip &>/dev/null; then
+            unzip -q "${tmp_dir}/poltergeist.zip" -d "${tmp_dir}"
+        elif command -v powershell.exe &>/dev/null; then
+            local win_zip win_dest
+            win_zip=$(cygpath -m "${tmp_dir}/poltergeist.zip")
+            win_dest=$(cygpath -m "${tmp_dir}")
+            powershell.exe -NoProfile -Command "Expand-Archive -LiteralPath '${win_zip}' -DestinationPath '${win_dest}' -Force"
+        else
+            echo "ERROR: No zip extraction tool found (need unzip or powershell.exe)" >&2
+            return 1
+        fi
     else
         curl -sfL "${download_url}" -o "${tmp_dir}/poltergeist.tar.gz" || return 1
         tar xzf "${tmp_dir}/poltergeist.tar.gz" -C "${tmp_dir}"

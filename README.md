@@ -4,7 +4,11 @@
 
 High-performance secret scanner for source code, using [Vectorscan/Hyperscan](https://github.com/VectorCamp/vectorscan) for fast multi-pattern matching.
 
+![Demo](./docs/demo.gif)
+
 ## Quick Start
+
+Supports Linux, macOS, and Windows (via Git Bash, MSYS2, or Cygwin).
 
 ```bash
 curl -sfL https://raw.githubusercontent.com/ghostsecurity/poltergeist/main/scripts/install.sh | bash
