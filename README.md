@@ -2,7 +2,7 @@
 
 # Ghost Security Poltergeist
 
-High-performance secret scanner for source code, using [Vectorscan/Hyperscan](https://github.com/VectorCamp/vectorscan) for fast multi-pattern matching. Poltergeist is designed to be easy to use by humans and AI agents alike.
+High-performance secret scanner for source code, using [Vectorscan/Hyperscan](https://github.com/VectorCamp/vectorscan) for fast multi-pattern matching. Poltergeist is designed to be easy to use by humans and AI agents alike. For AI agent integration, see [Ghost Security Skills](https://github.com/ghostsecurity/skills).
 
 ![Demo](./docs/demo.gif)
 
