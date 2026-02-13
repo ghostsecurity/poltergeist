@@ -30,6 +30,15 @@ Full documentation, tutorials, and video guides at [ghostsecurity.ai](https://gh
 
 [Open an Issue](https://github.com/ghostsecurity/poltergeist/issues/new) per the [Contributing](.github/CONTRIBUTING.md) guidelines and [Code of Conduct](.github/CODE_OF_CONDUCT.md)
 
+## Acknowledgments
+
+We'd like to thank the following projects for providing inspiration for Poltergeist and doing tremendous work in the secret scanning space:
+
+- [trufflehog](https://github.com/trufflesecurity/trufflehog)
+- [noseyparker](https://github.com/praetorian-inc/noseyparker)
+- [kingfisher](https://github.com/mongodb/kingfisher)
+- [gitleaks](https://github.com/gitleaks/gitleaks)
+
 ## License
 
 This repository is licensed under the Apache License 2.0. See [LICENSE](LICENSE) for details.
