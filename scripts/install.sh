@@ -48,10 +48,10 @@ get_installed_version() {
     fi
 }
 
-# Strip version prefixes for comparison
-# "poltergeist 1.0.0" -> "1.0.0", "v1.0.0" -> "1.0.0"
+# Extract bare version number for comparison
+# "Poltergeist Secret Scanner v1.1.6" -> "1.1.6", "v1.1.6" -> "1.1.6"
 normalize_version() {
-    echo "$1" | sed -E 's/^(poltergeist |v)//'
+    echo "$1" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1
 }
 
 # Download and install from GitHub
