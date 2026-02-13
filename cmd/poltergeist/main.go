@@ -75,7 +75,7 @@ func main() {
 	}
 
 	if *versionFlag {
-		fmt.Printf("Poltergeist Secret Scanner %s\n", version)
+		fmt.Printf("poltergeist %s\n", version)
 		os.Exit(0)
 	}
 

@@ -42,10 +42,16 @@ get_latest_version() {
 # Check if poltergeist is already installed and get version
 get_installed_version() {
     if [ -x "${BIN_DIR}/${BINARY_NAME}" ]; then
-        "${BIN_DIR}/${BINARY_NAME}" version 2>/dev/null | head -1 || echo ""
+        "${BIN_DIR}/${BINARY_NAME}" -version 2>/dev/null | head -1 || echo ""
     else
         echo ""
     fi
+}
+
+# Extract bare version number for comparison
+# "Poltergeist Secret Scanner v1.1.6" -> "1.1.6", "v1.1.6" -> "1.1.6"
+normalize_version() {
+    echo "$1" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1
 }
 
 # Download and install from GitHub
@@ -118,18 +124,7 @@ main() {
     platform=$(detect_platform)
     echo "Platform: ${platform}"
 
-    # Check if already installed
-    local installed_version
-    installed_version=$(get_installed_version)
-    echo "Installed version: ${installed_version:-none}"
-
-    if [ -n "$installed_version" ]; then
-        echo "Already installed!"
-        echo "Binary path: ${BIN_DIR}/${BINARY_NAME}"
-        exit 0
-    fi
-
-    # Get latest version
+    # Get latest version from GitHub API
     local latest_version
     latest_version=$(get_latest_version)
 
@@ -142,10 +137,29 @@ main() {
 
     echo "Latest version: ${latest_version}"
 
+    # Check if already installed and up to date
+    local installed_version
+    installed_version=$(get_installed_version)
+    echo "Installed version: ${installed_version:-none}"
+
+    if [ -n "$installed_version" ]; then
+        local installed_normalized latest_normalized
+        installed_normalized=$(normalize_version "$installed_version")
+        latest_normalized=$(normalize_version "$latest_version")
+
+        if [ "$installed_normalized" = "$latest_normalized" ]; then
+            echo "Already up to date!"
+            echo "Binary path: ${BIN_DIR}/${BINARY_NAME}"
+            exit 0
+        fi
+
+        echo "Updating from ${installed_normalized} to ${latest_normalized}..."
+    fi
+
     if install_from_github "$platform" "$latest_version"; then
         echo ""
         echo "Verification:"
-        "${BIN_DIR}/${BINARY_NAME}" --version
+        "${BIN_DIR}/${BINARY_NAME}" -version
         echo ""
         echo "Installation complete!"
         echo "Binary path: ${BIN_DIR}/${BINARY_NAME}"
