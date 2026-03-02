@@ -51,7 +51,7 @@ import (
 type ScanResult struct {
 	FilePath                string  `json:"file_path"`
 	LineNumber              int     `json:"line_number"`
-	Match                   string  `json:"-"`                           // The original matched text (excluded from JSON)
+	Match                   string  `json:"match,omitempty"`             // The original matched text (included in JSON only when -dnr is set)
 	Redacted                string  `json:"redacted"`                    // The redacted version of the match
 	RuleName                string  `json:"rule_name"`                   // Name of the rule that matched
 	RuleID                  string  `json:"rule_id"`                     // ID of the rule that matched
@@ -341,17 +341,20 @@ func (s *Scanner) scanFile(filePath string) ([]ScanResult, error) {
 		matches = filterOverlappingGenericMatches(matches)
 
 		for _, match := range matches {
-			results = append(results, ScanResult{
+			result := ScanResult{
 				FilePath:                filePath,
 				LineNumber:              lineNumber,
-				Match:                   match.Match,
 				Redacted:                match.Redacted,
 				RuleName:                match.RuleName,
 				RuleID:                  match.RuleID,
 				Entropy:                 match.Entropy,
 				RuleEntropyThreshold:    match.RuleEntropyThreshold,
 				RuleEntropyThresholdMet: match.RuleEntropyThresholdMet,
-			})
+			}
+			if s.DisableRedaction {
+				result.Match = match.Match
+			}
+			results = append(results, result)
 		}
 
 		lineNumber++
