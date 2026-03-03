@@ -1,4 +1,4 @@
-module github.com/ghostsecurity/poltergeist
+module github.com/ghostsecurity/poltergeist/v2
 
 go 1.25.6
 
