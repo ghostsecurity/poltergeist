@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	poltergeist "github.com/ghostsecurity/poltergeist/pkg"
+	poltergeist "github.com/ghostsecurity/poltergeist/v2/pkg"
 )
 
 // This example demonstrates how another Go program can easily use the poltergeist

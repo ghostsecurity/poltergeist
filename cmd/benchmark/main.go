@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	poltergeist "github.com/ghostsecurity/poltergeist/pkg"
+	poltergeist "github.com/ghostsecurity/poltergeist/v2/pkg"
 )
 
 // BenchmarkResult holds the results of a single benchmark run
