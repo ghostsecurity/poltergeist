@@ -1,0 +1,83 @@
+rules:
+  - name: Harness Service Account Key
+    id: ghost.harness.1
+    description: Harness Service Account API Key
+    tags:
+      - api
+      - harness
+    pattern: |
+      (?x)
+        \b
+          (sat\.(?i)[A-Z0-9]{22}\.[A-F0-9]{24}\.[A-Z0-9]{20})
+        \b
+    entropy: 4.9
+    redact: [7, 4]
+    tests:
+      assert:
+        - sat.DhvnYGeYStuwYRtLsFW5zQ.69b838615acf911cb7620dff.hToPj1fZbpfUN4xTrnHc
+        - sat.DhvnYGeYStuwYRtLsFW5zQ.69b83892cb32850091cfdbd3.IF6sBrHibCqCQpUN2C1h
+        - sat.DhvnYGeYStuwYRtLsFW5zQ.69b838d0f8b1574502931bc7.wLYXgfHAVl81eOV8WQ1l
+      assert_not:
+        - sat.DhvnYGeYStuwYRtLsFW5zQ.69b838615acf911cb7620dff.hToPj1fZbpfUN4xTrnHcX
+        - sat-DhvnYGeYStuwYRtLsFW5zQ-69b838615acf911cb7620dff-hToPj1fZbpfUN4xTrnHc
+        - satDhvnYGeYStuwYRtLsFW5zQ69b838615acf911cb7620dffhToPj1fZbpfUN4xTrnHcXxx
+    history:
+      - 2026-03-16 initial version
+    refs:
+      - https://developer.harness.io/docs/feature-management-experimentation/api-keys/
+  - name: Harness PAT
+    id: ghost.harness.2
+    description: Harness PAT
+    tags:
+      - api
+      - harness
+      - pat
+    pattern: |
+      (?x)
+        \b
+          (pat\.(?i)[A-Z0-9]{22}\.[A-F0-9]{24}\.[A-Z0-9]{20})
+        \b
+    entropy: 4.9
+    redact: [7, 4]
+    tests:
+      assert:
+        - pat.DhvnYGeYStuwYRtLsFW5zQ.69b83bdb5acf911cb76219f7.rmX1mZ5d17Ws2tMgqxpu
+        - pat.DhvnYGeYStuwYRtLsFW5zQ.69b83c1ab58e5847c208562a.9dipDEKOn8sbLg9jaoLs
+        - pat.DhvnYGeYStuwYRtLsFW5zQ.69b83c28516b10411ee95f02.1Vr3tAvo8kqJg7dZNb94
+      assert_not:
+        - pat.DhvnYGeYStuwYRtLsFW5zQ.69b83bdb5acf911cb76219f7.rmX1mZ5d17Ws2tMgqxpuX
+        - pat-DhvnYGeYStuwYRtLsFW5zQ-69b83c1ab58e5847c208562a-9dipDEKOn8sbLg9jaoLs
+        - patDhvnYGeYStuwYRtLsFW5zQ69b83c28516b10411ee95f021Vr3tAvo8kqJg7dZNb94xxx
+    history:
+      - 2026-03-16 initial version
+    refs:
+      - https://developer.harness.io/docs/feature-management-experimentation/api-keys/
+  - name: Harness SDK API Key
+    id: ghost.harness.3
+    description: Harness SDK API Key
+    tags:
+      - api
+      - harness
+      - sdk
+    pattern: |
+      (?x)
+        \b
+          ([a-z0-9]{36})
+        \b
+    entropy: 3.5
+    redact: [4, 4]
+    tests:
+      assert:
+        - 2eu8jaq40q9bjv5di175vetrhfipc4qnpirt
+        - jvmref5ntceu7mse1kj491f85r0l8vk6fnba
+        - lh2sfevr58hb2l31q5islnf8n85adhu3ggvq
+        - 797d7m5nhk29ap5hc3vacf0olotq8p0eunuu
+      assert_not:
+        - 2eu8jaq40q9bjv5di175vetrhfipc4qnpir
+        - jvmref5ntceu7mse1kj491f85r0l8vk6fnbax
+        - lh2sfevr58hb2l31q5islnf8n85adhu3gGvq
+        - 797d7m5nhk29ap5hc3+acf0olotq8p0eunuu
+    history:
+      - 2026-03-16 initial version
+    refs:
+      - https://developer.harness.io/docs/feature-management-experimentation/api-keys/
