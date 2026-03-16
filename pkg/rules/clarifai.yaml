@@ -1,0 +1,28 @@
+rules:
+  - name: Clarifai PAT
+    id: ghost.clarifai.1
+    description: Clarifai PAT
+    tags:
+      - api
+      - clarifai
+      - pat
+    pattern: |
+      (?x)
+        \b
+          ((?i)[A-F0-9]{32})
+        \b
+    entropy: 3.2
+    redact: [4, 4]
+    tests:
+      assert:
+        - b6af5fae7e8e4b3cab934f045b883c51
+        - 9771e706ac2d480a8f6a186b7a38efc9
+        - c66c61fac5bd40f1a289e0340914cfc5
+      assert_not:
+        - b6af5fae7e8e4b3cab934f045b883c51x
+        - 9771e706ac2d480a8f6a186b7a38efc
+        - c66z61fac5bd40f1a289e0340914cfc5
+    history:
+      - 2026-03-16 initial version
+    refs:
+      - https://docs.clarifai.com/control/authentication/pat/#how-to-create-a-pat-on-the-platform
