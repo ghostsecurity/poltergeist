@@ -1,0 +1,29 @@
+rules:
+  - name: Airtable PAT
+    id: ghost.airtable.1
+    description: Airtable PAT
+    tags:
+      - api
+      - airtable
+      - pat
+    pattern: |
+      (?x)
+        \b
+          (pat(?i)[A-Z0-9]{14}\.[A-F0-9]{64})
+        \b
+    entropy: 4.1
+    redact: [8, 4]
+    tests:
+      assert:
+        - patlgKBpCuEzSyFBh.9bd76165d011da5d6c6bdcae91f53c1e9aa2df80f45b470fee58f459071062d2
+        - pat8wgSZ311jUjKNm.bd5a44cf328bd886ef161c2c7e4eef5bb0f8f0b45283646160cf06f16dde1f23
+        - patPtxeR8eX4FXxtJ.8181228772f9f49f5101027e753f174e2219fc2f194784e7db67573cbc7b604d
+      assert_not:
+        - patPtxeR8eX4FXxtJ.8181228772f9f49f5101027e753f174e2219fc2f194784e7db67573cbc7b604
+        - patPtxeR8eX4FXxtJ.8181228772f9f49f5101027e753f174e2219fc2f194784e7db67573cbc7b604dx
+        - PtxeR8eX4FXxtJ.8181228772f9f49f5101027e753f174e2219fc2f194784e7db67573cbc7b604d
+        - tokenPtxeR8eX4FXxtJ.8181228772f9f49f5101027e753f174e2219fc2f194784e7db67573cbc7b604d
+    history:
+      - 2026-03-16 initial version
+    refs:
+      - https://airtable.com/developers/web/api/authentication
