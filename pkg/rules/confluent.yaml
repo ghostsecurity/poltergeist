@@ -1,0 +1,30 @@
+rules:
+  - name: Confluent API Key
+    id: ghost.confluent.1
+    description: Confluent API Key
+    tags:
+      - api
+      - confluent
+    pattern: |
+      (?x)
+        \b
+          (cflt(?i)[A-Z0-9/+]{60})
+        \b
+    entropy: 4.7
+    redact: [6, 4]
+    tests:
+      assert:
+        - cflt/pTTflU0G5y61GBHFFm9mVge2NLNNH442C9Hp0gzwz/RDJ5UE2wmV2N3ojKg
+        - cfltx2AdXQLRs9OBZLHSK3BWvWSibOzE1H0toBMVapI3mmDlchxJvOi3ABE3X8fA
+        - cfltUBK/WhVXpWkTZh1L4ztYXtUG44XHl42DsDUXXINQ+2ooykBYJJ7+7XI7/MGQ
+        - cfltkUP8lzukVUWkWddgUsfJ0TP+72bQNfwyfOZd/+uiiYVgs3GSk58xwMaJZTsQ
+        - cfltOCyVi2giW/xNp7ERL0MsKpKdIvN+X4G7ccGyEj+QE4sBD22i2i++nrFGj+LA
+      assert_not:
+        - cflpt/TTflU0G5y61GBHFFm9mVge2NLNNH442C9Hp0gzwz/RDJ5UE2wmV2N3ojKg
+        - cfltx2AdXQLRs9OBZLHSK3BWvWSibOzE1H0toBMVapI3mmDlchxJvOi3ABE3X8f
+        - cfltx2AdXQLRs9OBZLHSK3BWvWSibOzE1H0toBMVapI3mmDlchxJvOi3ABE3X8fAA
+        - cfltx2AdXQLRs9OBZLHSK3BWvWSibO%E1H0toBMVapI3mmDlchxJvOi3ABE3X8fA
+    history:
+      - 2026-03-16 initial version
+    refs:
+      - https://docs.confluent.io/cloud/current/security/authenticate/workload-identities/service-accounts/api-keys/manage-api-keys.html
