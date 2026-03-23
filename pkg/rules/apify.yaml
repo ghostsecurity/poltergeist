@@ -1,0 +1,25 @@
+rules:
+  - name: Apify API Token
+    id: ghost.apify.1
+    description: Apify API Token
+    tags:
+      - api
+      - apify
+    pattern: |
+      (?x)
+        \b
+          (apify_api_(?i)[A-Z0-9]{36})
+        \b
+    entropy: 4.5
+    redact: [13, 4]
+    tests:
+      assert:
+        - apify_api_UWlpshXStPbAWKJjO0Dsioww6fVick29MyZf
+        - apify_api_2gqmbisMLp5zuEH2UzjTjx9fX0SCx21HEBU6
+      assert_not:
+        - apify_api_UWlpshXStPbAWKJjO0Dsioww6fVick29MyZfx
+        - apify_api_2gqmbisMLp5zuEH2UzTjx9fX0SCx21HEBU6
+    history:
+      - 2026-03-23 initial version
+    refs:
+      - https://docs.apify.com/platform/integrations/api

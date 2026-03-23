@@ -1,0 +1,28 @@
+rules:
+  - name: Netlify PAT
+    id: ghost.netlify.1
+    description: Netlify Personal Access Token.
+    tags:
+      - api
+      - netlify
+      - pat
+    pattern: |
+      (?x)
+        \b
+          (nfp_(?i)[A-Z0-9]{36})
+        \b
+    entropy: 4.2
+    redact: [8, 4]
+    tests:
+      assert:
+        - nfp_j4w8o3ww2TE3boJm8rmYWm8Qdbezqx5N14e5
+        - nfp_5LZHXQ6aq5SpMjSdQBMyAfSjxpAnVTeB03a6
+        - nfp_rGoqiDzcvC94KinnmcK9pr8rxcdmD89Sf3a9
+      assert_not:
+        - nfp_j4w8o3ww2TE3boJm8rmYWm8Qdbezqx5N14e5x
+        - nfp_5LZHXQ6aq5SpMjSdQBMyAfSjxpAnVTeB03a
+        - nfp_rGoqiDzcvC94Kin-mcK9pr8rxcdmD89Sf3a9
+    history:
+      - 2026-03-23 initial version
+    refs:
+      - https://docs.netlify.com/api-and-cli-guides/api-guides/get-started-with-api/#authentication
