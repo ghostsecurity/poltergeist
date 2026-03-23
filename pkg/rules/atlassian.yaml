@@ -25,8 +25,37 @@ rules:
         - 'export BITBUCKET_TOKEN="ATATT3xFfGF02FT44VPlyet-CmNO5AIXd3fMmEOaORwcyoadVytsKNH4EUAFR2rbr4c4zJCZ_Vl74N17gL5fQ4MbN0cE4uNaUZXDF3GoDx2cXt_PBdKqrUSDtQqnqHANyVlHJzltPDetMY0Z_rvm-yQUV2CRyF2fxJMj8N1S_6g2YbgbdTr3xhA=CB050D44"'
       assert_not:
         - 'export BITBUCKET_TOKEN="AZATT3xFfGF02FT44VPlyet-CmNO5AIXd3fMmEOaORwcyoadVytsKNH4EUAFR2rbr4c4zJCZ_Vl74N17gL5fQ4MbN0cE4uNaUZXDF3GoDx2cXt_PBdKqrUSDtQqnqHANyVlHJzltPDetMY0Z_rvm-yQUV2CRyF2fxJMj8N1S_6g2YbgbdTr3xhA=CB050D44"'
-        - 'BITBUCKET_TOKEN=1234567890123456789012345'
+        - "BITBUCKET_TOKEN=1234567890123456789012345"
     history:
       - 2025-08-13 initial version
+    refs:
+      - https://support.atlassian.com/bitbucket-cloud/docs/api-tokens/
+  - name: Atlassian API Token
+    id: ghost.atlassian.2
+    description: Atlassian API token.
+    tags:
+      - api
+      - atlassian
+      - token
+      - jira
+    pattern: |
+      (?x)
+        \b
+          (ATATT3xFfGF(?i)[A-Z0-9_-]{172}\=[A-F0-9]{8})
+        \b
+    entropy: 5.2
+    redact: [16, 4]
+    tests:
+      assert:
+        - ATATT3xFfGF0e4B4OMjMS-SGlCl7JAgLXoc7LW6PYrDUUnQo2IQ7ZRObr69h9XgDudve019Iwt-WTqAUPVP327u9cQRjQVHfNIMOQemq3AMDIa6yXmEPr-B5dI990wAetltPGZKzPcMXWbNUZGRT58Cuh_Vn7FAStr3vB9MWFxhlKzCvLDfWgCQ=3917DDB4
+        - ATATT3xFfGF0XV6HgfqtVaCN7FGnVtONwnRSIssan940Or9w05qcHjXbxdRHC_-c5C908faZCziguBqZa7CwNySDoBC7yF8rG0eGGfgLJQbl4HmuqRjy7YBLpnTnyw6mLWlW--y4q_OP-0eoB5rTDRdYJwhl6t1uHlihuWPxhJymCq1ezzxiFbU=D517AD64
+        - ATATT3xFfGF0jloNk53nk0TOI0gqoseNHGl8-z6t7X083LpsEpmVs1jj4TGIkJlye3UMWCBYR6t_yKX15eL9-an6Fa2XSLQXs7VIJ5Yh7eqtli9GmuskDtoiI74lHggR1T4yXHDRUX05uy2mcev4YHdv1aR_EnX7M4Qf13V6zNZxQpPOHDsHTEE=1BF68EF5
+      assert_not:
+        - ATATT3xFfGF0jloNk53nk0TOI0gqoseNHGl8-z6t7X083LpsEpmVs1jj4TGIkJlye3UMWCBYR6t_yKX15eL9-an6Fa2XSLQXs7VIJ5Yh7eqtli9GmuskDtoiI74lHggR1T4yXHDRUX05uy2mcev4YHdv1aR_EnX7M4Qf13V6zNZxQpPOHDsHTEE+1BF68EF5
+        - ATATT4xFfGF0e4B4OMjMS-SGlCl7JAgLXoc7LW6PYrDUUnQo2IQ7ZRObr69h9XgDudve019Iwt-WTqAUPVP327u9cQRjQVHfNIMOQemq3AMDIa6yXmEPr-B5dI990wAetltPGZKzPcMXWbNUZGRT58Cuh_Vn7FAStr3vB9MWFxhlKzCvLDfWgCQ=3917DDB4
+        - ATATT3xFfGF0XV6HgfqtVaCN7FGnVtONwnRSIssan940Or9w05qcHjXbxdRHC_-c5C908faZCziguBqZa7CwNySDoBC7yF8rG0eGGfgLJQbl4HmuqRjy7YBLpnTnyw6mLWlW--y4q_OP-0eoB5rTDRdYJwhl6t1uHlihuWPxhJymCq1ezzxiFbUx=D517AD64
+        - ATATT3xFfGF0jloNk53nk0TOI0gqoseNHGl8-z6t7X083LpsEpmVs1jj4TGIkJlye3UMWCBYR6t_yKX15eL9-an6Fa2XSLQXs7VIJ5Yh7eqtli9GmuskDtoiI74lHggR1T4yXHDRUX05uy2mcev4YHdv1aR_EnX7M4Qf13V6zNZxQpPOHDsHTEE=21BF68EF5
+    history:
+      - 2026-03-23 initial version
     refs:
       - https://support.atlassian.com/bitbucket-cloud/docs/api-tokens/
