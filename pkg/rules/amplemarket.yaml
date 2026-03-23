@@ -1,0 +1,27 @@
+rules:
+  - name: Amplemarket API Key
+    id: ghost.amplemarket.1
+    description: Amplemarket API Key
+    tags:
+      - api
+      - amplemarket
+    pattern: |
+      (?x)
+        \b
+          (amp_(?i)[A-F0-9]{20})
+        \b
+    entropy: 3.5
+    redact: [7, 4]
+    tests:
+      assert:
+        - amp_b7a39db6bc166af9e54c
+        - amp_d5c747337f5070934241
+        - amp_2a2e0134c95d84e5b5e3
+      assert_not:
+        - amp_b7a39db6bc166af9e54ca
+        - amp_d5c747337f507093424x
+        - amp_2a2e0134c95d84e5b5e
+    history:
+      - 2026-03-23 initial version
+    refs:
+      - https://docs.amplemarket.com/api-reference/introduction

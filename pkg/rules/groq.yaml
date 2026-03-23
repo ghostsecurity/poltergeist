@@ -1,0 +1,26 @@
+rules:
+  - name: Groq API Key
+    id: ghost.groq.1
+    description: Groq API Key
+    tags:
+      - api
+      - groq
+      - token
+    pattern: |
+      (?x)
+        \b
+          (gsk_(?i)[A-Z0-9]{52})
+        \b
+    entropy: 4.7
+    redact: [7, 4]
+    tests:
+      assert:
+        - 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
+        - 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
+      assert_not:
+        - gsk_D1fargbpewVwZCKIqM0JWGdyc4FYhLBTHSyToh9PJF3Fi7IY1yD1x
+        - gsk_Ucwyebleynybo78H8qt4WGdyb3FYibIXocjc6vFpsB4Z7H9BX51
+    history:
+      - 2026-03-23 initial version
+    refs:
+      - https://console.groq.com/docs/quickstart
