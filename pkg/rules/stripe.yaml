@@ -33,7 +33,7 @@ rules:
     pattern: |
       (?x)
         \b
-          ([sr]k_live_[a-zA-Z0-9]{25,250})
+          ([sr]k_live_(?i)[A-Z0-9]{25,250})
         \b
     entropy: 5.1
     redact: [11, 4]
@@ -48,5 +48,32 @@ rules:
         - sk_live_123456789012345678901234
     history:
       - 2025-08-12 initial version
+    refs:
+      - https://stripe.com/docs/api/authentication
+  - name: Stripe Webhook Secret
+    id: ghost.stripe.3
+    description: Stripe Webhook key.
+    tags:
+      - api
+      - stripe
+      - webhook
+    pattern: |
+      (?x)
+        \b
+          (whsec_(?i)[A-Z0-9]{32})
+        \b
+    entropy: 4.5
+    redact: [10, 4]
+    tests:
+      assert:
+        - whsec_bnwoMdok8DLWLoVxbUiMmZqw6jceyoHE
+        - whsec_wZ1Us1WWow0OPcqBUmWBZ0V58G6LvPxe
+      assert_not:
+        - whsec_bnwoMdok8DLWLoVxbUiMmZqw6jceyoHEx
+        - whsec_wZ1Us1WWow0OPcqBUmWBZ0V58G6LvPx
+        - whsec_bnwoMdok8DLWL^VxbUiMmZqw6jceyoHE
+        - whsec_wZ1Us1WWow%OPcqBUmWBZ0V58G6LvPe
+    history:
+      - 2026-03-23 initial version
     refs:
       - https://stripe.com/docs/api/authentication
