@@ -1,0 +1,25 @@
+rules:
+  - name: OpenRouter API Key
+    id: ghost.openrouter.1
+    description: OpenRouter API Key
+    tags:
+      - api
+      - openrouter
+    pattern: |
+      (?x)
+        \b
+          (sk-or-v1-(?i)[A-F0-9]{64})
+        \b
+    entropy: 3.5
+    redact: [13, 4]
+    tests:
+      assert:
+        - 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
+        - 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
+      assert_not:
+        - sk-or-v1-c96055918aabbdc0954660544c2f07889890ab9b4cd1b22a5636fd5add437b80x
+        - sk-or-v1-2d31c06cb6c37d0dc7f123b112dc06797528f613cc94a13694d133a0a0a43b7x
+    history:
+      - 2026-03-23 initial version
+    refs:
+      - https://openrouter.ai/docs/api/reference/authentication
