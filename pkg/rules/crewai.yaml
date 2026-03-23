@@ -1,0 +1,56 @@
+rules:
+  - name: Crew.ai PAT
+    id: ghost.crewai.1
+    description: Crew AI PAT
+    tags:
+      - api
+      - crewai
+    pattern: |
+      (?x)
+        \b
+          (pat_(?i)[A-Z0-9_-]{43})
+        \b
+    entropy: 4.3
+    redact: [7, 4]
+    tests:
+      assert:
+        - pat_ljlj9prpycWtWbxxBhk2vCPrg9itxfEWj76sizCDvxI
+        - pat_ml_y79P7eND5dnMIEmvr571mLnUzTBQROsZubaifcW0
+        - pat_nh97kMY_J9_LZ4yMYY0Bw2NziAtfMuv9fMvLIGXw4N0
+      assert_not:
+        - pat_ljlj9prpycWtWbxxBhk2vCPrg9itxfEWj76sizCDvxIx
+        - pat_ml_y79P7eND5dnMIEmvr571mLnUzTBQROsZubaifcW
+        - pat_nh97kMY_J9_LZ4yMYY0Bw2NziAtfMuv9fMvLI%Xw4N0
+    history:
+      - 2026-03-23 initial version
+    refs:
+      - https://docs.crewai.com/en/api-reference/introduction
+  - name: Crew.ai Auth Token
+    id: ghost.crewai.2
+    description: Crew AI Enterprise Action Auth Token
+    tags:
+      - api
+      - crewai
+      - auth
+      - token
+    pattern: |
+      (?x)
+        \b
+          (PK_(?i)[A-F0-9]{32})
+        \b
+    entropy: 3.5
+    redact: [6, 4]
+    tests:
+      assert:
+        - PK_cf53d5b4db91d49adb39db0e327af36a
+        - PK_d9fc49fc241d4dd60417928ae34244aa
+        - PK_a5602e8faef41b1f3ce2679715197d7e
+      assert_not:
+        - PK_cf53d5b4db91d49adb39db0e327af36aa
+        - PK_d9fc49fc241d4dd60417928ae34244a
+        - PK_a5602e8faef41b1f3ce2679715197d7x
+        - PK_a5602e8faef41b1f3c-2679715197d7e
+    history:
+      - 2026-03-23 initial version
+    refs:
+      - https://docs.crewai.com/en/api-reference/introduction
