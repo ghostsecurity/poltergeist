@@ -1,0 +1,28 @@
+rules:
+  - name: Telegram Bot Token
+    id: ghost.telegram.1
+    description: Telegram Bot Token
+    tags:
+      - api
+      - telegram
+      - bot
+    pattern: |
+      (?x)
+        \b
+          ([0-9]{10}\:(?i)[A-Z0-9_-]{35})
+        \b
+    entropy: 4.5
+    redact: [4, 4]
+    tests:
+      assert:
+        - 8641233767:AAEVv8Py_9FRSx_W7ZvDEFlk2mL1e_lOyWw
+        - 8621238915:AAGGDW_eb6IwYNnDEFG4M_wxc3C4ZOJa61M
+        - 8123638915:AAGGDW_eb6IwYNnHIJK4M_wxc4D5ZOJb71M
+      assert_not:
+        - 8641233767:AAEVv8Py_9FRSx_W7ZvDEFlk2mL1e_lOyWwx
+        - 8621238915:AAGGDW_eb6IwYNnDEFG4M_wxc3C4ZOJa61
+        - 8123638915_AAGGDW_eb6IwYNnHIJK4M_wxc4D5ZOJb71M
+    history:
+      - 2026-03-23 initial version
+    refs:
+      - https://core.telegram.org/bots/features#botfather
