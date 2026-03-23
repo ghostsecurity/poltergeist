@@ -10,7 +10,7 @@ rules:
         \b
           (re_(?i)[A-Z0-9]{8}_[A-Z0-9]{24})
         \b
-    entropy: 94.2
+    entropy: 4.2
     redact: [6, 4]
     tests:
       assert:

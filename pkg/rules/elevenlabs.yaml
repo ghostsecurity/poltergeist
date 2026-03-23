@@ -1,0 +1,28 @@
+rules:
+  - name: Eleven Labs API Key
+    id: ghost.elevenlabs.1
+    description: Eleven Labs API key.
+    tags:
+      - api
+      - eleven
+      - elevenlabs
+    pattern: |
+      (?x)
+        \b
+          (sk_(?i)[A-F0-9]{48})
+        \b
+    entropy: 3.4
+    redact: [6, 4]
+    tests:
+      assert:
+        - sk_15579ddb10e53098e649b00f4c11c5c0fd18def0f5ca0b2c
+        - sk_f1460d7c38ad7fe67f745447ee1a1f53d97f369eed8d0e9f
+        - sk_c6c3ddc6f136150e7c71c3a4cb012ee5cc25e17f26719a17
+      assert_not:
+        - sk_15579ddb10e53098e649b00f4c11c5c0fd18def0f5ca0b2cx
+        - sk_f1460d7c38ad7fe67f745447ee1a1f53d97f369eed8d0e9
+        - sk_c6c3ddc6f136150e7c71c3a4gb012ee5cc25e17f26719a17
+    history:
+      - 2026-03-23 initial version
+    refs:
+      - https://elevenlabs.io/docs/api-reference/service-accounts/api-keys/create
