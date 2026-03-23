@@ -1,0 +1,34 @@
+rules:
+  - name: OpenWeather API Key
+    id: ghost.openweather.1
+    description: OpenWeather API key variable declaration.
+    tags:
+      - api
+      - openweather
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)(?:openweather|owm)\w*
+            [\W]{0,40}?
+            [A-F0-9]{32}
+          )
+        \b
+    redact: [12, 4]
+    entropy: 3.5
+    tests:
+      assert:
+        - "owm: e15b2cc6122028625bcd0bb8ee68a91d"
+        - "owm=cbfe9654209070a04dab037a2558810b"
+        - "openweather = 627abe03552ec42c40e037166bd5d246"
+        - 'let owm = "7e7a59c4c99b8837bb4cddbb92f6cc2e"'
+        - 'export OPENWEATHER_KEY="0d6370daf050a6a9f5ebbb578cd7942e"'
+        - "OWM_API_KEY=0d6370daf050a6a9f5ebbb578cd7942e"
+        - 'const OWM = "0d6370daf050a6a9f5ebbb578cd7942e"'
+        - "OPENWEATHER_API_KEY=0d6370daf050a6a9f5ebbb578cd7942e"
+      assert_not:
+        - 'const API_KEY = 0d6370daf050a6a9f5ebbb578cd7942e'
+        - 'let OWM = e15b2cc6122028625bcd0bb8ee68a91z'
+        - 'let OWM = cbfe9654209070a04dab037a2558810b111'
+    history:
+      - 2026-03-23 initial version
