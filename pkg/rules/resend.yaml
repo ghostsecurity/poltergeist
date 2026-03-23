@@ -1,0 +1,27 @@
+rules:
+  - name: Resend API Key
+    id: ghost.resend.1
+    description: Resend API key.
+    tags:
+      - api
+      - resend
+    pattern: |
+      (?x)
+        \b
+          (re_(?i)[A-Z0-9]{8}_[A-Z0-9]{24})
+        \b
+    entropy: 94.2
+    redact: [6, 4]
+    tests:
+      assert:
+        - re_BauAchpc_FLWcTwzGrY44a5vU2c6mzq6P
+        - re_Vqmks8SC_5dVXwFGhugb2AdBBnhrU3UmB
+        - re_fJWNrDyx_JN39UA81ZfQLAQYQeGKm686T
+      assert_not:
+        - re_BauAchpc_FLWcTwzGrY44a5vU2c6mzq6Px
+        - re_Vqmks8SC_5dVXwFGhugb2AdBBnhrU3Um
+        - res_fJWNrDyx_JN39UA81ZfQLAQYQeGKm686T
+    history:
+      - 2026-03-23 initial version
+    refs:
+      - https://resend.com/docs/dashboard/api-keys/introduction
