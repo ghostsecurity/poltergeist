@@ -1,0 +1,36 @@
+rules:
+  - name: Algolia API Key
+    id: ghost.algolia.1
+    description: Algolia API key variable declaration.
+    tags:
+      - api
+      - algolia
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)(?:algolia)\w*
+            [\W]{0,40}?
+            [A-Z0-9]{32}
+          )
+        \b
+    redact: [12, 4]
+    entropy: 3.6
+    tests:
+      assert:
+        - "algolia: f1eb2b002bb310ccced326025f5d00bd"
+        - "algolia=ab616e8da7d5e1181c084b63b1ca02d0"
+        - "algolia = 2f8c6f49edbd5e7127779cf336be730c"
+        - 'let algoliaReadKey = "a2f47f766c4ddaa43b051f672a4f1090"'
+        - 'export ALGOLIA_KEY="5cabc8be23c9f681a8fae628f9b59fad"'
+        - "ALGOLIA_ADMIN_KEY=7cdaf891892f5855cc6aca4573d953cf"
+        - 'const ALGOLIA_SEARCH_KEY = "2413336259a7badb0d42a4ddfe79fc23"'
+        - "ALGOLIA_API_KEY=77aeb1041bf2c4fbda66b1d596576d1e"
+      assert_not:
+        - 9MbXxamGfTkx2cfasR7oUUzylk14gqTAK9GMlSDuX
+        - 9MbXxamGfTkx2cfasR7oUUzylk14gqTAK9GMlSD
+        - 9MbXxamGfTkx2cfasR7o-Uzylk14gqTAK9GMlSD
+    history:
+      - 2026-03-23 initial version
+    refs:
+      - https://www.algolia.com/doc/guides/security/api-keys
