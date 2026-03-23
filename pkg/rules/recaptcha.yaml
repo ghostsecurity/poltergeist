@@ -1,0 +1,36 @@
+rules:
+  - name: ReCaptcha API Key
+    id: ghost.recaptcha.1
+    description: ReCaptcha API key variable declaration.
+    tags:
+      - api
+      - recaptcha
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)(?:captcha|recaptcha)\w*
+            [\W]{0,40}?
+            [A-Z0-9]{40}
+          )
+        \b
+    redact: [12, 4]
+    entropy: 3.5
+    tests:
+      assert:
+        - "captcha: 6LeA75QsAAAAADL2gDnCkmV2xSMjM3A4iwdFRQz1"
+        - "captcha=6LeA75QsAAAAAFgyIApFvhFKQAVsuusNSnzYJeex"
+        - "recaptcha = 6LeA75QsAAAAADL2gDnCkmV2xSMjM3A4iwdFRQz1"
+        - 'let captcha = "6LeA75QsAAAAAFgyIApFvhFKQAVsuusNSnzYJeex"'
+        - 'export RECAPTCHA_KEY="6LeA75QsAAAAADL2gDnCkmV2xSMjM3A4iwdFRQz1"'
+        - "RECAPTCHA_API_KEY=6LeA75QsAAAAAFgyIApFvhFKQAVsuusNSnzYJeex"
+        - 'const CAPTCHA = "6LeA75QsAAAAADL2gDnCkmV2xSMjM3A4iwdFRQz1"'
+        - "RECAPTCHA_API_KEY=6LeA75QsAAAAAFgyIApFvhFKQAVsuusNSnzYJeex"
+      assert_not:
+        - "const CAPTCHA_KEY = 0d6370daf050a6a9f5ebbb578cd7942e"
+        - "let RECAPTCHA = e15b2cc6122028625bcd0bb8ee68a91z"
+        - "let RECAPTCHA_API_KEY = cbfe9654209070a04dab037a2558810b111"
+    history:
+      - 2026-03-23 initial version
+    refs:
+      - https://developers.google.com/recaptcha/docs/settings

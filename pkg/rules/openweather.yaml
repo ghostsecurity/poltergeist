@@ -32,3 +32,5 @@ rules:
         - 'let OWM = cbfe9654209070a04dab037a2558810b111'
     history:
       - 2026-03-23 initial version
+    refs:
+      - https://openweathermap.org/appid
