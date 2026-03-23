@@ -1,0 +1,140 @@
+rules:
+  - name: PostHog Project Token
+    id: ghost.posthog.1
+    description: PostHog Project Token
+    tags:
+      - api
+      - posthog
+      - project
+    pattern: |
+      (?x)
+        \b
+          (phc_(?i)[A-Z0-9]{43})
+        \b
+    entropy: 4.5
+    redact: [7, 4]
+    tests:
+      assert:
+        - phc_aqfHRbb8Qtie27AVUo4E1TrVzEseao6YHbdIVy3CiKo
+        - phc_Bp2iHmuhMYusjr0ypu9tL7ofj72CcI2jVghD7i38MTl
+        - phc_OzIBFfW2zXZWXA3q9sbFfCeHuoy7QBLUmziTbnGHzOi
+      assert_not:
+        - phc_aqfHRbb8Qtie27AVUo4E1TrVzEseao6YHbdIVy3CiKox
+        - phx_Bp2iHmuhMYusjr0ypu9tL7ofj72CcI2jVghD7i38MTl
+        - phc_OzIBFfW2zXZWXA3q9sbFfCe$uoy7QBLUmziTbnGHzOi
+    history:
+      - 2026-03-23 initial version
+    refs:
+      - https://posthog.com/docs/api
+      - https://github.com/PostHog/posthog/blob/e408aac5debe02b39a6a67cfd028f16a2ca7bc90/posthog/models/utils.py#L268-L290
+  - name: PostHog API Key
+    id: ghost.posthog.2
+    description: PostHog Personal API Key
+    tags:
+      - api
+      - posthog
+    pattern: |
+      (?x)
+        \b
+          (phx_(?i)[A-Z0-9]{47})
+        \b
+    entropy: 4.7
+    redact: [7, 4]
+    tests:
+      assert:
+        - phx_nxgX8CziTYtcmdR2xF3R046LBz49rHBXlYHJGCJEilfZIrl
+        - phx_tGJzN8WMvgWUBmqvTcfl5rB7uN5EBPHyr8h2Xxz3IIBp9iu
+        - phx_K5nQujGECMcEmqDzld4wUNtG9onilfw4pUg2ormEXTVWzWu
+      assert_not:
+        - phx_nxgX8CziTYtcmdR2xF2R046LBz49rHBXlYHJGCJEilfZIrlx
+        - phz_nxgX8CziTYtcmdR2xF2R046LBz49rHBXlYHJGCJEilfZIrl
+        - phx_tGJzN8WMvgWUBmqvTcfl4rB7uN5EBPHy&8h2Xxz3IIBp9iu
+    history:
+      - 2026-03-23 initial version
+    refs:
+      - https://posthog.com/docs/api
+      - https://github.com/PostHog/posthog/blob/e408aac5debe02b39a6a67cfd028f16a2ca7bc90/posthog/models/utils.py#L268-L290
+  - name: PostHog Feature Flag API Key
+    id: ghost.posthog.3
+    description: PostHog Feature Flag Secure API Key
+    tags:
+      - api
+      - posthog
+      - feature flag
+    pattern: |
+      (?x)
+        \b
+          (phs_(?i)[A-Z0-9]{47})
+        \b
+    entropy: 4.7
+    redact: [7, 4]
+    tests:
+      assert:
+        - phs_8BamSCGAJL4J0hBl2WmkcswecSArJAXO20xzcpYhdiPto9B
+        - phs_FsG1YzDpCu64PFUcbW1CiEEfiFg1IIBRsME3qqehpZ5GpoT
+        - phs_AuxyQt2LA1TlhapyNfjuf7WbiVGmmoGzpeof5dR5T9lNP8f
+      assert_not:
+        - phs_65qibR1ebruFHY1LWB4MUIQcJMkHkPufBngPlH8ViCf8sh6x
+        - phs_w3BsOiadq3zmONTdEEKzoy4pEZKqSkUaBQ7BQ0bNtXKnbP
+        - phs_QoUclX9qocrJ4lelu2wjuJYZONpSFbjFc6&tNsgQ6UikQSb
+    history:
+      - 2026-03-23 initial version
+    refs:
+      - https://posthog.com/docs/api
+      - https://github.com/PostHog/posthog/blob/e408aac5debe02b39a6a67cfd028f16a2ca7bc90/posthog/models/utils.py#L268-L290
+  - name: PostHog OAuth Access Token
+    id: ghost.posthog.4
+    description: PostHog OAuth Access Token
+    tags:
+      - api
+      - posthog
+      - oauth
+    pattern: |
+      (?x)
+        \b
+          (pha_(?i)[A-Z0-9]{43})
+        \b
+    entropy: 4.5
+    redact: [7, 4]
+    tests:
+      assert:
+        - pha_XgrXUnvwyoPLmjwHES5lc8scZUtheBpa1QV1qmssutB
+        - pha_35kHVLA1E068nvrwUTgabkh8xvGGTpSpsVjGcpVNfis
+        - pha_6genFIDEpcblTlA4yPkaSdV0RNALyfB2Gr9dlB6YwSq
+      assert_not:
+        - pha_XgrXUnvwyoPLmjwHES5lc8scZUtheBpa1QV1qmssutBx
+        - phz_35kHVLA1E068nvrwUTgabkh8xvGGTpSpsVjGcpVNfis
+        - pha_6genFIDEpcblTlA4yPkaSdV&RNALyfB2Gr9dlB6YwSq
+    history:
+      - 2026-03-23 initial version
+    refs:
+      - https://posthog.com/docs/api
+      - https://github.com/PostHog/posthog/blob/e408aac5debe02b39a6a67cfd028f16a2ca7bc90/posthog/models/utils.py#L268-L290
+  - name: PostHog OAuth Access Token
+    id: ghost.posthog.5
+    description: PostHog OAuth Refresh Token
+    tags:
+      - api
+      - posthog
+      - oauth
+    pattern: |
+      (?x)
+        \b
+          (phr_(?i)[A-Z0-9]{43})
+        \b
+    entropy: 4.5
+    redact: [7, 4]
+    tests:
+      assert:
+        - phr_9csMsAjlUNEW3T9hjDELzJE7RFbNZjvfpZWmxeoksHV
+        - phr_cObbRbJqZpvTSr9UEyUG1NxQDfwKMNouxrEiwQuaoER
+        - phr_s1c1Nazv7e9XQDUrD0NkDYDu8x83QK6b2JDZdwinYCO
+      assert_not:
+        - phr_9csMsAjlUNEW3T9hjDELzJE7RFbNZjvfpZWmxeoksHVx
+        - phz_cObbRbJqZpvTSr9UEyUG1NxQDfwKMNouxrEiwQuaoER
+        - phr_s1c1Nazv7e9XQDUrD%NkDYDu8x83QK6b2JDZdwinYCO
+    history:
+      - 2026-03-23 initial version
+    refs:
+      - https://posthog.com/docs/api
+      - https://github.com/PostHog/posthog/blob/e408aac5debe02b39a6a67cfd028f16a2ca7bc90/posthog/models/utils.py#L268-L290
