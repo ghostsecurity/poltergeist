@@ -1,0 +1,33 @@
+rules:
+  - name: Spotify Access Token
+    id: ghost.spotify.1
+    description: Spotify Access Token variable declaration.
+    tags:
+      - api
+      - spotify
+      - token
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)(?:spotify)\w*
+            [\W]{0,40}?
+            [A-Z0-9]{44}
+          )
+        \b
+    redact: [12, 4]
+    entropy: 4.1
+    tests:
+      assert:
+        - let spotify=NjgxNjViYzI1MGIyNGE4OGI3NTNmNDVlZjI2Y2U5NWYK
+        - SPOTIFY_TOKEN=MWY4YTA4NGI1NzU5OTFmMTdlNzVjYjZmZGNhZDRiYWQK
+        - SPOTIFY_ACCESS_TOKEN=ZDI4YTA2ZDRlZGQwMzE0YjNiNzM4NWI5ODExNzZmMGEK
+      assert_not:
+        - let spotify=4a22734a2c7847809d017640f267bba7x
+        - SPOTIFY_TOKEN=4b9bfc03ffed40f7b4acc97ac60c5b3
+        - SPOTIFY_TOKEN=N2MxMDZjN2FlY2Y5MTVkNWQwOWU5NmM0M2QxODVlY2UKx
+        - SPOTIFY_TOKEN=N2MxMDZjN2FlY2Y5MTVkNWQwOWU5NmM0M2QxODVlY2U
+    history:
+      - 2026-03-25 initial version
+    refs:
+      - https://developer.spotify.com/documentation/web-api/concepts/access-token
