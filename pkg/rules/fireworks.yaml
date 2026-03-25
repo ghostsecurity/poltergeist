@@ -1,0 +1,25 @@
+rules:
+  - name: Fireworks API Key
+    id: ghost.fireworks.1
+    description: Fireworks AI API Key
+    tags:
+      - api
+      - fireworks
+    pattern: |
+      (?x)
+        \b
+          (fw_(?i)[A-Z0-9]{22})
+        \b
+    entropy: 4.1
+    redact: [6, 4]
+    tests:
+      assert:
+        - fw_GZQpdDHrs3z66NBxy1fzaH
+        - fw_AGuDdk53ECTPBQUZgXDjBo
+      assert_not:
+        - fw_GZQpdDHrs3z66NBxy1fzaHx
+        - fw_AGuDdk53ECTPBQUZgXDjB
+    history:
+      - 2026-03-26 initial version
+    refs:
+      - https://docs.fireworks.ai/getting-started/quickstart
