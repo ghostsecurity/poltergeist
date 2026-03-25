@@ -1,0 +1,27 @@
+rules:
+  - name: MailerSend API Key
+    id: ghost.mailersend.1
+    description: MailerSend API Key
+    tags:
+      - api
+      - mailersend
+    pattern: |
+      (?x)
+        \b
+          (mlsn\.[a-f0-9]{64})
+        \b
+    entropy: 3.5
+    redact: [9, 4]
+    tests:
+      assert:
+        - mlsn.45784df7b38b0b453fb3b06b50e4569daa0cb9fdaf817642015da8240d15bddc
+        - mlsn.b8c2b8a469694e76b1480f2ffabc5e5161bfc73f81cea4275c796394d7a9ef9e
+        - mlsn.0e55e5431a4e59d7c0357911e9d503d7fca95d5087079acc86942e8bd405ed1b
+      assert_not:
+        - mlsn.45784df7b38b0b453fb3b06b50e4569daa0cb9fdaf817642015da8240d15bddcx
+        - mlsn.b8c2b8a469694e76b1480f2ffabc5e5161bfc73f81cea4275c796394d7a9ef9
+        - mlsn.0e55e5431a4e59d7c0357911e9d503d7fca95d5087079acc86942e8bd405ex1b
+    history:
+      - 2026-03-26 initial version
+    refs:
+      - https://www.mailersend.com/help/managing-api-tokens
