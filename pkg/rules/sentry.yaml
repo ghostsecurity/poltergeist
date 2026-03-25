@@ -1,0 +1,25 @@
+rules:
+  - name: Sentry Token
+    id: ghost.sentry.1
+    description: Sentry Token
+    tags:
+      - api
+      - sentry
+    pattern: |
+      (?x)
+        \b
+          (sntryu_[a-f0-9]{64})
+        \b
+    entropy: 3.5
+    redact: [10, 4]
+    tests:
+      assert:
+        - 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
+        - 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
+      assert_not:
+        - sntryu_da3a4e895224b83aece8bcb15b7b1e8d87323508734903e8d101765c77b0b99X
+        - sntryu_d096083c1d7066e9ea590d4b72fce58c0e8bc2046c25eca0ac206600d639948
+    history:
+      - 2026-03-26 initial version
+    refs:
+      - https://docs.sentry.io/account/auth-tokens
