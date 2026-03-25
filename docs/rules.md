@@ -2119,7 +2119,7 @@ Total rules: 139
 
 **Tests:**
 - assert: 3 cases
-- assert_not: 3 cases
+- assert_not: 4 cases
 
 
 <a id="ghost.mailgun.1"></a>
