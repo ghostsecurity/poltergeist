@@ -1,0 +1,33 @@
+rules:
+  - name: RapiAPI API Key
+    id: ghost.rapidapi.1
+    description: RapidAPI API Key
+    tags:
+      - api
+      - rapidapi
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)(?:rapid)\w*
+            [\W]{0,40}?
+            [a-f0-9]{10}[a-z0-9]{40}
+          )
+        \b
+    entropy: 3.5
+    redact: [14, 4]
+    tests:
+      assert:
+        - RAPIDAPI_KEY=969fcbc7b0gho47dbffee523e95ap197d50jsn9752cc4adcb3
+        - RAPID=b3481a1310ghoc937b2cb9770de9p178c21jsn306be784b131
+        - RAPIDAPI=e524dea763ghoa5b5b87e948db5ap193acejsnf75124eecb24
+        - RAPID_KEY=e4ca2f9861gho0928229e749f352p1515b5jsnb0868000af6f
+      assert_not:
+        - RAPID_KEY=969fcbc7b0gho47dbffee523e95ap197d50jsn9752cc4adcb3x
+        - RAPID_KEY=969fcbc7b0gho47dbffee523e95ap197d50jsn9752cc4adcb
+        - RAPID_KEY=969fcbc7b0gho47dbffee523e95ap197d50js-9752cc4adcb3
+    history:
+      - 2026-03-25 initial version
+    refs:
+      - https://docs.rapidapi.com/docs/keys-and-key-rotation
+      - https://docs.rapidapi.com/docs/configuring-api-security
