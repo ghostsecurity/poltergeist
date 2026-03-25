@@ -1,0 +1,33 @@
+rules:
+  - name: Cloudinary API Key
+    id: ghost.cloudinary.1
+    description: Cloudinary API Key variable declaration.
+    tags:
+      - api
+      - cloudinary
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)(?:cloudinary)\w*
+            [\W]{0,40}?
+            [A-Z0-9_-]{27}
+          )
+        \b
+    redact: [12, 4]
+    entropy: 4.5
+    tests:
+      assert:
+        - let cloudinary=LVr_i_vaatAbxdQ28o-jLOxprMM
+        - CLOUDINARY_SECRET=k2WmPZmFUSoybYvmz9THXXJRpHc
+        - CLOUDINARY_SECRET=XEQ7PdwGInfoYRAmUIcGIhTjlJU
+        - CLOUDINARY_SECRET=_2pvZlfWP2nKqqndkhzpj9dNgso
+      assert_not:
+        - let cloudinary=LVr_i_vaatAbxdQ28o-jLOxprMMM
+        - CLOUDINARY_SECRET=k2WmPZmFUSoybYvmz9THXXJRpH
+        - CLOUDINARY_SECRET=XEQ7%dwGInfoYRAmUIcGIhTjlJU
+        - CLOUDINARY_SECRET=2pvZlfWP2nKqqndkhzpj9dNgso
+    history:
+      - 2026-03-25 initial version
+    refs:
+      - https://cloudinary.com/documentation/cloudinary_references

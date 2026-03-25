@@ -1,0 +1,33 @@
+rules:
+  - name: Plaid API Key
+    id: ghost.plaid.1
+    description: Plaid API Key variable declaration.
+    tags:
+      - api
+      - plaid
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)(?:plaid)\w*
+            [\W]{0,40}?
+            [A-F0-9]{30}
+          )
+        \b
+    redact: [12, 4]
+    entropy: 3.5
+    tests:
+      assert:
+        - let plaid=1bbf4a686175a7075d569ac77db0bf
+        - PLAID_TOKEN=0d94363d99e52c7ed023d2fdfddcf2
+        - PLAID_ACCESS_TOKEN=06342265952033fb07aa018bcd64e3
+        - PLAID_ACCESS_TOKEN=4a5dfbe6f4f9091242abb1840d3af1
+      assert_not:
+        - let plaid=4a22734a2c7847809d017640f267bba7x
+        - PLAID_TOKEN=4b9bfc03ffed40f7b4acc97ac60c5b3
+        - PLAID_TOKEN=N2MxMDZjN2FlY2Y5MTVkNWQwOWU5NmM0M2QxODVlY2UKx
+        - PLAID_TOKEN=N2MxMDZjN2FlY2Y5MTVkNWQwOWU5NmM0M2QxODVlY2U
+    history:
+      - 2026-03-25 initial version
+    refs:
+      - https://plaid.com/docs/api/

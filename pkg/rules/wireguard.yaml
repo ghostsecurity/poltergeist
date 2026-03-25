@@ -1,0 +1,30 @@
+rules:
+  - name: Wireguard API Key
+    id: ghost.wireguard.1
+    description: Wireguard Private key variable declaration.
+    tags:
+      - api
+      - wireguard
+    pattern: |
+      (?x)
+        \b
+          (
+            (?:PrivateKey)\w*
+            [\W]{0,40}?
+            (?i)[A-Z0-9]{43}
+          )
+        \b
+    redact: [16, 4]
+    entropy: 4.7
+    tests:
+      assert:
+        - PrivateKey = aTrSVNtdex4QRqTMENnkwdIAzPUxQTXJO852vBVlmAk
+        - PrivateKey=aTrSVNtdex4QRqTMENnkwdIAzPUxQTXJO852vBVlmAk
+      assert_not:
+        - PrivateKey=aTrSVNtdex4QRqTMENnkwdIAzPUxQTXJO852vBVlmA
+        - PrivateKey=aTrSVNtdex4QRqTMENnkwdIAzPUxQTXJO852vBVlmAkx
+        - PrivateKey=aTrSVNtdex4QRqTMENnkw-IAzPUxQTXJO852vBVlmAk
+    history:
+      - 2026-03-23 initial version
+    refs:
+      - https://www.wireguard.com/quickstart/

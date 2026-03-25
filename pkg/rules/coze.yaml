@@ -1,0 +1,25 @@
+rules:
+  - name: Coze API Key
+    id: ghost.coze.1
+    description: Coze API Key
+    tags:
+      - api
+      - coze
+    pattern: |
+      (?x)
+        \b
+          (pat_(?i)[A-Z0-9]{64})
+        \b
+    entropy: 4.7
+    redact: [7, 4]
+    tests:
+      assert:
+        - pat_dcQ8TSQWiH8lFXj261kF37DClSEWuWNPIXLRxHwpXz705XxvLhXohWcJSpRe1SlW
+        - pat_i5LCLq2AiiT0FN32FOdUGxFkQOMxNF7a5SwcsZHIckfOgOurRuxIy9IrJ8SVYgkd
+      assert_not:
+        - pat_dcQ8TSQWiH8lFXj261kF37DClSEWuWNPIXLRxHwpXz705XxvLhXohWcJSpRe1SlWx
+        - pat_i5LCLq2AiiT0FN32FOdUGxFkQOMxNF7a5SwcsZHIckfOgOurRuxIy9IrJ8SVYgk
+    history:
+      - 2026-03-25 initial version
+    refs:
+      - https://www.coze.com/open/docs/developer_guides

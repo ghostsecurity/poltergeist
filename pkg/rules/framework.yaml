@@ -1,0 +1,37 @@
+rules:
+  - name: Framework Secret Key
+    id: ghost.framework.1
+    description: Framework Secret key variable declaration
+    tags:
+      - api
+      - framework
+      - symfony
+      - laravel
+      - django
+      - rails
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)(?:APP_SECRET|APP_KEY|SECRET_KEY|SECRET_KEY_BASE)\w*
+            [\W]{0,40}?
+            [A-Z0-9]{32,}
+          )
+        \b
+    redact: [12, 4]
+    entropy: 4.1
+    tests:
+      assert:
+        - "APP_SECRET=95ba3265e4fc9e04b25a4ebe37626490"
+        - "APP_KEY=szJiK1fy6FaEedPWSw8e41kAXTbtArCX5ks7wQP3"
+        - "SECRET_KEY=fVst85KDGHJxfjrXtSJGjwQ27W92ORERq4bV6Ais"
+        - "SECRET_KEY_BASE=0903415147f1253f3cc0d000aab41d9fbfbc037d6acd893f3f27d8a98373d8e9"
+      assert_not:
+        - 9MbXxamGfTkx2cfasR7oUUzylk14gqTAK9GMlSDuX
+        - 9MbXxamGfTkx2cfasR7oUUzylk14gqTAK9GMlSD
+        - 9MbXxamGfTkx2cfasR7o-Uzylk14gqTAK9GMlSD
+        - 0903415147f1253f3cc0d000aab41d9fbfbc037d6acd893f3f27d8a98373d8e9
+    history:
+      - 2026-03-25 initial version
+    refs:
+      - https://github.com/trufflesecurity/trufflehog/issues/4687

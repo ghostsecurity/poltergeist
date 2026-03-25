@@ -1,0 +1,27 @@
+rules:
+  - name: Weights & Biases API Key
+    id: ghost.wandb.1
+    description: Weights & Biases API Key
+    tags:
+      - api
+      - wandb
+    pattern: |
+      (?x)
+        \b
+          (wandb_v1_(?i)[A-Z0-9]{27}_[A-Z0-9]{49})
+        \b
+    entropy: 5.1
+    redact: [12, 4]
+    tests:
+      assert:
+        - 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
+        - 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
+        - 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
+      assert_not:
+        - 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
+        - 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
+        - wandb_v2_8tlnrKSJbYWbWNIeDtb2JZCjVNB_KyJvO7GvXtZCroa1HVs9fuVNUkByWvSOPxTwfqeYKEZ2rejbK
+    history:
+      - 2026-03-25 initial version
+    refs:
+      - https://docs.wandb.ai/support/models/articles/how-do-i-find-my-api-key
