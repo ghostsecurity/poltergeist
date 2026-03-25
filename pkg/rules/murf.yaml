@@ -1,0 +1,27 @@
+rules:
+  - name: Murf AI API Key
+    id: ghost.murf.1
+    description: Murf AI API Key
+    tags:
+      - api
+      - murf
+    pattern: |
+      (?x)
+        \b
+          (ap2_[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})
+        \b
+    entropy: 3.2
+    redact: [8, 4]
+    tests:
+      assert:
+        - ap2_02434094-9a6b-4685-8938-e996c25ae29b
+        - ap2_1b7c4e8b-fbe3-4da2-b536-6465e2791031
+        - ap2_213ac2fa-c029-4933-9b37-bae23da80c0f
+      assert_not:
+        - ap2_02434094-9a6z-4685-8938-e996c25ae29b
+        - ap2_02434094a9a6zb4685c8938de996c25ae29b
+        - ap2_213ac2fa-c029-4933-9b37-bae23da80c0
+    history:
+      - 2026-03-26 initial version
+    refs:
+      - https://murf.ai/api/docs/introduction/quickstart
