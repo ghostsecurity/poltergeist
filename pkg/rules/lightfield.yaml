@@ -1,0 +1,28 @@
+rules:
+  - name: Lightfield API Key
+    id: ghost.lightfield.1
+    description: Lightfield API Key
+    tags:
+      - api
+      - lightfield
+    pattern: |
+      (?x)
+        \b
+          (sk_lf_\d_(?i)[A-Z0-9_-]{64})
+        \b
+    entropy: 4.7
+    redact: [11, 4]
+    tests:
+      assert:
+        - sk_lf_0_XnjCzv_XYc3qZdxi46ObM69P5zq5ppi13FQxUFHtdJKpsfv7nFJGJeTGNyfk9m2t
+        - sk_lf_0_R4A6gAks2ce2LkJJ_Z9owXgmILut9jZ69mJT0yP5YCNZqOOTafhdnBttw20E6V2I
+        - sk_lf_0_pB1JymczabyooNFCTRmVkM6NANb6-RDc69gOuJa8cRNDqvodDdG-x9XxrNCRJnMF
+      assert_not:
+        - sk_lf_A_XnjCzv_XYc3qZdxi46ObM69P5zq5ppi13FQxUFHtdJKpsfv7nFJGJeTGNyfk9m2t
+        - sk_lf_0_R4A6gAks2ce2LkJJ_Z9owXgmILut9jZ69mJT0yP5YCNZqOOTafhdnBttw20E6V2
+        - sk_lf_0_pB1JymczabyooNFCTRmVkM6NANb6-RDc69gOuJa8cRNDqvodDdG-x9XxrNCRJnMFx
+        - sk_lf_0_pB1JymczabyooNFCTRmVkM6NANb6%RDc69gOuJa8cRNDqvodDdG-x9XxrNCRJnMF
+    history:
+      - 2026-03-26 initial version
+    refs:
+      - https://docs.lightfield.app/using-the-api/api-keys/
