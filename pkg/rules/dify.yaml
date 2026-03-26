@@ -1,0 +1,26 @@
+rules:
+  - name: Dify API Key
+    id: ghost.dify.1
+    description: Dify AI API Key
+    tags:
+      - api
+      - dify
+    pattern: |
+      (?x)
+        \b
+          (app-(?i)[A-Z0-9]{24})
+        \b
+    entropy: 3.9
+    redact: [6, 4]
+    tests:
+      assert:
+        - app-gc4TBNcwMOVde5q5en8BpaxL
+        - app-awUrXYzSR685gW8EINiukzUl
+      assert_not:
+        - app-gc4TBNcwMOVde5q5en8BpaxLx
+        - app-awUrXYzSR685gW8EINiukzU
+        - app-awUrXYzSR68%gW8EINiukzUl
+    history:
+      - 2026-03-26 initial version
+    refs:
+      - https://docs.dify.ai/en/use-dify/publish/developing-with-apis

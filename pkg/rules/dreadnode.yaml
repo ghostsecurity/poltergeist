@@ -1,0 +1,27 @@
+rules:
+  - name: Dreadnode API Key
+    id: ghost.dreadnode.1
+    description: Dreadnode API Key
+    tags:
+      - api
+      - dreadnode
+    pattern: |
+      (?x)
+        \b
+          (dn_(?i)[A-Z0-9_-]{32})
+        \b
+    entropy: 4.3
+    redact: [6, 4]
+    tests:
+      assert:
+        - dn_1pIzmgTsDsZtmIY-meu0iv0LlaOPiFGb
+        - dn_Zz287fTvnbCJx2ibm-Bg2b0-Z2cKoGgk
+        - dn_2_iQAz-ST7XMmJWPWMpfck4PC56ijt8z
+      assert_not:
+        - dn_1pIzmgTsDsZtmIY-meu0iv0LlaOPiFGbx
+        - dn_Zz287fTvnbCJx2ibm-Bg2b0-Z2cKoGg
+        - dn_2_iQAz%ST7XMmJWPWMpfck4PC56ijt8z
+    history:
+      - 2026-03-26 initial version
+    refs:
+      - https://docs.dreadnode.io/sdk/api-client
