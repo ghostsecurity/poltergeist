@@ -1,0 +1,35 @@
+rules:
+  - name: Raindrop AI API Key
+    id: ghost.raindrop.1
+    description: Raindrop AI API key variable declaration.
+    tags:
+      - api
+      - raindrop
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)(?:raindrop)\w*
+            [\W]{0,40}?
+            [A-F0-9]{96}
+          )
+        \b
+    redact: [14, 4]
+    entropy: 3.5
+    tests:
+      assert:
+        - "raindrop=6d89b01696fcf5f775bb123dbac9df184371325f9af413caf7334ff86852445df8554b0e74d7b589f69ddfc1691dd4bb"
+        - "raindrop: f0fdaac6eead4b4fd8b88a8e8c05761fbc8aa7e1ac9622e5bff19b488e79c60e9502ce00fdc2e3bf7552834da0eb7591"
+        - "raindrop = 85371bfdf76bc47125a8b71a94967335c103507e4bd8886dd88de4fc351775a72c5602d126946157c5bced3e2bbeb95f"
+        - 'let raindrop = "1cf76e570309a9ca09c0a5bc08938ee9e4e4f28f16c177dbe64cab33d3ff0df8837619ebfe4f0c1c0ffc835909346cac"'
+        - 'export RAINDROP_API_KEY="073d5b09a4e5784fb781e525fa42db7259d3961c2c4b921d18bb54e64ab7bebb9848eda2f484f7d16b2bb1b052c9f4da"'
+        - "RAINDROP_KEY=1cc5720db4892d1636b453967b348c08cb90ef77baf7d53dd0d2e6bec64880f1702cf36b14de94c56d772efe62349a5c"
+        - 'const RAINDROP_API_KEY = "7548930a071fb8c16261e279f68e69fc0d29a60516b6d0665782e06c23d6e3b45da60bc8acdc44c5b10689d340f433a9"'
+        - "RAINDROP_API_KEY=c360f3235aaba2e3f1e5b525e2f068df70fc6960478b5f399582c5d70cffbf70ff9714cfa85ca78fe3fb978122a3aeb7"
+      assert_not:
+        - d89cd81769e476eb94a488024b06df6bf51a075c2b5767296df5a074f9a54a9681037d9c96df4513126297c9cc207157
+        - 'let raindrop = "1cf76e570309a9ca09c0a5bc08938ee9e4e4f28f16c177dbe64cab33d3ff0df8837619ebfe4f0c1c0ffc835909346cax"'
+        - 'export RAINDROP_API_KEY="073d5b09a4e5784fb781e525fa42db7259d3961c2c4b921d18bb54e64ab7bebb9848eda2f484f7d16b2bb1b052c9f4d"'
+        - "RAINDROP_KEY=1cc5720db4892d1636b453967b348c08cb90ef77baf7d53dd0d2e6bec64880f1702cf36b14de94c56d772efe62349a5cd"
+    history:
+      - 2026-03-27 initial version
