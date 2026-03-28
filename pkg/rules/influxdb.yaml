@@ -1,0 +1,33 @@
+rules:
+  - name: InfluxDB API Token
+    id: ghost.influxdb.1
+    description: InfluxDB API token variable declaration.
+    tags:
+      - api
+      - influxdb
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)(?:influx)\w*
+            [\W]{0,40}?
+            [A-Z0-9_-]{86,}
+          )
+        \b
+    redact: [20, 4]
+    entropy: 5.1
+    tests:
+      assert:
+        - "INFLUXDB_TOKEN=5qpcUD0RL7iXRRhu_k0c5eekGIP3Xg0Re-4JKqp0JFx181SseU_f8QcZr5CKgGAJJEVn7_61UIykH58VcWHncA=="
+        - "INFLUXDB_TOKEN=oYacagiEUlR5DFwIu18dd52uS457AQt-jlixv57t3SAXc3q-2G8Wb-tgpSIAE1RSGqPhmCLsCsrRmUIBi5Lr0w=="
+        - "INFLUXDB_TOKEN=VUM15AazTlWk1kYBG6pL3CSE_LBkbwng5_hucqhBDv95ib6i4jSUNUcyuy6n7qqUvNAMEjDPgMbbeDUFpLJdgw=="
+        - "INFLUXDB_TOKEN=8Sv8yy6NXUmAkUFqQCPoZAqYFgdfJbh-3xk1x7dLgqnJZw2JR5sbMTJ-UWgTYqAjo3mkRC0VSGRj4F639qu2LA=="
+      assert_not:
+        - "INFLUXDB_TOKEN=5qpcUD0RL7iXRRhu_k0c5eekGIP3Xg0Re-4JKqp0JFx181SseU_f8QcZr5CKgGAJJEVn7=="
+        - "INFLUXDB_TOKEN=oYacagiEUlR5DFwIu18dd52uS457AQt-jlixv57t3SAXc3q-2G8Wb-tgpSIAE1RSGqPh%CLsCsrRmUIBi5Lr0w=="
+        - "INFLUXDB_TOKEN=VUM15AazTlWk1kYBG6pL3CSE_LBkbwng5_hucqhBDv95ib6i4jSUNU^yuy6n7qqUvNAMEjDPgMbbeDUFpLJdgw=="
+        - "8Sv8yy6NXUmAkUFqQCPoZAqYFgdfJbh-3xk1x7dLgqnJZw2JR5sbMTJ-UWgTYqAjo3mkRC0VSGRj4F639qu2LA=="
+    history:
+      - 2026-03-28 initial version
+    refs:
+      - https://docs.influxdata.com/influxdb/cloud/admin/tokens/
