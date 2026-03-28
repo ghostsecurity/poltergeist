@@ -1,0 +1,31 @@
+rules:
+  - name: SonarQube API Key
+    id: ghost.sonarqube.1
+    description: SonarQube API key variable declaration.
+    tags:
+      - api
+      - sonarqube
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)sonarqube\w*(?:token|key|secret)\w*
+            [\W]{0,40}?
+            [a-f0-9]{40}
+          )
+        \b
+    redact: [20, 4]
+    entropy: 4.1
+    tests:
+      assert:
+        - "SONARQUBE_TOKEN=fdfa0411cc61d63a812e28c8ff1d105c449eb2b6"
+        - "let sonarqubeApiKey = 291730f7fe18deadc15ae79eeb2aca5b00812122"
+        - "const sonarQubeToken = 3cce61edfd0794f69b1c338dd75efe8bf6923557"
+      assert_not:
+        - "SONARQUBE=fdfa0411cc61d63a812e28c8ff1d105c449eb2b6"
+        - "let sonarqubeApiKey = 291730f7fe18deadc15ae79eeb2aca5b0081212"
+        - "const sonarQubeToken = 3cce61edfd0794f69b1c338dd75efe8bf6923557x"
+    history:
+      - 2026-03-28 initial version
+    refs:
+      - https://docs.influxdata.com/influxdb/cloud/admin/tokens/
