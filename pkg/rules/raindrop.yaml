@@ -33,3 +33,5 @@ rules:
         - "RAINDROP_KEY=1cc5720db4892d1636b453967b348c08cb90ef77baf7d53dd0d2e6bec64880f1702cf36b14de94c56d772efe62349a5cd"
     history:
       - 2026-03-27 initial version
+    refs:
+      - https://www.raindrop.ai/docs/sdk/http-api#authentication

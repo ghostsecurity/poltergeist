@@ -30,4 +30,4 @@ rules:
     history:
       - 2026-03-28 initial version
     refs:
-      - https://docs.influxdata.com/influxdb/cloud/admin/tokens/
+      - https://sendbird.com/docs/chat/platform-api/v3/prepare-to-use-api

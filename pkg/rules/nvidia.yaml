@@ -23,4 +23,4 @@ rules:
     history:
       - 2025-08-18 initial version
     refs:
-      - https://clickhouse.com/docs/cloud/manage/openapi
+      - https://docs.api.nvidia.com/nim/docs/api-quickstart
