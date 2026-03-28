@@ -1,15 +1,16 @@
 rules:
-  - name: SonarQube API Key
+  - name: SonarQube PAT
     id: ghost.sonarqube.1
-    description: SonarQube API key variable declaration.
+    description: SonarQube Personal Access Token variable declaration.
     tags:
       - api
       - sonarqube
+      - pat
     pattern: |
       (?x)
         \b
           (
-            (?i)sonarqube\w*(?:token|key|secret)\w*
+            (?i)sonar\w*(?:token|key|secret)\w*
             [\W]{0,40}?
             [a-f0-9]{40}
           )
@@ -19,12 +20,42 @@ rules:
     tests:
       assert:
         - "SONARQUBE_TOKEN=fdfa0411cc61d63a812e28c8ff1d105c449eb2b6"
+        - "SONAR_TOKEN=fdfa0411cc61d63a812e28c8ff1d105c449eb2b6"
         - "let sonarqubeApiKey = 291730f7fe18deadc15ae79eeb2aca5b00812122"
         - "const sonarQubeToken = 3cce61edfd0794f69b1c338dd75efe8bf6923557"
       assert_not:
         - "SONARQUBE=fdfa0411cc61d63a812e28c8ff1d105c449eb2b6"
         - "let sonarqubeApiKey = 291730f7fe18deadc15ae79eeb2aca5b0081212"
         - "const sonarQubeToken = 3cce61edfd0794f69b1c338dd75efe8bf6923557x"
+    history:
+      - 2026-03-28 initial version
+    refs:
+      - https://docs.influxdata.com/influxdb/cloud/admin/tokens/
+  - name: SonarQube Scoped Access Token
+    id: ghost.sonarqube.2
+    description: SonarQube Scoped Access Token
+    tags:
+      - api
+      - sonarqube
+      - token
+    pattern: |
+      (?x)
+        \b
+          (
+            (sqco_(?i)[A-Z0-9]{59})
+          )
+        \b
+    redact: [8, 4]
+    entropy: 4.5
+    tests:
+      assert:
+        - sqco_CaF1swqmEKeziPpYbWAmST0b24vlynPZk5tdsLnWL16i1i9cOTjVVr7YNzq
+        - sqco_j6ZSGozSQZqBB2c2cwq597b5ejoPfP41B6EK6ozU6GisgnYBTEeBN64sUqY
+        - sqco_wr11vcXlByW8ZSVuBpAEH4DFeZQcxYfrN7r3VcTaqjSlII79hhOA4bZMbhQ
+      assert_not:
+        - sqcx_CaF1swqmEKeziPpYbWAmST0b24vlynPZk5tdsLnWL16i1i9cOTjVVr7YNzq
+        - sqco_j6ZSGozSQZqBB2c2cwq597b5ejoPfP41B6EK6ozU6GisgnYBTEeBN64sUqYx
+        - sqco_wr11vcXlByW8ZSVuBpAEH4DFeZQcxYfrN7r3VcTaqjSlII79hhOA4bZMbh
     history:
       - 2026-03-28 initial version
     refs:
