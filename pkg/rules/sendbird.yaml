@@ -1,0 +1,33 @@
+rules:
+  - name: Sendbird API Key
+    id: ghost.sendbird.1
+    description: Sendbird API key variable declaration.
+    tags:
+      - api
+      - sendbird
+    pattern: |
+      (?x)
+        \b
+          (
+            (?i)sendbird\w*(?:token|key|secret)\w*
+            [\W]{0,40}?
+            [a-f0-9]{40}
+          )
+        \b
+    redact: [20, 4]
+    entropy: 3.5
+    tests:
+      assert:
+        - "SENDBIRD_KEY=3cb4a43feb676d8f8ffe1c3153905fe99b37aad7"
+        - "SENDBIRD_TOKEN=0c570ad597eea60692b46d66584f7095d2599c1f"
+        - "let sendbirdApiKey = 8d642762930554af9abb1c8bac460169a2b5c616"
+        - "const sendbirdToken = 1d02b8254f25f2b60af540dd41cb46c5e6bb0f5e"
+      assert_not:
+        - "SENDBIRD_KEY=3cb4a43feb676d8f8ffe1c3153905fe99b37aaz7"
+        - "SENDBIRD_TOKEN=0c570ad597eea60692b46d66584f7095d2599c1"
+        - "let sendbirdApiKey = 8d642762930554af9abb1c8-ac460169a2b5c616"
+        - "const sendbirdToken = 1d02b8254f25f2b60af540dd41cb46c5e6bb0f5exxx"
+    history:
+      - 2026-03-28 initial version
+    refs:
+      - https://sendbird.com/docs/chat/platform-api/v3/prepare-to-use-api

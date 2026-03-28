@@ -1,0 +1,27 @@
+rules:
+  - name: Alibaba API Key
+    id: ghost.alibaba.1
+    description: Alibaba API Key
+    tags:
+      - api
+      - alibaba
+    pattern: |
+      (?x)
+        \b
+          (sk-(?i)[a-f0-9]{32})
+        \b
+    entropy: 3.5
+    redact: [6, 4]
+    tests:
+      assert:
+        - sk-3e3f172c956e4d32a87135c37eec4a5f
+        - sk-9e2596f50f014cb2a8f02d59e4f872db
+        - sk-40d84e35978d8e7cf0afe45c52989cad
+      assert_not:
+        - sk-3e3f172c956e4d32a87135c37eec4a5fx
+        - sk-9e2596f50f014cb2a8f02d59e4f872d
+        - sk-40d84e35978d8e-7cf0afe45c52989ca
+    history:
+      - 2026-03-28 initial version
+    refs:
+      - https://www.alibabacloud.com/help/en/ram/user-guide/create-an-accesskey-pair

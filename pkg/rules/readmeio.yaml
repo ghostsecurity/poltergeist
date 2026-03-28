@@ -1,0 +1,27 @@
+rules:
+  - name: Readme.io API Key
+    id: ghost.readmeio.1
+    description: ReadMe.io API key
+    tags:
+      - api
+      - readmeio
+    pattern: |
+      (?x)
+        \b
+          (rdme_(?i)[A-Z0-9]{70})
+        \b
+    entropy: 3.5
+    redact: [8, 4]
+    tests:
+      assert:
+        - rdme_xn8s9h25591dd12be975c84bfed0e62757c52d2b0cf4a5accdce7ac24a3bbc3e53d520
+        - rdme_xn8s9hf98e484695211ea342539e7bfc9ab08c2415260a318f3366ee58dcdc9bd0c9d3
+        - rdme_xn8s9h4e7f33c9e6a359a6d322bf7dda66d3ee6c0761500a32b9b49d6d88d9d8ba181e
+      assert_not:
+        - rdme_xn8s9h25591dd12be975c84bfed0e62757c52d2b0cf4a5accdce7ac24a3bbc3e53d520x
+        - rdme_xn8s9hf98e484695211ea342539e7b-c9ab08c2415260a318f3366ee58dcdc9bd0c9d3
+        - rdme_xn8s9h4e7f33c9e6a359a6d322bf7dda66d3ee6c0761500a32b9b49d6d88d9d8ba181
+    history:
+      - 2026-03-28 initial version
+    refs:
+      - https://docs.readme.com/main/reference/authentication

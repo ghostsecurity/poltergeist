@@ -1,0 +1,26 @@
+rules:
+  - name: NVIDIA API Key
+    id: ghost.nvidia.1
+    description: Nvidia API key.
+    tags:
+      - api
+      - nvidai
+    pattern: |
+      (?x)
+        \b
+          (nvapi-(?i)[A-Z0-9_-]{64})
+        \b
+    entropy: 4.8
+    redact: [8, 4]
+    tests:
+      assert:
+        - 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
+        - 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
+      assert_not:
+        - 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
+        - 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
+        - nvapi-OFyUWnNcwU__LwIiHjibHB-6ODljEcTZUBdC09&j8PwsIDFL4qsTVjb4EQXvtncC
+    history:
+      - 2025-08-18 initial version
+    refs:
+      - https://docs.api.nvidia.com/nim/docs/api-quickstart
