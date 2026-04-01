@@ -86,7 +86,7 @@ Total rules: 151
 | [LangSmith Service Key](#ghost.langsmith.2) | ghost.langsmith.2 | LangSmith service key. | api, langsmith, service | 3.1 |
 | [Lightfield API Key](#ghost.lightfield.1) | ghost.lightfield.1 | Lightfield API Key | api, lightfield | 4.7 |
 | [Linear API Key](#ghost.linear.1) | ghost.linear.1 | Linear API key. | api, linear | 4.2 |
-| [Logfire API Key](#ghost.logfire.1) | ghost.logfire.1 | Logfire API key. | api, logfire | 1.5 |
+| [Logfire API Key](#ghost.logfire.1) | ghost.logfire.1 | Logfire API key. | api, logfire | 4.7 |
 | [MailerSend API Key](#ghost.mailersend.1) | ghost.mailersend.1 | MailerSend API Key | api, mailersend | 3.5 |
 | [Mailgun API Key](#ghost.mailgun.1) | ghost.mailgun.1 | Mailgun API key. | api, mailgun | 4.1 |
 | [Mistral API Key](#ghost.mistral.1) | ghost.mistral.1 | Mistral API key. | api, mistral | 4.5 |
@@ -2256,7 +2256,7 @@ Total rules: 151
 
 ```
 
-**Min entropy:** 1.5
+**Min entropy:** 4.7
 
 **Tests:**
 - assert: 3 cases

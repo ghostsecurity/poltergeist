@@ -10,7 +10,7 @@ rules:
         \b
           (pylf_v\d_[a-z]{2}_(?i)[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}_[a-z0-9]{44})
         \b
-    entropy: 1.5
+    entropy: 4.7
     redact: [8, 4]
     tests:
       assert:
