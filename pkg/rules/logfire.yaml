@@ -1,0 +1,28 @@
+rules:
+  - name: Logfire API Key
+    id: ghost.logfire.1
+    description: Logfire API key.
+    tags:
+      - api
+      - logfire
+    pattern: |
+      (?x)
+        \b
+          (pylf_v\d_[a-z]{2}_(?i)[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}_[a-z0-9]{44})
+        \b
+    entropy: 1.5
+    redact: [8, 4]
+    tests:
+      assert:
+        - pylf_v2_us_fcc783e6-5131-4167-9e77-04024f9cc54c_x8PhY6Vj6NNbrRRHP7wSQpJC0Bk0RmNDKPWcmzb6Np1B
+        - pylf_v2_us_5d315215-71f5-473e-9fd7-927d9fe661aa_MnygjlXcNnxzq4TW8p0MN7fkhCWDCRqcVZfk4kBNPcLv
+        - pylf_v2_eu_0d877f16-b7a7-49d9-98d5-625b22d67f39_j8dk0mvKQz9brpBGlg2Y7Gxzzxmq1x3TYDPc1z0zjYZg
+      assert_not:
+        - pylf_v1_us_fcc783e6-5131-4167-9e77-04024f9cc54c_x8PhY6Vj6NNbrRRHP7wSQpJC0Bk0RmNDKPWcmzb6Np1Bx
+        - pylf_v2_eu_5d315215-71f5-473e-9fd7-927d9fe661aa_MnygjlXcNnxz%4TW8p0MN7fkhCWDCRqcVZfk4kBNPcLv
+        - pylf_v3_us_0d877f16-b7a7-49d9-98d5-625b22d67f3_j8dk0mvKQz9brpBGlg2Y7Gxzzxmq1x3TYDPc1z0zjYZg
+        - pylf_v4_eu_0d877f16-b7a7-49d9-98z5-625b22d67f39_j8dk0mvKQz9brpBGlg2Y7Gxzzxmq1x3TYDPc1z0zjYZg
+    history:
+      - 2026-04-01 initial version
+    refs:
+      - https://pydantic.dev/docs/logfire/manage/use-api-keys/#creating-api-keys
