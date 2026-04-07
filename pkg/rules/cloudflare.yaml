@@ -1,7 +1,7 @@
 rules:
   - name: Cloudflare API Key
     id: ghost.cloudflare.1
-    description: Cloudflare API key.
+    description: Cloudflare Legacy API key.
     tags:
       - api
       - cloudflare
@@ -16,12 +16,40 @@ rules:
     redact: [4, 4]
     tests:
       assert:
-        - 'export CLOUDFLARE_API_KEY=LZ16Lc034UX_CVz6n0dLKMcSicjYBWKVKvHiL3FQ'
-        - 'export CLOUDFLARE_KEY=T6n_WTtEMYCCMn_SyYg-gaYGSXQAcyyhttLHJ4OV'
-        - 'export CLOUDFLARE_TOKEN=X45xjDWKQt3wbgVJ5u90yiriCOykOap1khf9L16g'
+        - "export CLOUDFLARE_API_KEY=LZ16Lc034UX_CVz6n0dLKMcSicjYBWKVKvHiL3FQ"
+        - "export CLOUDFLARE_KEY=T6n_WTtEMYCCMn_SyYg-gaYGSXQAcyyhttLHJ4OV"
+        - "export CLOUDFLARE_TOKEN=X45xjDWKQt3wbgVJ5u90yiriCOykOap1khf9L16g"
       assert_not:
-        - 'CLOUDFLARE_API_KEY=1234567890123456789012345'
+        - "CLOUDFLARE_API_KEY=1234567890123456789012345"
     history:
       - 2025-08-12 initial version
     refs:
       - https://developers.cloudflare.com/api/keys/
+  - name: Cloudflare API Token
+    id: ghost.cloudflare.2
+    description: Cloudflare API Token
+    tags:
+      - api
+      - cloudflare
+    pattern: |
+      (?x)
+        \b
+          (cfat_(?i)[A-Z0-9]{48})
+        \b
+    entropy: 4.5
+    redact: [8, 4]
+    tests:
+      assert:
+        - cfat_UB0MfOlxpFgubYq2dC5IHsEEqrzIrfRFMYxCMQ0Z40aa7eda
+        - cfat_ZWxJwxygFEfd2FCJ5slUVbObT30TEJGDqsXMRjjXae4b8856
+        - cfat_8toU86YGBaJRm2LiePgdL7WhJGX8XYDSdJlN18hKde12870e
+        - cfat_hP1JZqIhfQcXHlHtLOJdtOZoGL8IJow1cjfRHgaU071eccaa
+        - cfat_sl5NHodTTUKmsyHJ7ggw7fNckDW6cQqcO3jPcpXZ8e5f938c
+      assert_not:
+        - cfat-8toU86YGBaJRm2LiePgdL7WhJGX8XYDSdJlN18hKde12870e
+        - cfat_hP1JZqIhfQcXHlHtLOJdtOZoGL8IJow1cjfRHgaU071eccaax
+        - cfat_sl5NHodTTUKmsyHJ7ggw7fNckDW6cQqcO3jPcpXZ8e5f938
+    history:
+      - 2026-04-07 initial version
+    refs:
+      - https://docs.readme.com/main/reference/authentication
