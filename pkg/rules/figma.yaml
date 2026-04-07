@@ -1,0 +1,28 @@
+rules:
+  - name: Figma PAT
+    id: ghost.figma.1
+    description: Figma Personal Access Token
+    tags:
+      - api
+      - figma
+      - pat
+    pattern: |
+      (?x)
+        \b
+          (figd_(?i)[A-Z0-9_-]{40})
+        \b
+    entropy: 4.5
+    redact: [8, 4]
+    tests:
+      assert:
+        - figd_3N1VI0Ha_uwiJ5PKUtgA7wgmEkOle-nf3ttktnNp
+        - figd_XRPmuSnRfDu2ZT3KVmgJETJws75rDDD9qezI1LNk
+        - figd_znvr_DUZeLOJxhRKW1G5TRdSTZjD0iPMv-1Sju3c
+      assert_not:
+        - figd-3N1VI0Ha_uwiJ5PKUtgA7wgmEkOle-nf3ttktnNp
+        - figd_XRPmuSnRfDu2ZT3KVmgJETJws75rDDD9qezI1LNkX
+        - figd_znvr_DUZeLOJxhRKW1G5TRdSTZjD0iPMv-1Sju3
+    history:
+      - 2026-04-07 initial version
+    refs:
+      - https://help.figma.com/hc/en-us/articles/8085703771159-Manage-personal-access-tokens
