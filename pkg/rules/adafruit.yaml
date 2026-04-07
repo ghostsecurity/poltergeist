@@ -1,0 +1,27 @@
+rules:
+  - name: Adafruit API Key
+    id: ghost.adafruit.1
+    description: Adafruit API key.
+    tags:
+      - api
+      - adafruit
+    pattern: |
+      (?x)
+        \b
+          (aio_(?i)[A-Z0-9]{28})
+        \b
+    entropy: 4.1
+    redact: [8, 4]
+    tests:
+      assert:
+        - aio_vUNz42yN0X3PIlLUJOgt4xKV2cw6
+        - aio_JrVD04gaKJEC8U1Yg42GHJhqjXp1
+        - aio_KsTE15hbLKFD9V2Zh53HIKirkYq2
+      assert_not:
+        - aio_vUNz42yN0X3PIlLUJOgt4xKV2cw6x
+        - aio_JrVD04gaKJEC8U1Yg42GHJhqjXp
+        - aio_KsTE15hbLKFD9%2Zh53HIKirkYq2
+    history:
+      - 2026-04-07 initial version
+    refs:
+      - https://io.adafruit.com/api/
