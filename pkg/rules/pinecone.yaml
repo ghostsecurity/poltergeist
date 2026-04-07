@@ -1,0 +1,28 @@
+rules:
+  - name: Pinecode API Key
+    id: ghost.pinecone.1
+    description: Pinecone API key
+    tags:
+      - api
+      - pinecone
+    pattern: |
+      (?x)
+        \b
+          (pcsk_(?i)[A-Z0-9]{6}_[A-Z0-9]{63})
+        \b
+    entropy: 4.7
+    redact: [8, 4]
+    tests:
+      assert:
+        - pcsk_6XuBHw_PeUorjVwHfazjPneYWjxSTTwVYphk8BPcxuiYYfqCLuCeB8925kh8UDuefvSPum
+        - pcsk_2ubPgg_TXD3ShenTomniM5qvHFchivrsPL8mx3Ceev1pefzucxyQ45tFeMJ5YczwHRmryW
+        - pcsk_6kgeUp_7qEtJ3cKs2o7n4YP3ZEJdVjWJ8ZZbZBEnyLWCkUqrMQk9Bv6ybSkFNr5E5oGZsa
+      assert_not:
+        - pcsk_6XuBH_PeUorjVwHfazjPneYWjxSTTwVYphk8BPcxuiYYfqCLuCeB8925kh8UDuefvSPum
+        - pcsk_2ubPgg-TXD3ShenTomniM5qvHFchivrsPL8mx3Ceev1pefzucxyQ45tFeMJ5YczwHRmryW
+        - pcsk_6kgeUp_7qEtJ3cKs2o7n4YP3ZEJdVjWJ8ZZbZBEnyLWCkUqrMQk9Bv6ybSkFNr5E5oGZs
+        - pcsk_6kgeUp_7qEtJ3cKs2o7n4YP%ZEJdVjWJ8ZZbZBEnyLWCkUqrMQk9Bv6ybSkFNr5E5oGZsa
+    history:
+      - 2026-04-07 initial version
+    refs:
+      - https://docs.pinecone.io/guides/assistant/admin/manage-api-keys#create-an-api-key

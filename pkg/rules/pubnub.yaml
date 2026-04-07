@@ -1,0 +1,27 @@
+rules:
+  - name: Pubnub Secret Key
+    id: ghost.pubnub.1
+    description: Pubnub Secret key.
+    tags:
+      - api
+      - pubnub
+    pattern: |
+      (?x)
+        \b
+          (sec-c-(?i)[A-Z0-9]{48})
+        \b
+    entropy: 4.1
+    redact: [8, 4]
+    tests:
+      assert:
+        - sec-c-Nzg2N3E5MjYtMWM0Zi00YzY5LTk1ZjItZmIyMWMyMzJjOWVi
+        - sec-c-ZDlmMjg3MWQtMWNjNi00N3U4LTgxMjYtMzg1M2NkZTFlOTA2
+        - sec-c-Y2I3MWQ0MjItMWMwYS00NzZmLWEwNjktZGJkZjkyNWRkOTRk
+      assert_not:
+        - sec-x-Nzg2N3E5MjYtMWM0Zi00YzY5LTk1ZjItZmIyMWMyMzJjOWVi
+        - sec-c-ZDlmMjg3MWQtMWNjNi00N3U4LTgxMjYtMzg1M2NkZTFlOTA2x
+        - sec-c-Y2I3MWQ0MjItMWMwYS00NzZmLWEwNjktZGJkZjkyNWRkOTR
+    history:
+      - 2026-04-07 initial version
+    refs:
+      - https://www.pubnub.com/docs/general/portal/keysets

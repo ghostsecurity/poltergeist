@@ -21,13 +21,13 @@ rules:
         - 'export AWS_SECRET_ACCESS_KEY="qDhThtrkeMhCoOZA+vm4ykuE4AdyZpbGhL1QYwvl"'
         - 'export AWS_SECRET_ACCESS_KEY="1GTdO8YGWxwngbmy6ayrPZ/pIlWV+0sE65Ikxyvu"'
         - 'const AWS_SECRET_ACCESS_KEY = "Mss7b8mKOD2inkntQg75H6FClnj+xAYKvO9HflVj"'
-        - 'export AWS_SECRET_ACCESS_KEY=Mss7b8mKOD2inkntQg75H6FClnj+xAYKvO9HflVj'
+        - "export AWS_SECRET_ACCESS_KEY=Mss7b8mKOD2inkntQg75H6FClnj+xAYKvO9HflVj"
       assert_not:
         - aws_secret_access_key_id=abc123
         - 'export AWS_SECRET_ACCESS_KEY="Mss7b8mKOD2inkntQg75H6FClnj+xAYKvO9HflVjxx"'
         - 'export AWS_SECRET_ACCESS_KEY="Mss7b8mKOD2inkntQg75H6FClnj+xAYKvO9HflV"'
         - 'AWS_SESSION_TOKEN="AQoDYXdzEHoaCXVzLWVhc3CIQCzOfn2RRDrFYRNqc9wWbvfIPwz"'
-        - 'AWS_SESSION_TOKEN=AQoDYXdzEHoaCXVzLWVhc3CIQCzOfn2RRDrFYRNqc9wWbvfIPwz'
+        - "AWS_SESSION_TOKEN=AQoDYXdzEHoaCXVzLWVhc3CIQCzOfn2RRDrFYRNqc9wWbvfIPwz"
     history:
       - 2025-08-07 initial version
     refs:
@@ -60,3 +60,85 @@ rules:
       - 2025-08-07 initial version
     refs:
       - https://medium.com/@TalBeerySec/revealing-the-inner-structure-of-aws-session-tokens-a6c76469cba7
+  - name: AWS Bedrock API Key
+    id: ghost.aws.3
+    description: AWS Bedrock API Key
+    tags:
+      - api
+      - aws
+      - bedrock
+    pattern: |
+      (?x)
+        \b
+          (ABSK(?i)[A-Z0-9]{110,112}={0,2})
+        \b
+    entropy: 4.7
+    redact: [8, 4]
+    tests:
+      assert:
+        - ABSKdGVzdDEtYXQtNzMwMzM1NjYzODY0OjRiZXRmTVBnYjhROGpTekNBRjJjb1hiOHVBRC9ncitHT1VMUjQzVGwzY09UV0RPNGlGb2dtbXpZQzBVPQ==
+        - ABSKdGVzdDErMS1hdC03MzAzMzU2NjM4NjQ6elpvTGlXQkdGOHQzUTM3SkJwWVB3dHpJdm1Qc1ZCZjdiMGlmbUFmTU9JVk5rR3h1Z00rc0lXYnBqUEE9
+        - ABSKdGVzdDEtYXQtNzMwMzM1NjYzODY0OlNXK3hjN3dsdWdjbDlDVE1qODRVRWllY3FlQ1VqL3c4TTQ3cktqWjd0Ym5SZDFVeTlkMk9PWDErVFhRPQ==
+      assert_not:
+        - ABSKdGVzdDEtYXQtNzMwMzM1NjYzODY0OjRiZXRmTVBnYjhROGpTekNBRjJjb1hiOHVBRC9ncitHT1VMUjQzVGwzY09UV0RPNGlGb2dtbXpZQzBVPQxxx==
+        - ABSKdGVzdDErMS1hdC03MzAzMzU2NjM4NjQ6elpvTGlXQkdGOHQzUTM3SkJwWVB3dHpJdm1Qc1ZCZjdiMGlmbUFmTU9JVk5rR3h1Z00rc0lXYn
+        - ABSKdGVzdDEtYXQtNzMwMzM1NjYzODY%OlNXK3hjN3dsdWdjbDlDVE1qODRVRWllY3FlQ1VqL3c4TTQ3cktqWjd0Ym5SZDFVeTlkMk9PWDErVFhRPQ==
+    history:
+      - 2026-04-07 initial version
+    refs:
+      - https://docs.aws.amazon.com/bedrock/latest/userguide/api-keys.html
+  - name: AWS CloudWatch Logs API Key
+    id: ghost.aws.4
+    description: AWS CloudWatch Logs API Key
+    tags:
+      - api
+      - aws
+      - cloudwatch
+      - logs
+    pattern: |
+      (?x)
+        \b
+          (ACWL(?i)[A-Z0-9]{110,112}={0,2})
+        \b
+    entropy: 4.7
+    redact: [8, 4]
+    tests:
+      assert:
+        - ACWLdGVzdDEtYXQtNzMwMzM1NjYzODY0OmF1dkUrMHVmUElKdysyQjF6aDYrN0NQMEFYekJmRlJ4RXpnVnlSZzAwcGJNNnlzWkx1OWhHZHEwYjNJPQ==
+        - ACWLdGVzdDErMS1hdC03MzAzMzU2NjM4NjQ6L3krNytYYmp4RnRkdDY2c2FQZG5sMWc4RDhrNHA1VGQ5NGNVOEVvb2VjS3NmczhGWThhTUc2QVprdEE9
+        - ACWLdGVzdDErMi1hdC03MzAzMzU2NjM4NjQ6WHp1ME8zdEFFWWx2cmNwODFMbmhISDl1QThCOThXaGp3OW1kTU5vWU9TbmpNWThGeWN1MlRwTXJJM2M9
+      assert_not:
+        - ACWLdGVzdDEtYXQtNzMwMzM1NjYzODY0OmF1dkUrMHVmUElKdysyQjF6aDYrN0NQMEFYekJmRlJ4RXpnVnlSZzAwcGJNNnlzWkx1OWhHZHEwYjNJPQxxx==
+        - ACWLdGVzdDErMS1hdC03MzAzMzU2NjM4NjQ6L3krNytYYmp4RnRkdDY2c2FQZG5sMWc4RDhrNHA1VGQ5NGNVOEVvb2VjS3NmczhGWThhTUc2
+        - ACWLdGVzdDErMi1hdC03MzAzMzU2NjM4NjQ6WH%1ME8zdEFFWWx2cmNwODFMbmhISDl1QThCOThXaGp3OW1kTU5vWU9TbmpNWThGeWN1MlRwTXJJM2M9
+    history:
+      - 2026-04-07 initial version
+    refs:
+      - https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_bedrock_cloudwatchlogs.html
+  - name: AWS Mantle API Key
+    id: ghost.aws.5
+    description: AWS Mantle API Key
+    tags:
+      - api
+      - aws
+      - mantle
+    pattern: |
+      (?x)
+        \b
+          (AEAA(?i)[A-Z0-9]{110,112}={0,2})
+        \b
+    entropy: 4.7
+    redact: [8, 4]
+    tests:
+      assert:
+        - AEAAdGVzdDEtYXQtNzMwMzM1NjYzODY0OkVUNXBxY3JrNjVvZUxxQXV0YU5VQlp3bWVRMW9GdXY3Uyt2bkRmWm9XL0VoMTlHQXZnTWtrUWxNOGtNPQ==
+        - AEAAdGVzdDErMS1hdC03MzAzMzU2NjM4NjQ6MmZPMjVYSm9ob3FERUo5YU1CRXE3VjhULzlLNlVZQmdWNjlnemdlbGlVTVZndzh5YStvUzNxckpXWUk9
+        - AEAAdGVzdDEtYXQtNzMwMzM1NjYzODY0OnBSejFIL2RicE94aWYvR2s2VzVYYmg0YTlDeGwzN0hhNkM2cWkyU2RCYUJndWY1dFVEL0c4TUlnSUg0PQ==
+      assert_not:
+        - AEAAdGVzdDEtYXQtNzMwMzM1NjYzODY0OkVUNXBxY3JrNjVvZUxxQXV0YU5VQlp3bWVRMW9GdXY3Uyt2bkRmWm9XL0VoMTlHQXZnTWtrUWxNOGtNPQxxx==
+        - AEAAdGVzdDErMS1hdC03MzAzMzU2NjM4NjQ6MmZPMjVYSm9ob3FERUo5YU1CRXE3VjhULzlLNlVZQmdWNjlnemdlbGlVTVZndzh5YStvUz
+        - AEAAdGVzdDEtYXQtNzMwMzM1NjYzODY0OnBSejFIL2RicE%4aWYvR2s2VzVYYmg0YTlDeGwzN0hhNkM2cWkyU2RCYUJndWY1dFVEL0c4TUlnSUg0PQ==
+    history:
+      - 2026-04-07 initial version
+    refs:
+      - https://docs.aws.amazon.com/bedrock/latest/userguide/api-keys-generate.html

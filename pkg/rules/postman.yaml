@@ -1,0 +1,29 @@
+rules:
+  - name: Postman API Key
+    id: ghost.postman.1
+    description: Postman API key.
+    tags:
+      - api
+      - postman
+    pattern: |
+      (?x)
+        \b
+          (PMAK-(?i)[a-f0-9]{24}-[a-f0-9]{34})
+        \b
+    entropy: 3.5
+    redact: [7, 4]
+    tests:
+      assert:
+        - PMAK-69d5512421053c00018c509c-6c4ad64b57d61351461393c42ddeb35e69
+        - PMAK-69d5512421053c00018c509c-6cbf30b31c5fdf6e57c8f421992794a65c
+        - PMAK-69c10a2c3b438e00014203a4-8f29a7dbaaec42592ca806b16c7efd4276
+        - PMAK-69c10a402ce42a0001f82ebd-b77e7e91273742e6f661d614b06f42e553
+      assert_not:
+        - PMAK-69d5512421053c00018c509c-6c4ad64b57d61351461393c42ddeb35x69
+        - PMAK-69d5512421053c00018c509c-6cbf30b31c5fdf6e57c8f421992794a65ca
+        - PMAK-69c10a2c3b438e00014203a4-8f29a7dbaaec42592ca806b16c7efd427
+        - PMAK_69c10a402ce42a0001f82ebd_b77e7e91273742e6f661d614b06f42e553
+    history:
+      - 2026-04-07 initial version
+    refs:
+      - https://learning.postman.com/docs/developer/postman-api/authentication

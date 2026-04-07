@@ -1,0 +1,27 @@
+rules:
+  - name: Langfuse Secret Key
+    id: ghost.langfuse.1
+    description: Langfuse Secret Key.
+    tags:
+      - api
+      - langfuse
+    pattern: |
+      (?x)
+        \b
+          (sk-lf-(?i)[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})
+        \b
+    entropy: 3.5
+    redact: [10, 4]
+    tests:
+      assert:
+        - sk-lf-01bba4f0-9594-54db-9c74-b8a8697fbfdc
+        - sk-lf-301fbb40-4c9d-5505-9bac-d464d786994e
+        - sk-lf-35fb6929-95ac-4b29-9143-aab8bd65f7ec
+      assert_not:
+        - sk-lf-01bba4f0-9594-54db-9c74-b8a8697fbfdcb
+        - sk-lf-301fbb40-4c9d-5505-9bac-d464d786994x
+        - sk-lf-35fb6929-95ac-4b29-9143-aab8bd65f7e
+    history:
+      - 2026-04-07 initial version
+    refs:
+      - https://langfuse.com/docs/api-and-data-platform/features/public-api

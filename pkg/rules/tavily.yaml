@@ -1,0 +1,31 @@
+rules:
+  - name: Tavily API Key
+    id: ghost.tavily.1
+    description: Tavily API key.
+    tags:
+      - api
+      - tavily
+    pattern: |
+      (?x)
+        \b
+          (tvly-(?:dev|prod)-(?i)[A-Z0-9\-]{49})
+        \b
+    entropy: 4.7
+    redact: [12, 4]
+    tests:
+      assert:
+        - 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
+        - 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
+        - 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
+        - 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
+        - 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
+      assert_not:
+        - tvly-dev-3FRsBm_DT0UWnK2hwYs4lA4vaSZgxbzzx2AUKWnHKvllYjY5t
+        - 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
+        - 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
+        - tvly-prod-18slw3-XAqzQsHpkJE1JjlRsXTnzPoqS%da1sRN9I567E8Q4S
+        - tvly-prod-35erok_iVqzjn1C5D72VzIa1d7crI4Sm2dEubCBTMlRs1K8S2
+    history:
+      - 2026-04-07 initial version
+    refs:
+      - https://docs.tavily.com/documentation/quickstart
