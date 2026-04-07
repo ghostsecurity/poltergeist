@@ -52,4 +52,4 @@ rules:
     history:
       - 2026-04-07 initial version
     refs:
-      - https://docs.readme.com/main/reference/authentication
+      - https://developers.cloudflare.com/fundamentals/api/get-started/create-token/
