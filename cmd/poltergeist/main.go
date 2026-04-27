@@ -152,7 +152,7 @@ func main() {
 	}
 
 	// Ensure engine cleanup
-	defer engine.Close()
+	defer func() { _ = engine.Close() }()
 
 	// Create scanner with optimized settings
 	scanner := poltergeist.NewScannerWithOptions(engine, runtime.NumCPU()*2, 100*1024*1024)
