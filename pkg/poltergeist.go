@@ -158,7 +158,7 @@ func LoadRules(path string) ([]Rule, error) {
 func IsHyperscanAvailable() bool {
 	// Try to create a hyperscan engine and test compilation
 	engine := NewHyperscanEngine()
-	defer engine.Close()
+	defer func() { _ = engine.Close() }()
 
 	// Test with a simple rule
 	testRule := []Rule{{Name: "test", ID: "test.1", Pattern: "test", Tags: []string{"test"}, Entropy: 1.0}}
@@ -321,7 +321,7 @@ func (s *Scanner) scanFile(filePath string) ([]ScanResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	var results []ScanResult
 	scanner := bufio.NewScanner(file)
@@ -475,7 +475,7 @@ func isBinaryFile(filePath string) bool {
 	if err != nil {
 		return true // Assume binary if we can't read it
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// Read first 512 bytes (standard for file type detection)
 	buffer := make([]byte, 512)

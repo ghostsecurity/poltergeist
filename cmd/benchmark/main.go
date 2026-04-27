@@ -178,7 +178,7 @@ func benchmarkEngine(engineType string, rules []poltergeist.Rule, benchmarkDir s
 	default:
 		log.Fatalf("Unknown engine type: %s", engineType)
 	}
-	defer engine.Close()
+	defer func() { _ = engine.Close() }()
 
 	// Measure compilation time
 	compileStart := time.Now()
@@ -289,10 +289,11 @@ func printSummaryTable(results []BenchmarkResult) {
 
 		for _, result := range group {
 			totalTime := result.CompileDuration + result.ScanDuration
-			if result.Engine == "go" {
+			switch result.Engine {
+			case "go":
 				goTime = totalTime
 				hasGo = true
-			} else if result.Engine == "hyperscan" {
+			case "hyperscan":
 				hsTime = totalTime
 				hasHS = true
 			}

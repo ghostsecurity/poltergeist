@@ -40,7 +40,7 @@ func main() {
 	} else {
 		engine = poltergeist.NewGoRegexEngine()
 	}
-	defer engine.Close()
+	defer func() { _ = engine.Close() }()
 
 	// Compile rules
 	err = engine.CompileRules(rules)

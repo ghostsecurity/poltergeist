@@ -18,7 +18,7 @@ func TestEngineCompilationErrors(t *testing.T) {
 
 	// Test Go regex engine with invalid pattern
 	goEngine := NewGoRegexEngine()
-	defer goEngine.Close()
+	defer func() { _ = goEngine.Close() }()
 
 	err := goEngine.CompileRules(invalidRules)
 	if err == nil {
@@ -28,7 +28,7 @@ func TestEngineCompilationErrors(t *testing.T) {
 	// Test Hyperscan engine with invalid pattern (if available)
 	if IsHyperscanAvailable() {
 		hsEngine := NewHyperscanEngine()
-		defer hsEngine.Close()
+		defer func() { _ = hsEngine.Close() }()
 
 		err = hsEngine.CompileRules(invalidRules)
 		if err == nil {
@@ -53,7 +53,7 @@ func TestEngineRedaction(t *testing.T) {
 	}
 
 	for _, engine := range engines {
-		defer engine.Close()
+		defer func() { _ = engine.Close() }()
 
 		err := engine.CompileRules(redactionRule)
 		if err != nil {
@@ -96,7 +96,7 @@ func TestEngineRedactionAlwaysRedacts(t *testing.T) {
 	}
 
 	for _, engine := range engines {
-		defer engine.Close()
+		defer func() { _ = engine.Close() }()
 
 		err := engine.CompileRules(redactionRule)
 		if err != nil {

@@ -115,7 +115,7 @@ func validateRule(t *testing.T, rule Rule, seenIDs map[string]bool) {
 	// Create a per-test hyperscan engine for thread safety
 	hyperscanEngine := NewHyperscanEngine()
 	t.Cleanup(func() {
-		hyperscanEngine.Close()
+		_ = hyperscanEngine.Close()
 	})
 
 	// Rule pattern must compile with Hyperscan regex engine
