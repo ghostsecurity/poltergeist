@@ -2,7 +2,7 @@
 
 Guidance for AI agents and humans working in this repository. For rule-writing
 specifics, see [docs/rule-authoring.md](docs/rule-authoring.md). For the
-published user documentation, see [ghostsecurity.ai](https://ghostsecurity.ai).
+published user documentation, see the Poltergeist section of [oss.ghostsecurity.ai](https://oss.ghostsecurity.ai/tools/poltergeist).
 
 ## What Poltergeist Is
 
