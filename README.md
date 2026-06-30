@@ -80,7 +80,7 @@ agents.
 
 ## Comprehensive Documentation
 
-Full documentation, tutorials, and video guides at [ghostsecurity.ai](https://ghostsecurity.ai).
+Full documentation, tutorials, and video guides at [oss.ghostsecurity.ai](https://oss.ghostsecurity.ai).
 
 ## Contributions, Feedback, Feature Requests, and Issues
 
