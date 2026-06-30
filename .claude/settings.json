@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(make build)",
+      "Bash(make test)",
+      "Bash(make test-rules)",
+      "Bash(make lint)",
+      "Bash(make docs)",
+      "Bash(make benchmarks)",
+      "Bash(make benchmarks-go)",
+      "Bash(make benchmarks-hyperscan)",
+      "Bash(make help)",
+      "Bash(make deps)",
+      "Bash(make clean)",
+      "Bash(go build:*)",
+      "Bash(go test:*)",
+      "Bash(go vet:*)",
+      "Bash(go run:*)",
+      "Bash(go mod tidy)",
+      "Bash(go mod download)",
+      "Bash(golangci-lint run:*)",
+      "Bash(./poltergeist:*)"
+    ]
+  }
+}

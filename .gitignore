@@ -6,6 +6,7 @@
 !.gitattributes
 !.github/**
 !.vscode/*
+!.claude/**
 !.goreleaser.yaml
 !cmd/**
 !docs/*
@@ -25,6 +26,8 @@
 !LICENSE
 !NOTICE
 !Makefile
+!CLAUDE.md
+!AGENTS.md
 
 # ...even if they are in subdirectories
 !*/
