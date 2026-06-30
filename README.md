@@ -22,9 +22,65 @@ As a Go library:
 go get github.com/ghostsecurity/poltergeist
 ```
 
+## Usage
+
+Point Poltergeist at a file or directory and it scans with the built-in rules,
+printing redacted matches by default:
+
+```bash
+poltergeist /path/to/code
+```
+
+Common flags let you change the engine, the output format, and the destination:
+
+```bash
+# Emit JSON to a file using the pure-Go engine.
+poltergeist -engine go -format json -output findings.json /path/to/code
+
+# Scan with a custom rule file instead of the embedded rules.
+poltergeist -rules ./my-rules.yaml /path/to/code
+```
+
+Use `-engine` to choose between `auto`, `go`, and `hyperscan`, `-format` to
+choose `text`, `json`, or `md`, `-dnr` to show unredacted matches, and
+`-low-entropy` to include matches below their entropy threshold. Run
+`poltergeist -help` for the full list.
+
+## Building from Source
+
+Building requires Go and the Vectorscan/Hyperscan development library, since the
+default engine binds to it through CGO. On Debian and Ubuntu install
+`libhyperscan-dev`, and on macOS install `vectorscan` or `hyperscan` with
+Homebrew. When the native library is unavailable you can still run the tool with
+the pure-Go engine by passing `-engine go`.
+
+```bash
+git clone https://github.com/ghostsecurity/poltergeist.git
+cd poltergeist
+make build
+./poltergeist --version
+```
+
+## Development
+
+The `Makefile` drives the common workflows, and `make help` lists every target:
+
+```bash
+make test        # run the full test suite
+make test-rules  # validate the built-in rules against their own test cases
+make lint        # run golangci-lint, whose default checks include go vet
+make docs        # regenerate docs/rules.md after editing pkg/rules
+```
+
+Run `make test` and `make lint` before opening a pull request, and run `make
+docs` whenever you change a rule so the generated documentation stays current.
+See [CONTRIBUTING](.github/CONTRIBUTING.md) for the full contribution workflow
+and [CLAUDE.md](CLAUDE.md) for an architecture-level guide aimed at coding
+agents.
+
 ## Comprehensive Documentation
 
-Full documentation, tutorials, and video guides at [ghostsecurity.ai](https://ghostsecurity.ai).
+Full documentation, tutorials, and video guides at [oss.ghostsecurity.ai](https://oss.ghostsecurity.ai).
 
 ## Contributions, Feedback, Feature Requests, and Issues
 
