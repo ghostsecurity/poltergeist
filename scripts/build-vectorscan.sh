@@ -94,6 +94,9 @@ build_vectorscan() {
     # Configure with static library build
     # Disable FAT_RUNTIME on macOS as it requires GNU binutils (objcopy) which doesn't exist on macOS
     CMAKE_FLAGS="-DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DBUILD_STATIC_LIBS=ON -DBUILD_EXAMPLES=OFF -DBUILD_TOOLS=OFF -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX"
+    # Only libraries are needed; Vectorscan 5.4.12's bundled Google Test fails
+    # with AppleClang 21's -Werror,-Wuninitialized-const-pointer diagnostic.
+    CMAKE_FLAGS="$CMAKE_FLAGS -DBUILD_UNIT=OFF -DBUILD_BENCHMARKS=OFF"
     if [ "$OS" = "darwin" ]; then
         CMAKE_FLAGS="$CMAKE_FLAGS -DFAT_RUNTIME=OFF"
     fi

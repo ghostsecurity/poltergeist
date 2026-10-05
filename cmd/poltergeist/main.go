@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
+	"os/signal"
 	"runtime"
 	"strings"
 	"sync/atomic"
@@ -40,6 +42,11 @@ func printUsage() {
 	fmt.Fprintf(os.Stderr, "        Write output to file (auto-detects format from .json or .md extension)\n")
 	fmt.Fprintf(os.Stderr, "  -no-color\n")
 	fmt.Fprintf(os.Stderr, "        Disable colored output (text format only)\n")
+	fmt.Fprintf(os.Stderr, "  -classify\n        Send raw candidates, bounded code, and relative paths to TypeSafe; requires TYPESAFE_API_KEY\n")
+	fmt.Fprintf(os.Stderr, "  -classify-all\n        Include hidden low-entropy candidates (requires -classify)\n")
+	fmt.Fprintf(os.Stderr, "  -classify-timeout duration\n        Enrichment budget (default 10s)\n")
+	fmt.Fprintf(os.Stderr, "  -classify-max-candidates int\n        Candidate cap (default 1000)\n")
+	fmt.Fprintf(os.Stderr, "  -classify-cache-dir string\n        Opt-in private cache; entries expire after 24 hours\n")
 	fmt.Fprintf(os.Stderr, "  -help\n")
 	fmt.Fprintf(os.Stderr, "        Show this help message\n")
 	fmt.Fprintf(os.Stderr, "  -version\n")
@@ -55,15 +62,20 @@ var version = "dev"
 
 // Command-line flags
 var (
-	engineFlag     = flag.String("engine", "auto", "Pattern engine to use: 'auto', 'go' for Go regex, 'hyperscan' for Hyperscan/Vectorscan")
-	rulesFlag      = flag.String("rules", "", "YAML file or directory containing pattern rules")
-	dnrFlag        = flag.Bool("dnr", false, "Do not redact - show full matches instead of redacted versions")
-	lowEntropyFlag = flag.Bool("low-entropy", false, "Show matches that don't meet minimum entropy requirements")
-	formatFlag     = flag.String("format", "text", "Output format: text, json, md")
-	outputFlag     = flag.String("output", "", "Write output to file (auto-detects format from extension)")
-	noColorFlag    = flag.Bool("no-color", false, "Disable colored output (text format only)")
-	helpFlag       = flag.Bool("help", false, "Show help message")
-	versionFlag    = flag.Bool("version", false, "Show version information")
+	classifyFlag        = flag.Bool("classify", false, "Send raw candidates, bounded code, and relative paths to TypeSafe for advisory classification")
+	classifyAllFlag     = flag.Bool("classify-all", false, "Classify all candidates, including hidden low-entropy matches (requires -classify)")
+	classifyTimeoutFlag = flag.Duration("classify-timeout", 10*time.Second, "Total enrichment budget")
+	classifyMaxFlag     = flag.Int("classify-max-candidates", 1000, "Maximum classification candidates")
+	classifyCacheFlag   = flag.String("classify-cache-dir", "", "Opt-in private classification cache directory (24 hour expiry)")
+	engineFlag          = flag.String("engine", "auto", "Pattern engine to use: 'auto', 'go' for Go regex, 'hyperscan' for Hyperscan/Vectorscan")
+	rulesFlag           = flag.String("rules", "", "YAML file or directory containing pattern rules")
+	dnrFlag             = flag.Bool("dnr", false, "Do not redact - show full matches instead of redacted versions")
+	lowEntropyFlag      = flag.Bool("low-entropy", false, "Show matches that don't meet minimum entropy requirements")
+	formatFlag          = flag.String("format", "text", "Output format: text, json, md")
+	outputFlag          = flag.String("output", "", "Write output to file (auto-detects format from extension)")
+	noColorFlag         = flag.Bool("no-color", false, "Disable colored output (text format only)")
+	helpFlag            = flag.Bool("help", false, "Show help message")
+	versionFlag         = flag.Bool("version", false, "Show version information")
 )
 
 func main() {
@@ -79,6 +91,19 @@ func main() {
 		os.Exit(0)
 	}
 
+	var classification *poltergeist.ClassificationOptions
+	if *classifyFlag {
+		if *classifyTimeoutFlag <= 0 || *classifyMaxFlag <= 0 {
+			fmt.Fprintln(os.Stderr, "Classification limits must be positive")
+			os.Exit(1)
+		}
+		classifier, err := poltergeist.NewJevClassifier(poltergeist.JevOptions{APIKey: os.Getenv("TYPESAFE_API_KEY"), CacheDir: *classifyCacheFlag})
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		classification = &poltergeist.ClassificationOptions{Classifier: classifier, Timeout: *classifyTimeoutFlag, MaxCandidates: *classifyMaxFlag, AllCandidates: *classifyAllFlag, IncludeLowEntropy: *lowEntropyFlag}
+	}
 	// Determine scan path
 	var scanPath string
 	if flag.NArg() < 1 {
@@ -120,7 +145,7 @@ func main() {
 			os.Exit(1)
 		}
 		rules = append(rules, defaultRules...)
-		fmt.Printf("Using built-in rules (%d patterns loaded)\n", len(defaultRules))
+		fmt.Fprintf(os.Stderr, "Using built-in rules (%d patterns loaded)\n", len(defaultRules))
 	}
 
 	// Ensure we have at least one rule
@@ -157,18 +182,21 @@ func main() {
 	// Create scanner with optimized settings
 	scanner := poltergeist.NewScannerWithOptions(engine, runtime.NumCPU()*2, 100*1024*1024)
 	scanner.DisableRedaction = *dnrFlag
+	scanner.Classification = classification
 
-	fmt.Printf("Starting secret scan with %d workers using %s engine...\n", scanner.WorkerCount, engine.Name())
-	fmt.Printf("Scanning: %s\n", scanPath)
-	fmt.Printf("Rules loaded: %d patterns\n", len(rules))
+	fmt.Fprintf(os.Stderr, "Starting secret scan with %d workers using %s engine...\n", scanner.WorkerCount, engine.Name())
+	fmt.Fprintf(os.Stderr, "Scanning: %s\n", scanPath)
+	fmt.Fprintf(os.Stderr, "Rules loaded: %d patterns\n", len(rules))
 	for _, rule := range rules {
-		fmt.Printf("  - %s (ID: %s)\n", rule.Name, rule.ID)
+		fmt.Fprintf(os.Stderr, "  - %s (ID: %s)\n", rule.Name, rule.ID)
 	}
 
-	fmt.Println()
+	fmt.Fprintln(os.Stderr)
 
 	start := time.Now()
-	results, err := scanner.ScanDirectory(scanPath)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+	results, err := scanner.ScanDirectoryContext(ctx, scanPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Scan failed: %v\n", err)
 		os.Exit(1)
@@ -212,7 +240,7 @@ func main() {
 
 	switch outputFormat {
 	case "json":
-		output, exitCode = formatJSON(filteredResults, filesScanned, filesSkipped, totalBytes, matchesFound, lowEntropyCount)
+		output, exitCode = formatJSON(filteredResults, filesScanned, filesSkipped, totalBytes, matchesFound, lowEntropyCount, scanner.Metrics.Classification)
 	case "md", "markdown":
 		output, exitCode = formatMarkdown(filteredResults, scanPath, filesScanned, filesSkipped, totalBytes, matchesFound, lowEntropyCount, duration)
 	case "text":
@@ -222,6 +250,11 @@ func main() {
 		os.Exit(1)
 	}
 
+	if scanner.Metrics.Classification != nil && outputFormat != "json" {
+		m := scanner.Metrics.Classification
+		summary := fmt.Sprintf("Classification: %d eligible, %d scored (%d uncertain), %d skipped, %d failed; %d cache hits; %d requests, %d retries; %d input tokens, %d output tokens; %s enrichment\n", m.Eligible, m.Scored, m.Uncertain, m.Skipped, m.Failed, m.CacheHits, m.Requests, m.Retries, m.InputTokens, m.OutputTokens, m.Duration)
+		output += summary
+	}
 	// Write to file or stdout
 	if *outputFlag != "" {
 		if err := os.WriteFile(*outputFlag, []byte(output), 0644); err != nil {
@@ -240,27 +273,27 @@ func main() {
 func formatText(results []poltergeist.ScanResult, filesScanned, filesSkipped, totalBytes, matchesFound int64, lowEntropyCount int, duration time.Duration, useColor bool, showFullMatch bool) (string, int) {
 	var sb strings.Builder
 
-	sb.WriteString(fmt.Sprintf("\n%s\n", divider(50)))
-	sb.WriteString(fmt.Sprintf("%s SCAN SUMMARY %s\n", bold("", useColor), ""))
-	sb.WriteString(fmt.Sprintf("%s\n\n", divider(50)))
+	fmt.Fprintf(&sb, "\n%s\n", divider(50))
+	fmt.Fprintf(&sb, "%s SCAN SUMMARY %s\n", bold("", useColor), "")
+	fmt.Fprintf(&sb, "%s\n\n", divider(50))
 
-	sb.WriteString(fmt.Sprintf("Files scanned:  %s\n", bold(fmt.Sprintf("%d", filesScanned), useColor)))
-	sb.WriteString(fmt.Sprintf("Total content:  %s\n", poltergeist.FormatBytes(totalBytes)))
+	fmt.Fprintf(&sb, "Files scanned:  %s\n", bold(fmt.Sprintf("%d", filesScanned), useColor))
+	fmt.Fprintf(&sb, "Total content:  %s\n", poltergeist.FormatBytes(totalBytes))
 
 	if len(results) == 0 {
-		sb.WriteString(fmt.Sprintf("Secrets found:  %s\n\n", green("0", useColor)))
+		fmt.Fprintf(&sb, "Secrets found:  %s\n\n", green("0", useColor))
 		if lowEntropyCount > 0 {
-			sb.WriteString(fmt.Sprintf("%s No high-entropy secrets found. %d low-entropy matches were filtered out.\n", green("✓", useColor), lowEntropyCount))
+			fmt.Fprintf(&sb, "%s No high-entropy secrets found. %d low-entropy matches were filtered out.\n", green("✓", useColor), lowEntropyCount)
 			sb.WriteString("  Use -low-entropy to see all matches.\n\n")
 		} else {
-			sb.WriteString(fmt.Sprintf("%s No secrets found!\n\n", green("✓", useColor)))
+			fmt.Fprintf(&sb, "%s No secrets found!\n\n", green("✓", useColor))
 		}
 		return sb.String(), 0
 	}
 
-	sb.WriteString(fmt.Sprintf("Secrets found:  %s", red(fmt.Sprintf("%d", len(results)), useColor)))
+	fmt.Fprintf(&sb, "Secrets found:  %s", red(fmt.Sprintf("%d", len(results)), useColor))
 	if lowEntropyCount > 0 {
-		sb.WriteString(fmt.Sprintf(" (%d low-entropy filtered)", lowEntropyCount))
+		fmt.Fprintf(&sb, " (%d low-entropy filtered)", lowEntropyCount)
 	}
 	sb.WriteString("\n\n")
 
@@ -271,17 +304,17 @@ func formatText(results []poltergeist.ScanResult, filesScanned, filesSkipped, to
 	}
 
 	for filePath, fileMatches := range fileResults {
-		sb.WriteString(fmt.Sprintf("%s %s %s (%d matches)\n",
+		fmt.Fprintf(&sb, "%s %s %s (%d matches)\n",
 			red("●", useColor),
 			bold(filePath, useColor),
 			"",
-			len(fileMatches)))
+			len(fileMatches))
 
 		for _, match := range fileMatches {
-			sb.WriteString(fmt.Sprintf("  %s Line %s: %s\n",
+			fmt.Fprintf(&sb, "  %s Line %s: %s\n",
 				yellow("└─", useColor),
 				cyan(fmt.Sprintf("%d", match.LineNumber), useColor),
-				match.RuleName))
+				match.RuleName)
 
 			displayMatch := match.Redacted
 			if showFullMatch {
@@ -293,10 +326,10 @@ func formatText(results []poltergeist.ScanResult, filesScanned, filesSkipped, to
 				displayMatch = displayMatch[:77] + "..."
 			}
 
-			sb.WriteString(fmt.Sprintf("     %s\n", displayMatch))
+			fmt.Fprintf(&sb, "     %s\n", displayMatch)
 
 			if match.RuleID != "" {
-				sb.WriteString(fmt.Sprintf("     ID: %s\n", match.RuleID))
+				fmt.Fprintf(&sb, "     ID: %s\n", match.RuleID)
 			}
 
 			// Display entropy information
@@ -304,23 +337,24 @@ func formatText(results []poltergeist.ScanResult, filesScanned, filesSkipped, to
 			if match.RuleEntropyThresholdMet {
 				metStr = "Yes"
 			}
-			sb.WriteString(fmt.Sprintf("     Entropy: %.2f | Threshold: %.2f | Met: %s\n",
-				match.Entropy, match.RuleEntropyThreshold, metStr))
+			sb.WriteString(classificationText(match.Classification))
+			fmt.Fprintf(&sb, "     Entropy: %.2f | Threshold: %.2f | Met: %s\n",
+				match.Entropy, match.RuleEntropyThreshold, metStr)
 		}
 		sb.WriteString("\n")
 	}
 
 	// Metrics footer
-	sb.WriteString(fmt.Sprintf("%s\n", divider(50)))
-	sb.WriteString(fmt.Sprintf("Files skipped: %d (binary/large files)\n", filesSkipped))
-	sb.WriteString(fmt.Sprintf("Scan completed in %v\n\n", duration))
+	fmt.Fprintf(&sb, "%s\n", divider(50))
+	fmt.Fprintf(&sb, "Files skipped: %d (binary/large files)\n", filesSkipped)
+	fmt.Fprintf(&sb, "Scan completed in %v\n\n", duration)
 
-	sb.WriteString(fmt.Sprintf("%s Review and address the secrets above.\n\n", yellow("!", useColor)))
+	fmt.Fprintf(&sb, "%s Review and address the secrets above.\n\n", yellow("!", useColor))
 	return sb.String(), 1
 }
 
 // formatJSON formats results as JSON
-func formatJSON(results []poltergeist.ScanResult, filesScanned, filesSkipped, totalBytes, matchesFound int64, lowEntropyCount int) (string, int) {
+func formatJSON(results []poltergeist.ScanResult, filesScanned, filesSkipped, totalBytes, matchesFound int64, lowEntropyCount int, classification ...*poltergeist.ClassificationMetrics) (string, int) {
 	output := struct {
 		Summary struct {
 			FilesScanned int64 `json:"files_scanned"`
@@ -330,11 +364,15 @@ func formatJSON(results []poltergeist.ScanResult, filesScanned, filesSkipped, to
 			HighEntropy  int   `json:"high_entropy_matches"`
 			LowEntropy   int   `json:"low_entropy_matches"`
 		} `json:"summary"`
-		Results []poltergeist.ScanResult `json:"results"`
+		Classification *poltergeist.ClassificationMetrics `json:"classification,omitempty"`
+		Results        []poltergeist.ScanResult           `json:"results"`
 	}{
 		Results: results,
 	}
 
+	if len(classification) > 0 {
+		output.Classification = classification[0]
+	}
 	output.Summary.FilesScanned = filesScanned
 	output.Summary.FilesSkipped = filesSkipped
 	output.Summary.TotalBytes = totalBytes
@@ -359,25 +397,25 @@ func formatMarkdown(results []poltergeist.ScanResult, scanPath string, filesScan
 	var sb strings.Builder
 
 	sb.WriteString("# Secret Scan Report\n\n")
-	sb.WriteString(fmt.Sprintf("**Scanned:** `%s`  \n", scanPath))
-	sb.WriteString(fmt.Sprintf("**Date:** %s  \n\n", time.Now().Format("2006-01-02 15:04:05")))
+	fmt.Fprintf(&sb, "**Scanned:** `%s`  \n", scanPath)
+	fmt.Fprintf(&sb, "**Date:** %s  \n\n", time.Now().Format("2006-01-02 15:04:05"))
 
 	sb.WriteString("## Summary\n\n")
 	sb.WriteString("| Metric | Count |\n")
 	sb.WriteString("|--------|-------|\n")
-	sb.WriteString(fmt.Sprintf("| Files scanned | %d |\n", filesScanned))
-	sb.WriteString(fmt.Sprintf("| Files skipped | %d |\n", filesSkipped))
-	sb.WriteString(fmt.Sprintf("| Total content | %s |\n", poltergeist.FormatBytes(totalBytes)))
-	sb.WriteString(fmt.Sprintf("| Secrets found | %d |\n", len(results)))
+	fmt.Fprintf(&sb, "| Files scanned | %d |\n", filesScanned)
+	fmt.Fprintf(&sb, "| Files skipped | %d |\n", filesSkipped)
+	fmt.Fprintf(&sb, "| Total content | %s |\n", poltergeist.FormatBytes(totalBytes))
+	fmt.Fprintf(&sb, "| Secrets found | %d |\n", len(results))
 	if lowEntropyCount > 0 {
-		sb.WriteString(fmt.Sprintf("| Low-entropy filtered | %d |\n", lowEntropyCount))
+		fmt.Fprintf(&sb, "| Low-entropy filtered | %d |\n", lowEntropyCount)
 	}
-	sb.WriteString(fmt.Sprintf("| Scan duration | %v |\n\n", duration))
+	fmt.Fprintf(&sb, "| Scan duration | %v |\n\n", duration)
 
 	if len(results) == 0 {
 		sb.WriteString("✅ **No secrets found!**\n")
 		if lowEntropyCount > 0 {
-			sb.WriteString(fmt.Sprintf("\n*Note: %d low-entropy matches were filtered out.*\n", lowEntropyCount))
+			fmt.Fprintf(&sb, "\n*Note: %d low-entropy matches were filtered out.*\n", lowEntropyCount)
 		}
 		return sb.String(), 0
 	}
@@ -391,24 +429,27 @@ func formatMarkdown(results []poltergeist.ScanResult, scanPath string, filesScan
 	}
 
 	for filePath, fileMatches := range fileResults {
-		sb.WriteString(fmt.Sprintf("### `%s`\n\n", filePath))
-		sb.WriteString(fmt.Sprintf("**Matches:** %d\n\n", len(fileMatches)))
+		fmt.Fprintf(&sb, "### `%s`\n\n", filePath)
+		fmt.Fprintf(&sb, "**Matches:** %d\n\n", len(fileMatches))
 
 		for i, match := range fileMatches {
-			sb.WriteString(fmt.Sprintf("#### Finding %d\n\n", i+1))
-			sb.WriteString(fmt.Sprintf("- **Line:** %d\n", match.LineNumber))
-			sb.WriteString(fmt.Sprintf("- **Rule:** %s\n", match.RuleName))
+			fmt.Fprintf(&sb, "#### Finding %d\n\n", i+1)
+			fmt.Fprintf(&sb, "- **Line:** %d\n", match.LineNumber)
+			fmt.Fprintf(&sb, "- **Rule:** %s\n", match.RuleName)
 			if match.RuleID != "" {
-				sb.WriteString(fmt.Sprintf("- **Rule ID:** %s\n", match.RuleID))
+				fmt.Fprintf(&sb, "- **Rule ID:** %s\n", match.RuleID)
 			}
-			sb.WriteString(fmt.Sprintf("- **Match:** `%s`\n", match.Redacted))
-			sb.WriteString(fmt.Sprintf("- **Entropy:** %.2f\n", match.Entropy))
-			sb.WriteString(fmt.Sprintf("- **Threshold:** %.2f\n", match.RuleEntropyThreshold))
+			fmt.Fprintf(&sb, "- **Match:** `%s`\n", match.Redacted)
+			if match.Classification != nil {
+				sb.WriteString("- " + classificationText(match.Classification))
+			}
+			fmt.Fprintf(&sb, "- **Entropy:** %.2f\n", match.Entropy)
+			fmt.Fprintf(&sb, "- **Threshold:** %.2f\n", match.RuleEntropyThreshold)
 			metStr := "No"
 			if match.RuleEntropyThresholdMet {
 				metStr = "Yes"
 			}
-			sb.WriteString(fmt.Sprintf("- **Threshold Met:** %s\n", metStr))
+			fmt.Fprintf(&sb, "- **Threshold Met:** %s\n", metStr)
 			sb.WriteString("\n")
 		}
 	}
@@ -460,4 +501,14 @@ func bold(s string, useColor bool) string {
 		return colorBold + s + colorReset
 	}
 	return s
+}
+
+func classificationText(c *poltergeist.ClassificationResult) string {
+	if c == nil {
+		return ""
+	}
+	if c.RealSecretProbability != nil {
+		return fmt.Sprintf("Classification: %s | Real-secret likelihood: %.1f%% | Model: %s | Policy: %s | Source: %s\n", c.Label, *c.RealSecretProbability*100, c.Model, c.PolicyVersion, c.Source)
+	}
+	return fmt.Sprintf("Classification: %s (%s)\n", c.Status, c.Reason)
 }

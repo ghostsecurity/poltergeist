@@ -1,6 +1,7 @@
 package poltergeist
 
 import (
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -205,5 +206,29 @@ func TestFilterOverlappingGenericMatches(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestLineMatchOffsets(t *testing.T) {
+	engine := NewGoRegexEngine()
+	if err := engine.CompileRules([]Rule{{ID: "test.span", Pattern: `token=[A-Z]+`}}); err != nil {
+		t.Fatal(err)
+	}
+	line := "é token=ABC token=ABC"
+	matches := engine.FindAllInLine(line)
+	if len(matches) != 2 {
+		t.Fatalf("got %d matches", len(matches))
+	}
+	for _, m := range matches {
+		if m.Start >= m.End || line[m.Start:m.End] != m.Match {
+			t.Fatal("invalid span")
+		}
+	}
+	if matches[0].Start == matches[1].Start {
+		t.Fatal("repeated matches share span")
+	}
+	span := quickMatchWithRegex("key=ABC ABC", regexp.MustCompile(`key=(ABC)`))
+	if span[0] != 4 || span[1] != 7 {
+		t.Fatalf("wrong capture span: %v", span)
 	}
 }

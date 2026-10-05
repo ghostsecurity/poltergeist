@@ -36,6 +36,8 @@ package poltergeist
 
 import (
 	"bufio"
+	"context"
+	"crypto/sha256"
 	"fmt"
 	"io"
 	"os"
@@ -49,15 +51,17 @@ import (
 
 // ScanResult represents a match found in a file
 type ScanResult struct {
+	Classification          *ClassificationResult `json:"classification,omitempty"`
+	provenance              *candidateProvenance
 	FilePath                string  `json:"file_path"`
 	LineNumber              int     `json:"line_number"`
-	Match                   string  `json:"match,omitempty"`             // The original matched text (included in JSON only when -dnr is set)
-	Redacted                string  `json:"redacted"`                    // The redacted version of the match
-	RuleName                string  `json:"rule_name"`                   // Name of the rule that matched
-	RuleID                  string  `json:"rule_id"`                     // ID of the rule that matched
-	Entropy                 float64 `json:"entropy"`                     // Calculated Shannon entropy of the match
-	RuleEntropyThreshold    float64 `json:"rule_entropy_threshold"`      // Entropy threshold from the rule
-	RuleEntropyThresholdMet bool    `json:"rule_entropy_threshold_met"`  // Whether the match met the minimum entropy requirement
+	Match                   string  `json:"match,omitempty"`            // The original matched text (included in JSON only when -dnr is set)
+	Redacted                string  `json:"redacted"`                   // The redacted version of the match
+	RuleName                string  `json:"rule_name"`                  // Name of the rule that matched
+	RuleID                  string  `json:"rule_id"`                    // ID of the rule that matched
+	Entropy                 float64 `json:"entropy"`                    // Calculated Shannon entropy of the match
+	RuleEntropyThreshold    float64 `json:"rule_entropy_threshold"`     // Entropy threshold from the rule
+	RuleEntropyThresholdMet bool    `json:"rule_entropy_threshold_met"` // Whether the match met the minimum entropy requirement
 }
 
 // MatchResult represents a single pattern match within content
@@ -75,10 +79,11 @@ type MatchResult struct {
 
 // ScanMetrics tracks scanning statistics
 type ScanMetrics struct {
-	FilesScanned int64 // Number of files actually scanned (not skipped)
-	FilesSkipped int64 // Number of files skipped (binary, too large, etc.)
-	TotalBytes   int64 // Total bytes of content scanned
-	MatchesFound int64 // Total number of matches found
+	FilesScanned   int64                  // Number of files actually scanned (not skipped)
+	FilesSkipped   int64                  // Number of files skipped (binary, too large, etc.)
+	TotalBytes     int64                  // Total bytes of content scanned
+	Classification *ClassificationMetrics `json:"classification,omitempty"`
+	MatchesFound   int64                  // Total number of matches found
 }
 
 // Scanner represents the secret scanner configuration
@@ -87,6 +92,7 @@ type Scanner struct {
 	WorkerCount      int
 	MaxFileSize      int64 // Maximum file size to scan (in bytes)
 	DisableRedaction bool  // If true, show full matches instead of redacted versions
+	Classification   *ClassificationOptions
 	Metrics          *ScanMetrics
 }
 
@@ -220,6 +226,25 @@ func FormatBytes(bytes int64) string {
 
 // ScanDirectory scans a directory for pattern matches using parallel workers
 func (s *Scanner) ScanDirectory(rootPath string) ([]ScanResult, error) {
+	return s.ScanDirectoryContext(context.Background(), rootPath)
+}
+
+// ScanDirectoryContext scans and optionally enriches findings. A classification
+// deadline never changes findings; cancellation of detection returns an error.
+// A Scanner must not be used for concurrent scans or reconfigured during a scan.
+func (s *Scanner) ScanDirectoryContext(ctx context.Context, rootPath string) ([]ScanResult, error) {
+	if s.Engine == nil || s.WorkerCount < 1 {
+		return nil, fmt.Errorf("invalid scanner configuration")
+	}
+	if s.Classification != nil {
+		if err := s.Classification.validate(); err != nil {
+			return nil, err
+		}
+	}
+	if s.Metrics == nil {
+		s.Metrics = &ScanMetrics{}
+	}
+	s.Metrics.Classification = nil
 	// Channel for file jobs
 	jobs := make(chan FileJob, 1000)
 
@@ -233,7 +258,7 @@ func (s *Scanner) ScanDirectory(rootPath string) ([]ScanResult, error) {
 	var wg sync.WaitGroup
 	for i := 0; i < s.WorkerCount; i++ {
 		wg.Add(1)
-		go s.worker(jobs, results, &wg)
+		go s.worker(ctx, jobs, results, &wg)
 	}
 
 	// Start result collector
@@ -247,6 +272,9 @@ func (s *Scanner) ScanDirectory(rootPath string) ([]ScanResult, error) {
 
 	// Walk directory and send jobs
 	err := filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error accessing %s: %v\n", path, err)
 			return nil // Continue with other files
@@ -269,7 +297,11 @@ func (s *Scanner) ScanDirectory(rootPath string) ([]ScanResult, error) {
 			return nil
 		}
 
-		jobs <- FileJob{Path: path, Info: info}
+		select {
+		case jobs <- FileJob{Path: path, Info: info}:
+		case <-ctx.Done():
+			return ctx.Err()
+		}
 		return nil
 	})
 
@@ -281,20 +313,32 @@ func (s *Scanner) ScanDirectory(rootPath string) ([]ScanResult, error) {
 	// Wait for result collection to complete
 	<-done
 
+	if err == nil && ctx.Err() != nil {
+		err = ctx.Err()
+	}
+	if err == nil && s.Classification != nil {
+		s.enrich(ctx, rootPath, allResults)
+	}
+	for i := range allResults {
+		allResults[i].provenance = nil
+	}
 	return allResults, err
 }
 
 // worker processes file scan jobs
-func (s *Scanner) worker(jobs <-chan FileJob, results chan<- ScanResult, wg *sync.WaitGroup) {
+func (s *Scanner) worker(ctx context.Context, jobs <-chan FileJob, results chan<- ScanResult, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	for job := range jobs {
+		if ctx.Err() != nil {
+			return
+		}
 		if isBinaryFile(job.Path) {
 			atomic.AddInt64(&s.Metrics.FilesSkipped, 1)
 			continue
 		}
 
-		fileResults, err := s.scanFile(job.Path)
+		fileResults, err := s.scanFileContext(ctx, job.Path)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error scanning %s: %v\n", job.Path, err)
 			atomic.AddInt64(&s.Metrics.FilesSkipped, 1)
@@ -317,12 +361,26 @@ func (s *Scanner) worker(jobs <-chan FileJob, results chan<- ScanResult, wg *syn
 
 // scanFile scans a single file for pattern matches
 func (s *Scanner) scanFile(filePath string) ([]ScanResult, error) {
+	return s.scanFileContext(context.Background(), filePath)
+}
+
+func (s *Scanner) scanFileContext(ctx context.Context, filePath string) ([]ScanResult, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
 	}
 	defer func() { _ = file.Close() }()
 
+	if s.Metrics == nil {
+		s.Metrics = &ScanMetrics{}
+	}
+	var identity os.FileInfo
+	if s.Classification != nil {
+		identity, err = file.Stat()
+		if err != nil {
+			return nil, err
+		}
+	}
 	var results []ScanResult
 	scanner := bufio.NewScanner(file)
 	lineNumber := 1
@@ -332,6 +390,9 @@ func (s *Scanner) scanFile(filePath string) ([]ScanResult, error) {
 	scanner.Buffer(buf, 1024*1024*10) // 10MB max line length
 
 	for scanner.Scan() {
+		if ctx.Err() != nil {
+			return nil, ctx.Err()
+		}
 		line := scanner.Text()
 
 		// Find all matches in this line
@@ -339,6 +400,10 @@ func (s *Scanner) scanFile(filePath string) ([]ScanResult, error) {
 
 		// Filter out generic matches that overlap with non-generic matches
 		matches = filterOverlappingGenericMatches(matches)
+		var lineHash [32]byte
+		if s.Classification != nil && len(matches) > 0 {
+			lineHash = sha256.Sum256([]byte(line))
+		}
 
 		for _, match := range matches {
 			result := ScanResult{
@@ -350,6 +415,9 @@ func (s *Scanner) scanFile(filePath string) ([]ScanResult, error) {
 				Entropy:                 match.Entropy,
 				RuleEntropyThreshold:    match.RuleEntropyThreshold,
 				RuleEntropyThresholdMet: match.RuleEntropyThresholdMet,
+			}
+			if s.Classification != nil {
+				result.provenance = &candidateProvenance{start: match.Start, end: match.End, lineHash: lineHash, info: identity}
 			}
 			if s.DisableRedaction {
 				result.Match = match.Match

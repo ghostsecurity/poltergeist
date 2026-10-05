@@ -52,3 +52,30 @@ Running against some real-world [content](https://github.com/torvalds/linux) wit
 | [kingfisher](https://github.com/mongodb/kingfisher)          | 256   | 6s                    |
 | poltergeist                                                  | 516   | 8s                    |
 | poltergeist                                                  | 1016  | 9s                    |
+
+## Classification scenarios
+
+Run the bounded enrichment benchmarks without any hosted API calls:
+
+```sh
+go test ./pkg -run '^$' -bench BenchmarkClassification -benchmem
+```
+
+The scenarios cover disabled classification, no findings, sparse and dense
+findings, cold/warm persistent cache, and an unavailable classifier. HTTP
+benchmarks use a local fake server; they measure integration overhead, not Jev
+latency or classification accuracy. Cold-cache tests include client-side rate
+limits. The unavailable scenario uses a short explicit budget.
+
+On an Apple M4 Max, a three-run comparison of 1,000 tiny no-finding scans against
+the previous implementation measured median disabled scan time of approximately
+70.3 µs versus 68.6 µs (about 2.5% overhead). This is a narrow local microbenchmark,
+not evidence of a repository-wide 3% bound. No context extraction, hashing,
+cache operations, or HTTP calls occur on the disabled path; additive result
+fields increase the result channel's fixed buffer allocation by about 16 KiB.
+
+A three-iteration local smoke benchmark measured approximately 137 µs for sparse
+fake classification, 2.1 ms for 100 dense candidates, and 338 µs for a warm cache.
+Real performance depends on match density, file I/O, API latency, and rate limits.
+The configured enrichment deadline and explicit unscored statuses are the CI
+latency controls; they do not promise complete classification of 1,000 candidates.
