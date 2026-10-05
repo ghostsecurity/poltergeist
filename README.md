@@ -46,6 +46,19 @@ choose `text`, `json`, or `md`, `-dnr` to show unredacted matches, and
 `-low-entropy` to include matches below their entropy threshold. Run
 `poltergeist -help` for the full list.
 
+## Advisory classification
+
+Opt in to a Jev likelihood score without changing findings or exit codes:
+
+```bash
+TYPESAFE_API_KEY='your-api-key' poltergeist -classify -format json /path/to/code
+```
+
+This sends raw candidates, bounded surrounding code, and relative paths to
+TypeSafe. Classification defaults to a 10-second budget and 1,000 candidates;
+optional caching expires after 24 hours. See [classification documentation](docs/classification.md)
+for data handling, score semantics, library usage, and performance limits.
+
 ## Building from Source
 
 Building requires Go and the Vectorscan/Hyperscan development library, since the

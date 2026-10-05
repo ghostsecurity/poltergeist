@@ -326,9 +326,10 @@ func (e *GoRegexEngine) FindAllInLine(line string) []MatchResult {
 	var results []MatchResult
 
 	for i, pattern := range e.patterns {
-		matches := pattern.FindAllString(line, -1)
+		matches := pattern.FindAllStringIndex(line, -1)
 
-		for _, match := range matches {
+		for _, span := range matches {
+			match := line[span[0]:span[1]]
 			// Always redact the match - never show raw secrets
 			var redacted string
 			if len(e.rules[i].Redact) > 0 &&
@@ -350,8 +351,8 @@ func (e *GoRegexEngine) FindAllInLine(line string) []MatchResult {
 			entropyMet := entropy >= e.rules[i].Entropy
 
 			results = append(results, MatchResult{
-				Start:                   0,
-				End:                     0,
+				Start:                   span[0],
+				End:                     span[1],
 				Match:                   match,
 				Redacted:                redacted,
 				RuleName:                e.rules[i].Name,
@@ -431,18 +432,15 @@ func quickMatchWithRegex(line string, re *regexp.Regexp) []uint64 {
 		return nil
 	}
 
-	// Get the capture groups
-	cg := re.FindStringSubmatch(line)
-
-	// No match found, return nil to keep original match
-	if len(cg) == 0 {
+	indices := re.FindStringSubmatchIndex(line)
+	if len(indices) == 0 {
 		return nil
 	}
-
-	// Get the index of the last capture group
-	lastMatch := cg[len(cg)-1]
-	lastMatchIndex := strings.LastIndex(line, lastMatch)
-	lastMatchEnd := lastMatchIndex + len(lastMatch)
-
-	return []uint64{uint64(lastMatchIndex), uint64(lastMatchEnd)}
+	// Preserve the last participating capture, using its actual occurrence.
+	for i := len(indices) - 2; i >= 2; i -= 2 {
+		if indices[i] >= 0 {
+			return []uint64{uint64(indices[i]), uint64(indices[i+1])}
+		}
+	}
+	return []uint64{uint64(indices[0]), uint64(indices[1])}
 }
